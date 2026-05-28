@@ -1,14 +1,17 @@
 import DashboardCard from "@/components/DashboardCard";
-import Sidebar from "@/components/Sidebar";
 import {Server, ShieldCheck, AlertTriangle, Siren} from "lucide-react";
+import Sidebar from "@/components/Sidebar";
+import Navbar from "@/components/Navbar";
+import Metrics from "@/components/MetricsChart";
 
 export default function Home() {
   return (
+
   <div className="flex min-h-screen bg-white">
-    
     <Sidebar />
 
     <main className="flex-1 p-10">
+      <Navbar />
       
       <h1 className="text-green-900 text-4xl font-bold mb-8">
         IR Assist
@@ -41,6 +44,8 @@ export default function Home() {
         />
 
       </div>
+
+      <Metrics />
 
     </main>
 
