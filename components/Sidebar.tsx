@@ -12,6 +12,7 @@ import {
   Moon,
   ChevronLeft,
   LogOut,
+  Shield,
 } from "lucide-react";
 
 const generalItems = [
@@ -50,34 +51,68 @@ const systemItems = [
 
 export default function Sidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [activeItem, setActiveItem] = useState("Dashboard");
   return (
     
     <div
         className={`
-            h-screen bg-green-950 text-white p-6
+            relative min-h-screen bg-green-950 text-white p-6
             flex flex-col border-r border-green-900
             transition-all duration-300
             ${isCollapsed ? "w-20" : "w-72"}
         `}>
+
+      <div
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="
+          absolute
+          top-6
+          -right-5
+          w-8
+          h-8
+          rounded-lg
+          bg-gray-300
+          border border-gray-500
+          text-black
+          flex
+          items-center
+          justify-center
+          cursor-pointer
+          hover:bg-green-800
+          hover:text-white
+          transition-all
+          
+        "
+      >
+        <ChevronLeft
+          size={16}
+          className={`
+            transition-transform duration-300
+            ${isCollapsed ? "rotate-180" : ""}
+          `}
+        />
+      </div>
       {/* TOP SECTION */}
       <div>
 
         {/* LOGO */}
-        <div
-            className={`
-                flex items-center mb-10
-                ${isCollapsed ? "justify-center" : "justify-between"}
-            `}>
-          {!isCollapsed && (
-            <h1 className="text-4xl font-bold">
-                IR Assist
-            </h1>
+        <div className="flex items-center gap-3 mb-10">
+            <div className="p-2 rounded-xl bg-green-900">
+                <Shield className="w-6 h-6" />
+            </div>
+
+            {!isCollapsed && (
+                <div>
+                    <h1 className="text-3xl font-bold">
+                        IR Assist
+                    </h1>
+
+                    <p className="text-xs text-green-200">
+                        Incident Platform
+                    </p>
+                </div>
             )}
-
-          <div onClick={() => setIsCollapsed(!isCollapsed)} className="p-2 rounded-lg hover:bg-green-900 cursor-pointer transition-all">
-            <ChevronLeft size={20} />
-          </div>
-
+        </div>
         </div>
 
         {/* GENERAL */}
@@ -105,7 +140,7 @@ export default function Sidebar() {
                     transition-all
                     hover:bg-green-900
                     ${
-                      item.title === "Dashboard"
+                      activeItem === item.title
                         ? "bg-green-900"
                         : ""
                     }
@@ -170,8 +205,6 @@ export default function Sidebar() {
 
         </div>
 
-      </div>
-
       {/* BOTTOM PROFILE */}
       <div className="mt-auto border-t border-green-900 pt-6">
 
@@ -207,13 +240,17 @@ export default function Sidebar() {
         )}
 
         {isCollapsed && (
-            <LogOut className="
-                mt-6
-                text-lg
+          <div className="flex justify-center mt-6">
+            <LogOut
+              size={24}
+              className="
+                cursor-pointer
                 hover:text-green-300
                 transition-all
-                "size={20}/>
-          )}
+              "
+            />
+          </div>
+        )}
 
       </div>
 

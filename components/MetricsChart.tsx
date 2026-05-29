@@ -45,10 +45,11 @@ const data = [
 
 export default function MetricsChart() {
   return (
-    <div className="bg-white border border-gray-300 rounded-2xl p-6 mt-8">
+    <div className="bg-white border border-gray-300 rounded-2xl p-6 mt-8
+      hover:shadow-xl transition-all duration-300">
 
-      <h2 className="text-green-900 text-xl font-semibold mb-6">
-        SYSTEM OVERVIEW
+      <h2 className="text-green-900 text-xl uppercase font-semibold mb-6">
+        System Overview
       </h2>
 
       <div className="flex items-center gap-8 mb-8">
@@ -68,7 +69,7 @@ export default function MetricsChart() {
 
       
 
-      <div className="h-[220px]">
+      <div className="h-[300px]">
 
         <ResponsiveContainer width="100%" height="100%">
 
