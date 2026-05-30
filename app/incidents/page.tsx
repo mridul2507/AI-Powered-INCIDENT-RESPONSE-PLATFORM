@@ -1,5 +1,6 @@
 import StatusBadge from "@/components/StatusBadge";
 import SeverityBadge from "@/components/SeverityBadge";
+import Link from "next/link";
 
 type Incident = {
   id: string;
@@ -72,21 +73,24 @@ export default function IncidentsPage() {
         </div>
 
         {incidents.map((incident) => (
-        <div
-          key={incident.id}
-          className="
-            grid
-            grid-cols-5
-            p-4
-            text-gray-700
-            border-t
-            border-gray-300
-            items-center
-            hover:bg-gray-100
-            cursor-pointer
-            transition-all
-          "
-        >
+          <Link
+            key={incident.id}
+            href={`/incidents/${incident.id}`}
+          >
+            <div
+              className="
+                grid
+                grid-cols-5
+                p-4
+                text-gray-700
+                border-t
+                border-gray-300
+                items-center
+                hover:bg-gray-50
+                cursor-pointer
+                transition-all
+              "
+            >
           <p className="font-medium">
             {incident.id}
           </p>
@@ -110,13 +114,16 @@ export default function IncidentsPage() {
           <p className="text-gray-500">
             {incident.createdAt}
           </p>
+          
 
         </div>
+        </Link>
       ))}
 
       </div>
 
     </div>
+    
 
 
   );
