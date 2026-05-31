@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
   LayoutDashboard,
@@ -9,7 +11,6 @@ import {
   FileText,
   BarChart3,
   Settings,
-  Moon,
   ChevronLeft,
   LogOut,
   Shield,
@@ -19,22 +20,27 @@ const generalItems = [
   {
     title: "Dashboard",
     icon: LayoutDashboard,
+    href: "/",
   },
   {
     title: "Incidents",
     icon: AlertTriangle,
+    href: "/incidents",
   },
   {
     title: "Services",
     icon: Server,
+    href: "/services",
   },
   {
     title: "Logs",
     icon: FileText,
+    href: "/logs",
   },
   {
     title: "Analytics",
     icon: BarChart3,
+    href: "/analytics",
   },
 ];
 
@@ -42,16 +48,13 @@ const systemItems = [
   {
     title: "Settings",
     icon: Settings,
-  },
-  {
-    title: "Dark Mode",
-    icon: Moon,
+    href: "/settings",
   },
 ];
 
 export default function Sidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const [activeItem, setActiveItem] = useState("Dashboard");
+    const pathname = usePathname();
   return (
     
     <div
@@ -130,32 +133,31 @@ export default function Sidebar() {
               const Icon = item.icon;
 
               return (
-                <div
+                <Link
                   key={item.title}
+                  href={item.href}
                   className={`
-                    flex items-center 
+                    flex items-center
                     ${isCollapsed ? "justify-center" : "gap-3"}
                     p-3 rounded-xl
                     cursor-pointer
                     transition-all
                     hover:bg-green-900
                     ${
-                      activeItem === item.title
+                      pathname === item.href
                         ? "bg-green-900"
                         : ""
                     }
                   `}
                 >
-
                   <Icon className="w-6 h-6 shrink-0" />
 
                   {!isCollapsed && (
                     <span className="text-lg">
-                        {item.title}
+                      {item.title}
                     </span>
-                    )}
-
-                </div>
+                  )}
+                </Link>
               );
             })}
 
@@ -177,8 +179,9 @@ export default function Sidebar() {
               const Icon = item.icon;
 
               return (
-                <div
+                <Link
                   key={item.title}
+                  href={item.href}
                   className={`
                     flex items-center
                     ${isCollapsed ? "justify-center" : "gap-3"}
@@ -186,18 +189,21 @@ export default function Sidebar() {
                     cursor-pointer
                     transition-all
                     hover:bg-green-900
+                    ${
+                      pathname === item.href
+                        ? "bg-green-900"
+                        : ""
+                    }
                   `}
                 >
-
                   <Icon className="w-6 h-6 shrink-0" />
 
                   {!isCollapsed && (
                     <span className="text-lg">
-                        {item.title}
+                      {item.title}
                     </span>
-                    )}
-
-                </div>
+                  )}
+                </Link>
               );
             })}
 

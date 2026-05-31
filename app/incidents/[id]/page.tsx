@@ -252,7 +252,7 @@ export default function IncidentDetailsPage() {
             <div className="text-3xl text-gray-400">→</div>
 
             <div className="border border-green-300 bg-green-50 rounded-xl px-6 py-4">
-              <p className="font-semibold">
+              <p className=" text-gray-700 font-semibold">
                 Notification
               </p>
               <p className="text-green-600 text-sm">
