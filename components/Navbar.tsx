@@ -5,7 +5,8 @@ export default function Navbar() {
     <div className="flex items-center justify-between mb-8">
 
       {/* SEARCH BAR */}
-      <div className="flex items-center gap-3 bg-white border border-gray-300 rounded-xl px-4 py-3 w-[400px]">
+      <div className="flex items-center gap-3 bg-white border border-gray-300 rounded-xl px-4 py-3 w-[400px]
+      focus-within:border-black">
 
         <Search className="text-gray-400" size={20} />
 

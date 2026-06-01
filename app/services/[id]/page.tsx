@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ArrowLeft } from "lucide-react";
 
 const recentIncidents = [
   {
@@ -21,8 +22,24 @@ const recentIncidents = [
 export default function ServiceDetailsPage() {
   return (
     <div className="bg-white min-h-screen p-8">
+        <Link
+            href="/services"
+            className="
+                inline-flex
+                items-center
+                gap-2
+                text-gray-600
+                hover:text-green-900
+                transition-colors
+                mb-6
+            "
+            >
+            <ArrowLeft size={18} />
+            Back to Services
+        </Link>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+        transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
         <p className="text-sm text-gray-500 mb-2">
           SRV-1001
@@ -48,17 +65,19 @@ export default function ServiceDetailsPage() {
       </div>
 
       <div className="grid grid-cols-4 gap-6 mt-6">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+            transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-sm text-gray-600">
             Response Time
             </p>
 
-            <p className="text-3xl font-bold text-green-700 mt-2">
+            <p className="text-3xl font-bold text-blue-700 mt-2">
             1.8s
             </p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+            transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-sm text-gray-600">
             Error Rate
             </p>
@@ -68,7 +87,8 @@ export default function ServiceDetailsPage() {
             </p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+            transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-sm text-gray-600">
             Availability
             </p>
@@ -78,7 +98,8 @@ export default function ServiceDetailsPage() {
             </p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+            transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-sm text-gray-600">
             Requests/min
             </p>
@@ -92,7 +113,8 @@ export default function ServiceDetailsPage() {
         <div className="grid grid-cols-2 gap-6 mt-6">
 
         {/*RECENT INCIDENTS*/}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+            transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <h2 className="text-xl font-semibold text-green-900 mb-4">
                 Recent Incidents
             </h2>
@@ -106,8 +128,11 @@ export default function ServiceDetailsPage() {
                     className="
                     border-b
                     border-gray-100
-                    py-4
-                    hover:bg-gray-50
+                    p-4
+                    pb-4
+                    pt-4
+                    hover:bg-gray-100
+                    hover:rounded-xl
                     cursor-pointer
                     transition-all
                     "
@@ -148,14 +173,16 @@ export default function ServiceDetailsPage() {
 
             {/*Dependencies*/}
 
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6">
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+                transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <h2 className="text-xl font-semibold text-green-900 mb-4">
                     Service Dependencies
                 </h2>
 
-                <div className="space-y-4">
-
-                    <div className="flex justify-between border-b border-gray-100 pb-3">
+                <div >
+                    <Link href="/services/User Database">
+                    <div className="flex justify-between pb-3
+                        hover:bg-gray-100 rounded-lg p-4 pt-3 cursor-pointer">
                     <p className="text-gray-700 font-medium">
                         User Database
                     </p>
@@ -164,8 +191,10 @@ export default function ServiceDetailsPage() {
                         Warning
                     </span>
                     </div>
+                    </Link>
 
-                    <div className="flex justify-between border-b border-gray-100 pb-3">
+                    <div className="flex justify-between pb-3
+                        hover:bg-gray-100 rounded-lg p-4 pt-3 cursor-pointer">
                     <p className="text-gray-700 font-medium">
                         Notification Service
                     </p>
@@ -175,7 +204,7 @@ export default function ServiceDetailsPage() {
                     </span>
                     </div>
 
-                    <div className="flex justify-between">
+                    <div className="flex justify-between pb-3 hover:bg-gray-100 rounded-lg p-4 pt-3 cursor-pointer">
                     <p className="text-gray-700 font-medium">
                         Fraud Detection Service
                     </p>

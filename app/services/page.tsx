@@ -1,4 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { Search } from "lucide-react";
+
 const services = [
   {
     name: "Payment Service",
@@ -31,6 +36,13 @@ const services = [
 ];
 
 export default function ServicesPage() {
+  const [search, setSearch] = useState("");
+
+  const filteredServices = services.filter(
+    (service) =>
+      service.name.toLowerCase().includes(search.toLowerCase()) ||
+      service.status.toLowerCase().includes(search.toLowerCase())
+  );
   return (
     <div className="bg-white min-h-screen p-8">
 
@@ -38,19 +50,41 @@ export default function ServicesPage() {
         Services
       </h1>
 
-      <input
-        type="text"
-        placeholder="Search services..."
-        className="
-          w-full
-          p-3
-          text-gray-500
-          border
-          border-gray-300
-          rounded-xl
-          mb-6
-        "
-      />
+      <div className="relative mb-6">
+        <Search
+          className="
+            absolute
+            left-4
+            top-1/2
+            -translate-y-1/2
+            w-5
+            h-5
+            text-gray-400
+          "
+        />
+
+        <input
+          type="text"
+          placeholder="Search services..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="
+            w-full
+            pl-12
+            pr-4
+            py-3
+            text-gray-700
+            border
+            border-gray-300
+            rounded-xl
+            focus:outline-none
+            focus:ring-1
+            focus:ring-black
+            focus:border-black  
+          "
+        />
+
+      </div>
 
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
 
@@ -63,8 +97,14 @@ export default function ServicesPage() {
             <p>Last Incident</p>
         </div>
 
+        {filteredServices.length === 0 && (
+          <div className="p-8 text-center text-gray-500">
+            No services found.
+          </div>
+        )}
+
         {/* Rows */}
-        {services.map((service) => (
+        {filteredServices.map((service) => (
             <Link
                 key={service.name}
                 href={`/services/${service.name}`}
@@ -77,8 +117,9 @@ export default function ServicesPage() {
                 border-t
                 border-gray-200
                 items-center
-                hover:bg-gray-50
-                transition-all
+                hover:bg-gray-100
+                transition-colors
+                duration-100
                 cursor-pointer
                 "
             >

@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import SeverityBadge from "@/components/SeverityBadge";
 import Link from "next/link";
+import {Search} from "lucide-react";
 
 type Incident = {
   id: string;
@@ -35,26 +39,57 @@ const incidents:Incident[] = [
 ];
 
 export default function IncidentsPage() {
+  const [search, setSearch] = useState("");
+  const filteredIncidents = incidents.filter(
+    (incident) =>
+      incident.id.toLowerCase().includes(search.toLowerCase()) ||
+      incident.title.toLowerCase().includes(search.toLowerCase()) ||
+      incident.severity.toLowerCase().includes(search.toLowerCase()) ||
+      incident.status.toLowerCase().includes(search.toLowerCase())
+  );
   return (
+    
     <div className="bg-white min-h-screen p-8">
 
       <h1 className="text-3xl font-bold text-green-900 mb-6">
         Incidents
       </h1>
 
-      <input
-        type="text"
-        placeholder="Search incidents..."
-        className="
-          w-full
-          p-3
-          text-gray-500
-          border
-          border-gray-300
-          rounded-xl
-          mb-6
-        "
-      />
+      <div className="relative mb-6">
+        <Search
+          className="
+            absolute
+            left-4
+            top-1/2
+            -translate-y-1/2
+            w-5
+            h-5
+            text-gray-400
+          "
+        />
+
+        <input
+          type="text"
+          placeholder="Search incidents..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="
+            w-full
+            pl-12
+            pr-4
+            py-3
+            text-gray-700
+            border
+            border-gray-300
+            rounded-xl
+            focus:outline-none
+            focus:ring-1
+            focus:ring-black
+            focus:border-black  
+          "
+        />
+
+      </div>
 
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
 
@@ -72,7 +107,13 @@ export default function IncidentsPage() {
 
         </div>
 
-        {incidents.map((incident) => (
+        {filteredIncidents.length === 0 && (
+          <div className="p-8 text-center text-gray-500">
+            No incidents found.
+          </div>
+        )}
+
+        {filteredIncidents.map((incident) => (
           <Link
             key={incident.id}
             href={`/incidents/${incident.id}`}
@@ -86,12 +127,13 @@ export default function IncidentsPage() {
                 border-t
                 border-gray-300
                 items-center
-                hover:bg-gray-50
+                hover:bg-gray-100
                 cursor-pointer
-                transition-all
+                transition-colors
+                duration-300
               "
             >
-          <p className="font-medium">
+          <p className="font-medium text-green-700">
             {incident.id}
           </p>
 

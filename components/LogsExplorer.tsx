@@ -1,30 +1,36 @@
+import Link from "next/link"
+
 const logs = [
   {
     time: "12:32 PM",
     level: "ERROR",
     message: "Database connection timeout",
+    service: "User Database"
   },
   {
     time: "12:31 PM",
     level: "INFO",
     message: "Health check passed",
+    service: "User Service"
   },
   {
     time: "12:30 PM",
     level: "WARNING",
     message: "High memory usage detected",
+    service: "User Service"
   },
   {
     time: "12:29 PM",
     level: "ERROR",
     message: "API request failed",
+    service: "User Database"
   },
 ];
 
 export default function LogsExplorer() {
   return (
     <div className="bg-white border border-gray-300 rounded-2xl p-6 mt-8
-      hover:shadow-xl transition-all duration-300">
+      transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
       <h2 className="text-xl font-semibold text-green-900 mb-6">
         Logs Explorer
@@ -33,9 +39,24 @@ export default function LogsExplorer() {
       <div className="flex flex-col gap-4">
 
         {logs.map((log) => (
+          <Link
+            key={log.time + log.message}
+            href={`/services/${log.service}`}
+            className="
+              block
+              border-b
+              border-gray-200
+              p-2
+              pb-4
+              pt-4
+              hover:bg-gray-100
+              rounded-lg
+              transition-colors
+            "
+          >
           <div
             key={log.time + log.message}
-            className="flex items-center justify-between border-b border-gray-200 pb-3"
+            className="flex items-center justify-between"
           >
 
             <p className="text-sm text-gray-500 w-24">
@@ -63,6 +84,7 @@ export default function LogsExplorer() {
             </p>
 
           </div>
+          </Link>
         ))}
 
       </div>

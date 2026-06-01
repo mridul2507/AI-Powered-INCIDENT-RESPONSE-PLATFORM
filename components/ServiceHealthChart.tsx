@@ -27,7 +27,7 @@ const COLORS = [
 export default function ServiceHealthChart() {
   return (
     <div className="bg-white border border-gray-300 rounded-2xl p-6 mt-8
-        hover:shadow-xl transition-all duration-300">
+        transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
       <h2 className="text-green-900 text-xl uppercase font-semibold mb-6">
         Service Health
       </h2>

@@ -11,7 +11,7 @@ export default function DashboardCard({
 }: DashboardCardProps) {
   return (
     <div className="bg-white p-6 rounded-2xl border border-gray-300 w-full shadow-sm
-      hover:shadow-xl transition-all duration-300">
+      transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
       <div className="flex items-center gap-2 ease-in-out">
         <Icon className="text-gray-400"/>   
 

@@ -1,3 +1,4 @@
+
 export default function AnalyticsPage(){
   return(
     <div className="bg-white min-h-screen p-8">
@@ -7,27 +8,32 @@ export default function AnalyticsPage(){
       </h1>
 
       <div className="grid grid-cols-4 gap-6 mt-6">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 
+          transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-medium text-gray-900">Total Incidents</p>
             <p className="text-3xl font-bold text-purple-500 mt-2">124</p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+          transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <p className="text-medium text-gray-900">MTTR</p>
-          <p className="text-3xl text-blue-700 mt-2">42 min</p>
+          <p className="text-3xl font-bold text-blue-700 mt-2">42 min</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+          transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <p className="text-medium text-gray-900">System Availability</p>
-          <p className="text-3xl text-green-600 mt-2">99.8%</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">99.8%</p>
         </div>
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+          transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <p className="text-medium text-gray-900">Error Rate</p>
-          <p className="text-3xl text-red-500 mt-2">1.4%</p>
+          <p className="text-3xl font-bold text-red-500 mt-2">1.4%</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 mt-6">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6">
+      <div className="grid lg:grid-cols-2 gap-6 mt-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6
+          transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <h2 className="text-xl font-semibold text-green-900 mb-4">Incident Trend</h2>
           <div className="h-80 bg-gray-50 rounded-xl p-6">
           <div className="h-full flex items-end justify-between gap-3">
@@ -43,7 +49,7 @@ export default function AnalyticsPage(){
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="bg-green-500 w-10 h-20 rounded-t-md"></div>
+              <div className="bg-amber-500 w-10 h-20 rounded-t-md"></div>
               <p className="text-sm text-gray-500 mt-2">Wed</p>
             </div>
 
@@ -53,12 +59,12 @@ export default function AnalyticsPage(){
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="bg-green-500 w-10 h-56 rounded-t-md"></div>
+              <div className="bg-red-500 w-10 h-56 rounded-t-md"></div>
               <p className="text-sm text-gray-500 mt-2">Fri</p>
             </div>
 
             <div className="flex flex-col items-center">
-              <div className="bg-green-500 w-10 h-36 rounded-t-md"></div>
+              <div className="bg-amber-500 w-10 h-36 rounded-t-md"></div>
               <p className="text-sm text-gray-500 mt-2">Sat</p>
             </div>
 
@@ -72,7 +78,8 @@ export default function AnalyticsPage(){
         </div>
 
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6
+          transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <h2 className="text-xl font-semibold text-green-900 mb-6">
             Severity Distribution
           </h2>

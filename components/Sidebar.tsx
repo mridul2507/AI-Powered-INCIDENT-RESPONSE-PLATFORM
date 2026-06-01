@@ -53,7 +53,7 @@ const systemItems = [
 ];
 
 export default function Sidebar() {
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
     const pathname = usePathname();
   return (
     
@@ -61,7 +61,7 @@ export default function Sidebar() {
         className={`
             relative min-h-screen bg-green-950 text-white p-6
             flex flex-col border-r border-green-900
-            transition-all duration-300
+            transition-[width] duration-300 ease-in-out
             ${isCollapsed ? "w-20" : "w-72"}
         `}>
 
@@ -73,22 +73,32 @@ export default function Sidebar() {
           -right-5
           w-8
           h-8
-          rounded-lg
-          bg-gray-300
-          border border-gray-500
-          text-black
+          rounded-xl
+          bg-white
+          border
+          border-gray-200
+          text-green-800
+          shadow-md
+
           flex
           items-center
           justify-center
+
           cursor-pointer
-          hover:bg-green-800
+
+          transition-transform
+          duration-300
+
+          hover:bg-green-900
           hover:text-white
-          transition-all
-          
+          hover:scale-110
+          hover:shadow-lg
+
+          active:scale-95
         "
       >
         <ChevronLeft
-          size={16}
+          size={20}
           className={`
             transition-transform duration-300
             ${isCollapsed ? "rotate-180" : ""}
@@ -99,22 +109,35 @@ export default function Sidebar() {
       <div>
 
         {/* LOGO */}
-        <div className="flex items-center gap-3 mb-10">
-            <div className="p-2 rounded-xl bg-green-900">
-                <Shield className="w-6 h-6" />
+        <div
+          className={`
+            flex items-center
+            ${isCollapsed ? "justify-center" : "gap-3"}
+            mb-10
+          `}
+        >
+          <div className="p-2 rounded-xl bg-green-900 shrink-0">
+            <Shield className="w-6 h-6" />
+          </div>
+
+          {!isCollapsed && (
+            <div
+              className="
+                overflow-hidden
+                whitespace-nowrap
+                transition-opacity
+                duration-300
+              "
+            >
+              <h1 className="text-3xl font-bold">
+                IR Assist
+              </h1>
+
+              <p className="text-xs text-green-200">
+                Incident Platform
+              </p>
             </div>
-
-            {!isCollapsed && (
-                <div>
-                    <h1 className="text-3xl font-bold">
-                        IR Assist
-                    </h1>
-
-                    <p className="text-xs text-green-200">
-                        Incident Platform
-                    </p>
-                </div>
-            )}
+          )}
         </div>
         </div>
 
@@ -141,7 +164,7 @@ export default function Sidebar() {
                     ${isCollapsed ? "justify-center" : "gap-3"}
                     p-3 rounded-xl
                     cursor-pointer
-                    transition-all
+                    transition-transform
                     hover:bg-green-900
                     ${
                       pathname === item.href
@@ -153,7 +176,14 @@ export default function Sidebar() {
                   <Icon className="w-6 h-6 shrink-0" />
 
                   {!isCollapsed && (
-                    <span className="text-lg">
+                    <span className={`
+                      text-lg
+                      overflow-hidden
+                      whitespace-nowrap
+                      transition-opacity duration-200
+                      ${isCollapsed ? "opacity-0" : "opacity-100"}
+                    `}
+                  >
                       {item.title}
                     </span>
                   )}
@@ -187,8 +217,10 @@ export default function Sidebar() {
                     ${isCollapsed ? "justify-center" : "gap-3"}
                     p-3 rounded-xl
                     cursor-pointer
-                    transition-all
+                    transition-transform
+                    duration-200
                     hover:bg-green-900
+                    hover:text-white
                     ${
                       pathname === item.href
                         ? "bg-green-900"
@@ -199,7 +231,18 @@ export default function Sidebar() {
                   <Icon className="w-6 h-6 shrink-0" />
 
                   {!isCollapsed && (
-                    <span className="text-lg">
+                    <span className={`
+                      text-lg
+                      whitespace-nowrap
+                      transition-transform
+                      duration-300
+                      overflow-hidden
+                      ${
+                        isCollapsed
+                          ? "opacity-0 w-0"
+                          : "opacity-100 w-auto"
+                      }
+                    `}>
                       {item.title}
                     </span>
                   )}
@@ -239,7 +282,7 @@ export default function Sidebar() {
           mt-6
           text-lg
           hover:text-green-300
-          transition-all
+          transition-transform
         ">
           Log out
         </button>
@@ -252,7 +295,7 @@ export default function Sidebar() {
               className="
                 cursor-pointer
                 hover:text-green-300
-                transition-all
+                transition-transform
               "
             />
           </div>

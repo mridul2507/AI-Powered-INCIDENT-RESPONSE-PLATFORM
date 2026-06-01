@@ -1,5 +1,7 @@
 import SeverityBadge from "@/components/SeverityBadge";
 import StatusBadge from "@/components/StatusBadge";
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react";
 
 const logs = [
           {
@@ -21,8 +23,24 @@ const logs = [
 export default function IncidentDetailsPage() {
   return (
     <div className="bg-white min-h-screen p-8">
+      <Link
+        href="/incidents"
+        className="
+          inline-flex
+          items-center
+          gap-2
+          text-gray-600
+          hover:text-green-900
+          transition-colors
+          mb-6
+        "
+      >
+        <ArrowLeft size={18} />
+        Back to Incidents
+      </Link>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+          transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
         <p className="text-sm text-gray-500 mb-2">
           INC-1001
@@ -47,8 +65,9 @@ export default function IncidentDetailsPage() {
 
       </div>
 
-      <div className="grid grid-cols-3 gap-6 mt-6">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6">
+      <div className="grid lg:grid-cols-3 gap-6 mt-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+              transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
           <h2 className="text-xl font-semibold text-green-900 mb-4">
             Incident Timeline
@@ -91,8 +110,9 @@ export default function IncidentDetailsPage() {
         </div>
 
         {/* AI Analysis Card */}
-        <div className="mt-6 col-span-2">
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 h-full">
+        <div className="col-span-2">
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 h-full 
+              transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
             <h2 className="text-xl font-semibold text-green-900 mb-4">
               AI Root Cause Analysis
@@ -118,7 +138,7 @@ export default function IncidentDetailsPage() {
               </p>
 
               <div className="w-full bg-gray-200 rounded-full h-3">
-                <div className="bg-green-600 h-3 rounded-full w-[92%]"></div>
+                <div className="bg-green-600 h-3 rounded-full w-[92%] transition-all duration-700"></div>
               </div>
 
               <p className="text-sm text-gray-600 mt-2">
@@ -184,7 +204,8 @@ export default function IncidentDetailsPage() {
         </div>
 
         {/*Logs Explorer*/}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+              transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <h2 className="flex flex-wrap text-xl font-semibold text-green-900 mb-4">
             Logs Explorer
           </h2>
@@ -197,12 +218,17 @@ export default function IncidentDetailsPage() {
               grid
               flex-wrap
               grid-cols-[80px_90px_minmax(0,1fr)]
+              hover:bg-gray-100
+              rounded-lg
+              px-2
+              transition-colors
+              duration-200
               border-b
               border-gray-100
               py-3
               items-center"
           >
-            <p className="text-gray-800 w-24">
+            <p className="text-gray-800">
               {log.time}
             </p>
 
@@ -219,7 +245,7 @@ export default function IncidentDetailsPage() {
               {log.level}
             </p>
 
-            <p className="text-gray-500 ">
+            <p className="text-gray-800">
               {log.message}
             </p>
           </div>
@@ -228,7 +254,8 @@ export default function IncidentDetailsPage() {
         </div>
 
         {/*Service Map*/}
-        <div className="col-span-2 bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6">
+        <div className="col-span-2 bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+                transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <h2 className="text-xl font-semibold text-green-900 mb-6">
             Service Map (Tracing)
           </h2>

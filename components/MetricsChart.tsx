@@ -46,7 +46,7 @@ const data = [
 export default function MetricsChart() {
   return (
     <div className="bg-white border border-gray-300 rounded-2xl p-6 mt-8
-      hover:shadow-xl transition-all duration-300">
+      transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
       <h2 className="text-green-900 text-xl uppercase font-semibold mb-6">
         System Overview
@@ -69,17 +69,22 @@ export default function MetricsChart() {
 
       
 
-      <div className="h-[300px]">
+      <div className="h-[300px] min-w-0 overflow-hidden">
 
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" debounce={500}>
 
-          <LineChart data={data} margin={{top: 10,right: 20,left: 0,bottom: 0}}>
+          <LineChart
+            data={data}
+            margin={{
+              top: 10,
+              right: 20,
+              left: 0,
+              bottom: 0,
+            }}
+          >
             <CartesianGrid strokeDasharray="3 3" />
-
             <XAxis dataKey="time" />
-
             <YAxis />
-
             <Tooltip />
 
             <Line
@@ -88,6 +93,7 @@ export default function MetricsChart() {
               stroke="#22c55e"
               strokeWidth={3}
               dot={false}
+              isAnimationActive={false}
             />
 
             <Line
@@ -96,6 +102,7 @@ export default function MetricsChart() {
               stroke="#3b82f6"
               strokeWidth={3}
               dot={false}
+              isAnimationActive={false}
             />
 
             <Line
@@ -104,13 +111,12 @@ export default function MetricsChart() {
               stroke="#ef4444"
               strokeWidth={3}
               dot={false}
+              isAnimationActive={false}
             />
 
           </LineChart>
 
         </ResponsiveContainer>
-
-
 
       </div>
 

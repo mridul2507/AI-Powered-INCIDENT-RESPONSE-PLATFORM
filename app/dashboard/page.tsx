@@ -1,6 +1,5 @@
 import DashboardCard from "@/components/DashboardCard";
 import {Server, ShieldCheck, AlertTriangle, Siren} from "lucide-react";
-import Sidebar from "@/components/Sidebar";
 import Navbar from "@/components/Navbar";
 import Metrics from "@/components/MetricsChart";
 import ServiceHealthChart from "@/components/ServiceHealthChart";
@@ -11,7 +10,6 @@ export default function Dashboard() {
   return (
 
   <div className="flex min-h-screen bg-white">
-    <Sidebar />
 
     <main className="flex-1 p-10">
       <Navbar />
@@ -49,11 +47,13 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-3 gap-6">
-        <div className="col-span-2">
+        <div className="col-span-2 min-w-0">
           <Metrics />
         </div>
 
-        <ServiceHealthChart />
+        <div className="min-w-0">
+          <ServiceHealthChart />
+        </div>
       </div>
       
       <div className="grid grid-cols-2 gap-6">

@@ -1,3 +1,9 @@
+"use client";
+
+import { useState } from "react";
+import { Search } from "lucide-react";
+import Link from "next/link"
+
 const logs = [
   {
     time: "12:32:45",
@@ -26,26 +32,57 @@ const logs = [
 ];
 
 export default function LogsPage() {
+  const [search, setSearch] = useState("");
+
+  const filteredLogs = logs.filter(
+    (log) =>
+      log.level.toLowerCase().includes(search.toLowerCase()) ||
+      log.service.toLowerCase().includes(search.toLowerCase()) ||
+      log.message.toLowerCase().includes(search.toLowerCase())
+  );
   return (
+    
     <div className="bg-white min-h-screen p-8">
 
       <h1 className="text-3xl font-bold text-green-900 mb-6">
         Logs
       </h1>
 
-      <input
-        type="text"
-        placeholder="Search logs..."
-        className="
-          w-full
-          p-3
-          text-gray-500
-          border
-          border-gray-300
-          rounded-xl
-          mb-6
-        "
-      />
+      <div className="relative mb-6">
+        <Search
+          className="
+            absolute
+            left-4
+            top-1/2
+            -translate-y-1/2
+            w-5
+            h-5
+            text-gray-400
+          "
+        />
+
+        <input
+          type="text"
+          placeholder="Search logs..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="
+            w-full
+            pl-12
+            pr-4
+            py-3
+            text-gray-700
+            border
+            border-gray-300
+            rounded-xl
+            focus:outline-none
+            focus:ring-1
+            focus:ring-black
+            focus:border-black  
+          "
+        />
+
+      </div>
       <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
         <div className="grid grid-cols-[220px_220px_320px_1fr] p-4 bg-gray-50 font-semibold text-gray-700">
             <p>Time</p>
@@ -54,7 +91,17 @@ export default function LogsPage() {
             <p>Message</p>
         </div>
 
-        {logs.map((log) => (
+        {filteredLogs.length === 0 && (
+          <div className="p-8 text-center text-gray-500">
+            No logs found.
+          </div>
+        )}
+
+        {filteredLogs.map((log) => (
+          <Link 
+            key={log.time}
+            href={`/services/${log.service}`}
+            className="contents">
             <div
                 key={log.time}
                 className="
@@ -64,6 +111,10 @@ export default function LogsPage() {
                 border-t
                 border-gray-200
                 items-center
+                hover:bg-gray-100
+                transition-colors
+                duration-200
+                cursor-pointer
                 "
             >
                 <p className="text-gray-700">
@@ -91,7 +142,7 @@ export default function LogsPage() {
                 {log.level}
                 </span>
 
-                <p className="text-gray-700">
+                <p className="text-green-700 font-medium">
                 {log.service}
                 </p>
 
@@ -100,6 +151,7 @@ export default function LogsPage() {
                 </p>
 
             </div>
+            </Link>
             ))}
         </div>
       </div>
