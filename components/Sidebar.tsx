@@ -74,9 +74,9 @@ export default function Sidebar() {
           w-8
           h-8
           rounded-xl
-          bg-white
+          bg-white dark:bg-emerald-950
           border
-          border-gray-200
+          border-gray-200 dark:border-slate-700
           text-green-800
           shadow-md
 

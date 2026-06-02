@@ -1,3 +1,5 @@
+"use client"
+
 import DashboardCard from "@/components/DashboardCard";
 import {Server, ShieldCheck, AlertTriangle, Siren} from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -9,12 +11,12 @@ import LogsExplorer from "@/components/LogsExplorer";
 export default function Dashboard() {
   return (
 
-  <div className="flex min-h-screen bg-white">
+  <div className="flex min-h-screen bg-white dark:bg-emerald-950">
 
     <main className="flex-1 p-10">
       <Navbar />
       
-      <h1 className="text-green-900 text-4xl font-bold mb-8">
+      <h1 className="text-green-900 dark:text-green-400 text-4xl font-bold mb-8">
         IR Assist
       </h1>
 

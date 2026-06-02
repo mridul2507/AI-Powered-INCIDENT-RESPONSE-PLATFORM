@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const services = [
   {
@@ -44,11 +45,15 @@ export default function ServicesPage() {
       service.status.toLowerCase().includes(search.toLowerCase())
   );
   return (
-    <div className="bg-white min-h-screen p-8">
+    <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
 
-      <h1 className="text-3xl font-bold text-green-900 mb-6">
-        Services
-      </h1>
+      <div className="flex items-center justify-between mb-6 max-w-7xl">
+        <h1 className="text-3xl font-bold text-green-900 dark:text-green-400">
+          Services
+        </h1>
+
+        <ThemeToggle/>
+      </div>
 
       <div className="relative mb-6">
         <Search
@@ -86,7 +91,7 @@ export default function ServicesPage() {
 
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
 
         {/* Header */}
         <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr] p-4 bg-gray-50 font-semibold text-gray-700">
@@ -98,7 +103,7 @@ export default function ServicesPage() {
         </div>
 
         {filteredServices.length === 0 && (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-gray-500 dark:text-slate-400">
             No services found.
           </div>
         )}
@@ -111,7 +116,7 @@ export default function ServicesPage() {
                 grid-cols-[2fr_1fr_1fr_1fr_1fr]
                 p-4
                 border-t
-                border-gray-200
+                border-gray-200 dark:border-slate-700
                 items-center"
             >
 
@@ -122,7 +127,7 @@ export default function ServicesPage() {
                       inline-block
                       font-medium 
                       text-green-700 
-                      hover:text-green-900 
+                      hover:text-green-900 dark:text-green-400 
                       hover:underline 
                       cursor-pointer
                       transition-all
@@ -148,15 +153,15 @@ export default function ServicesPage() {
                 {service.status}
                 </span>
 
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-slate-400">
                 {service.responseTime}
                 </p>
 
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-slate-400">
                 {service.uptime}
                 </p>
 
-                <p className="text-gray-600">
+                <p className="text-gray-600 dark:text-slate-400">
                 {service.lastIncident}
                 </p>
 

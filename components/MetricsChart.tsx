@@ -45,10 +45,10 @@ const data = [
 
 export default function MetricsChart() {
   return (
-    <div className="bg-white border border-gray-300 rounded-2xl p-6 mt-8
+    <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-8
       transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
-      <h2 className="text-green-900 text-xl uppercase font-semibold mb-6">
+      <h2 className="text-green-900 dark:text-green-400 text-xl uppercase font-semibold mb-6">
         System Overview
       </h2>
 
@@ -93,7 +93,8 @@ export default function MetricsChart() {
               stroke="#22c55e"
               strokeWidth={3}
               dot={false}
-              isAnimationActive={false}
+              isAnimationActive={true}
+              animationDuration={1000}
             />
 
             <Line
@@ -102,7 +103,8 @@ export default function MetricsChart() {
               stroke="#3b82f6"
               strokeWidth={3}
               dot={false}
-              isAnimationActive={false}
+              isAnimationActive={true}
+              animationDuration={1000}
             />
 
             <Line
@@ -111,7 +113,8 @@ export default function MetricsChart() {
               stroke="#ef4444"
               strokeWidth={3}
               dot={false}
-              isAnimationActive={false}
+              isAnimationActive={true}
+              animationDuration={1000}
             />
 
           </LineChart>

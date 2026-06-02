@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTheme } from "next-themes";
 
 function Toggle({
   enabled,
@@ -10,6 +11,7 @@ function Toggle({
   onToggle: () => void;
 }) {
   return (
+
     <button
       onClick={onToggle}
       className={`
@@ -28,7 +30,7 @@ function Toggle({
           top-1
           w-4
           h-4
-          bg-white
+          bg-white dark:bg-emerald-950
           rounded-full
           shadow-sm
           transition-all
@@ -57,7 +59,7 @@ export default function SettingsPage() {
   const [autoEscalation, setAutoEscalation] = useState(true);
   const [autoResolution, setAutoResolution] = useState(false);
     
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [compactLayout, setCompactLayout] = useState(false);
   const [animations, setAnimations] = useState(true);
 
@@ -66,9 +68,9 @@ export default function SettingsPage() {
   const [jiraIntegration, setJiraIntegration] = useState(true);
   return (
     
-    <div className="bg-white min-h-screen p-8">
+    <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
 
-      <h1 className="text-3xl font-bold text-green-900 mb-8">
+      <h1 className="text-3xl font-bold text-green-900 dark:text-green-400 mb-8">
         Settings
       </h1>
 
@@ -76,7 +78,7 @@ export default function SettingsPage() {
 
         {/* Sidebar */}
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-4 h-fit">
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-4 h-fit">
 
           <div className="space-y-2">
 
@@ -85,8 +87,8 @@ export default function SettingsPage() {
               className={`w-full text-left px-4 py-3 rounded-xl transition-all
                 ${
                   activeTab === "notifications"
-                    ? "bg-green-100 text-green-900 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700"
+                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
+                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
                 }`}
             >
               Notifications
@@ -97,8 +99,8 @@ export default function SettingsPage() {
               className={`w-full text-left px-4 py-3 rounded-xl transition-all
                 ${
                   activeTab === "ai"
-                    ? "bg-green-100 text-green-900 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700"
+                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
+                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
                 }`}
             >
               AI Analysis
@@ -109,8 +111,8 @@ export default function SettingsPage() {
               className={`w-full text-left px-4 py-3 rounded-xl transition-all
                 ${
                   activeTab === "automation"
-                    ? "bg-green-100 text-green-900 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700"
+                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
+                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
                 }`}
             >
               Automation
@@ -121,8 +123,8 @@ export default function SettingsPage() {
               className={`w-full text-left px-4 py-3 rounded-xl transition-all
                 ${
                   activeTab === "appearance"
-                    ? "bg-green-100 text-green-900 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700"
+                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
+                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
                 }`}
             >
               Appearance
@@ -133,8 +135,8 @@ export default function SettingsPage() {
               className={`w-full text-left px-4 py-3 rounded-xl transition-all
                 ${
                   activeTab === "integrations"
-                    ? "bg-green-100 text-green-900 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700"
+                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
+                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
                 }`}
             >
               Integrations
@@ -150,13 +152,13 @@ export default function SettingsPage() {
           {activeTab === "notifications" && (
             <>
 
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
 
-            <h2 className="text-xl font-semibold text-green-900 mb-2">
+            <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-2">
               Notification Preferences
             </h2>
 
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-500 dark:text-slate-400 mb-6">
               Configure how alerts and incidents are delivered.
             </p>
 
@@ -165,11 +167,11 @@ export default function SettingsPage() {
               <div className="flex justify-between items-center border-b border-gray-100 pb-4
               hover:bg-gray-50 rounded-xl px-3 py-2 transition-colors duration-200">
                 <div>
-                  <p className="text-gray-700 font-medium">
+                  <p className="text-gray-700 dark:text-slate-400 font-medium">
                     Email Alerts
                   </p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-slate-400">
                     Receive incident updates via email.
                   </p>
                 </div>
@@ -183,11 +185,11 @@ export default function SettingsPage() {
               <div className="flex justify-between items-center border-b border-gray-100 pb-4
               hover:bg-gray-50 rounded-xl px-3 py-2 transition-colors duration-200">
                 <div>
-                  <p className="text-gray-700 font-medium">
+                  <p className="text-gray-700 dark:text-slate-400 font-medium">
                     Slack Notifications
                   </p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-slate-400">
                     Send alerts directly to Slack.
                   </p>
                 </div>
@@ -201,11 +203,11 @@ export default function SettingsPage() {
               <div className="flex justify-between items-center border-b border-gray-100 pb-4
               hover:bg-gray-50 rounded-xl px-3 py-2 transition-colors duration-200">
                 <div>
-                  <p className="text-gray-700 font-medium">
+                  <p className="text-gray-700 dark:text-slate-400 font-medium">
                     SMS Alerts
                   </p>
 
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-slate-400">
                     Receive critical alerts on mobile.
                   </p>
                 </div>
@@ -220,13 +222,13 @@ export default function SettingsPage() {
 
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
+          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
 
-            <h2 className="text-xl font-semibold text-green-900 mb-2">
+            <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-2">
               Incident Severity Rules
             </h2>
 
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-500 dark:text-slate-400 mb-6">
               Define which incident levels trigger notifications.
             </p>
 
@@ -273,12 +275,12 @@ export default function SettingsPage() {
 
           {/*AI ANALYSIS*/}
           {activeTab === "ai" && (
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-green-900 mb-2">
+            <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+              <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-2">
                 AI Analysis
               </h2>
 
-              <p className="text-gray-500 mb-6">
+              <p className="text-gray-500 dark:text-slate-400 mb-6">
                 Configure AI powered incident investigation.
               </p>
 
@@ -286,8 +288,8 @@ export default function SettingsPage() {
 
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-gray-700 font-medium">Root Cause Analysis</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-gray-700 dark:text-slate-400 font-medium">Root Cause Analysis</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400">
                       Automatically generate root cause reports.
                     </p>
                   </div>
@@ -300,8 +302,8 @@ export default function SettingsPage() {
 
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-gray-700 font-medium">Anomaly Detection</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-gray-700 dark:text-slate-400 font-medium">Anomaly Detection</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400">
                       Detect unusual system behavior.
                     </p>
                   </div>
@@ -314,8 +316,8 @@ export default function SettingsPage() {
 
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-gray-700 font-medium">Confidence Threshold</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-gray-700 dark:text-slate-400 font-medium">Confidence Threshold</p>
+                    <p className="text-sm text-gray-500 dark:text-slate-400">
                       Minimum AI confidence required.
                     </p>
                   </div>
@@ -331,14 +333,14 @@ export default function SettingsPage() {
 
           {/*AUTOMATION SECTION*/}
           {activeTab === "automation" && (
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-green-900 mb-6">
+          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
               Automation Rules
             </h2>
 
             <div className="space-y-5">
 
-              <div className="text-gray-700 flex justify-between">
+              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
                 <span>Auto Assign Incidents</span>
                 <Toggle
                   enabled={autoAssign}
@@ -346,7 +348,7 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="text-gray-700 flex justify-between">
+              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
                 <span>Auto Escalation</span>
                 <Toggle
                   enabled={autoEscalation}
@@ -354,7 +356,7 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="text-gray-700 flex justify-between">
+              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
                 <span>Auto Resolution Suggestions</span>
                 <Toggle
                   enabled={autoResolution}
@@ -368,23 +370,25 @@ export default function SettingsPage() {
 
         {/*APPEARANCE SECTION*/}
         {activeTab === "appearance" && (
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-green-900 mb-6">
+          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
               Appearance
             </h2>
 
             <div className="space-y-5">
 
-              <div className="text-gray-700 flex justify-between">
+              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
                 <span>Dark Mode</span>
                 <Toggle
-                  enabled={darkMode}
-                  onToggle={() => setDarkMode(!darkMode)}
+                  enabled={theme === "dark"}
+                  onToggle={() =>
+                    setTheme(theme === "dark" ? "light" : "dark")
+                  }
                 />
 
               </div>
 
-              <div className="text-gray-700 flex justify-between">
+              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
                 <span>Compact Layout</span>
                 <Toggle
                   enabled={compactLayout}
@@ -392,7 +396,7 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="text-gray-700 flex justify-between">
+              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
                 <span>Animations</span>
                 <Toggle
                   enabled={animations}
@@ -406,14 +410,14 @@ export default function SettingsPage() {
 
         {/*INTEGRATIONS SECTION*/}
         {activeTab === "integrations" && (
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-green-900 mb-6">
+          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
               Integrations
             </h2>
 
             <div className="space-y-5">
 
-              <div className="text-gray-700 flex justify-between">
+              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
                 <span>Slack</span>
                 <Toggle
                   enabled={slackIntegration}
@@ -421,7 +425,7 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="text-gray-700 flex justify-between">
+              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
                 <span>PagerDuty</span>
                 <Toggle
                   enabled={pagerDutyIntegration}
@@ -429,7 +433,7 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <div className="text-gray-700 flex justify-between">
+              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
                 <span>Jira</span>
                 <Toggle
                   enabled={jiraIntegration}

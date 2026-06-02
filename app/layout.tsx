@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar"
 import PageTransition from "@/components/PageTransition";
+import ThemeProvider from "@/components/ThemeProvider";
+import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,18 +29,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-screen bg-white">
-        <div className="flex min-h-screen bg-white">
+      <body className="min-h-screen">
+        <ThemeProvider>
+          <div className="flex min-h-screen bg-white dark:bg-emerald-950">
 
-          <Sidebar />
+            <Sidebar />
 
-          <main className="flex-1 bg-white">
-            <PageTransition>{children}</PageTransition>
-          </main>
+            <main className="flex-1 bg-white dark:bg-emerald-950">
+              <PageTransition>{children}</PageTransition>
+            </main>
 
-        </div>
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

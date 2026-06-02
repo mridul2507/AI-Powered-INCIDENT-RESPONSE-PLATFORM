@@ -21,7 +21,7 @@ const recentIncidents = [
 
 export default function ServiceDetailsPage() {
   return (
-    <div className="bg-white min-h-screen p-8">
+    <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
         <Link
             href="/services"
             className="
@@ -29,7 +29,7 @@ export default function ServiceDetailsPage() {
                 items-center
                 gap-2
                 text-gray-600
-                hover:text-green-900
+                hover:text-green-900 dark:text-green-400
                 transition-colors
                 mb-6
             "
@@ -38,14 +38,14 @@ export default function ServiceDetailsPage() {
             Back to Services
         </Link>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+      <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
         transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
-        <p className="text-sm text-gray-500 mb-2">
+        <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">
           SRV-1001
         </p>
 
-        <h1 className="text-3xl font-bold text-green-900 mb-4">
+        <h1 className="text-3xl font-bold text-green-900 dark:text-green-400 mb-4">
           Payment Service
         </h1>
 
@@ -65,7 +65,7 @@ export default function ServiceDetailsPage() {
       </div>
 
       <div className="grid grid-cols-4 gap-6 mt-6">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
             transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-sm text-gray-600">
             Response Time
@@ -76,7 +76,7 @@ export default function ServiceDetailsPage() {
             </p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
             transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-sm text-gray-600">
             Error Rate
@@ -87,7 +87,7 @@ export default function ServiceDetailsPage() {
             </p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
             transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-sm text-gray-600">
             Availability
@@ -98,7 +98,7 @@ export default function ServiceDetailsPage() {
             </p>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
             transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-sm text-gray-600">
             Requests/min
@@ -113,9 +113,9 @@ export default function ServiceDetailsPage() {
         <div className="grid grid-cols-2 gap-6 mt-6">
 
         {/*RECENT INCIDENTS*/}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
             transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <h2 className="text-xl font-semibold text-green-900 mb-4">
+            <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
                 Recent Incidents
             </h2>
 
@@ -137,7 +137,7 @@ export default function ServiceDetailsPage() {
                     transition-all
                     "
                 >
-                    <p className="font-medium text-gray-800">
+                    <p className="font-medium text-gray-700 dark:text-slate-400">
                     {incident.id}
                     </p>
 
@@ -173,9 +173,9 @@ export default function ServiceDetailsPage() {
 
             {/*Dependencies*/}
 
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+            <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
                 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <h2 className="text-xl font-semibold text-green-900 mb-4">
+                <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
                     Service Dependencies
                 </h2>
 

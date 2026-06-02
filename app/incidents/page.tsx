@@ -5,6 +5,7 @@ import StatusBadge from "@/components/StatusBadge";
 import SeverityBadge from "@/components/SeverityBadge";
 import Link from "next/link";
 import {Search} from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type Incident = {
   id: string;
@@ -49,11 +50,15 @@ export default function IncidentsPage() {
   );
   return (
     
-    <div className="bg-white min-h-screen p-8">
+    <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
 
-      <h1 className="text-3xl font-bold text-green-900 mb-6">
-        Incidents
-      </h1>
+      <div className="flex items-center justify-between mb-6 max-w-7xl">
+        <h1 className="text-3xl font-bold text-green-900 dark:text-green-400">
+          Incidents
+        </h1>
+
+        <ThemeToggle/>
+      </div>
 
       <div className="relative mb-6">
         <Search
@@ -78,7 +83,7 @@ export default function IncidentsPage() {
             pl-12
             pr-4
             py-3
-            text-gray-700
+            text-gray-700 dark:text-slate-400
             border
             border-gray-300
             rounded-xl
@@ -91,9 +96,9 @@ export default function IncidentsPage() {
 
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+      <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
 
-        <div className="grid grid-cols-5 p-4 bg-gray-50 font-semibold text-gray-700">
+        <div className="grid grid-cols-5 p-4 bg-gray-50 font-semibold text-gray-700 dark:text-slate-400">
 
           <p>ID</p>
 
@@ -108,7 +113,7 @@ export default function IncidentsPage() {
         </div>
 
         {filteredIncidents.length === 0 && (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-gray-500 dark:text-slate-400">
             No incidents found.
           </div>
         )}
@@ -116,7 +121,7 @@ export default function IncidentsPage() {
         {filteredIncidents.map((incident) => (
           <div
             key={incident.id}
-            className="grid grid-cols-5 p-4 text-gray-700 border-t border-gray-300 items-center"
+            className="grid grid-cols-5 p-4 text-gray-700 dark:text-slate-400 border-t border-gray-300 items-center"
           >
             <div>
               <Link
@@ -125,7 +130,7 @@ export default function IncidentsPage() {
                   inline-block
                   font-medium 
                   text-green-700 
-                  hover:text-green-900 
+                  hover:text-green-900 dark:text-green-400 
                   hover:underline 
                   cursor-pointer
                   transition-colors
@@ -146,7 +151,7 @@ export default function IncidentsPage() {
               <StatusBadge status={incident.status} />
             </div>
 
-            <p className="text-gray-500">{incident.createdAt}</p>
+            <p className="text-gray-500 dark:text-slate-400">{incident.createdAt}</p>
           </div>
       ))}
 

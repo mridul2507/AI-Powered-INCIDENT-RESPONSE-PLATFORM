@@ -22,7 +22,7 @@ const logs = [
           ];
 export default function IncidentDetailsPage() {
   return (
-    <div className="bg-white min-h-screen p-8">
+    <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
       <Link
         href="/incidents"
         className="
@@ -30,7 +30,7 @@ export default function IncidentDetailsPage() {
           items-center
           gap-2
           text-gray-600
-          hover:text-green-900
+          hover:text-green-900 dark:text-green-400
           transition-colors
           mb-6
         "
@@ -39,14 +39,14 @@ export default function IncidentDetailsPage() {
         Back to Incidents
       </Link>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+      <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
           transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
-        <p className="text-sm text-gray-500 mb-2">
+        <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">
           INC-1001
         </p>
 
-        <h1 className="text-3xl font-bold text-green-900 mb-4">
+        <h1 className="text-3xl font-bold text-green-900 dark:text-green-400 mb-4">
           Payment Service Failure
         </h1>
 
@@ -66,41 +66,41 @@ export default function IncidentDetailsPage() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6 mt-6">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
               transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
-          <h2 className="text-xl font-semibold text-green-900 mb-4">
+          <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
             Incident Timeline
           </h2>
 
           <div className="space-y-8">
 
             <div className="border-l-2 border-green-600 pl-4">
-              <p className="font-medium text-gray-800">
+              <p className="font-medium text-gray-700 dark:text-slate-400">
                 12:30 PM
               </p>
 
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-slate-400">
                 Error rate exceeded threshold.
               </p>
             </div>
 
             <div className="border-l-2 border-green-600 pl-4">
-              <p className="font-medium text-gray-800">
+              <p className="font-medium text-gray-700 dark:text-slate-400">
                 12:32 PM
               </p>
 
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-slate-400">
                 Alert triggered for Payment Service.
               </p>
             </div>
 
             <div className="border-l-2 border-green-600 pl-4">
-              <p className="font-medium text-gray-800">
+              <p className="font-medium text-gray-700 dark:text-slate-400">
                 12:35 PM
               </p>
 
-              <p className="text-gray-500">
+              <p className="text-gray-500 dark:text-slate-400">
                 Incident created automatically.
               </p>
             </div>
@@ -111,10 +111,10 @@ export default function IncidentDetailsPage() {
 
         {/* AI Analysis Card */}
         <div className="col-span-2">
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 h-full 
+          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 h-full 
               transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
-            <h2 className="text-xl font-semibold text-green-900 mb-4">
+            <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
               AI Root Cause Analysis
             </h2>
 
@@ -147,7 +147,7 @@ export default function IncidentDetailsPage() {
             </div>
 
             <div className="mt-6">
-              <h3 className="font-semibold text-green-900 mb-3">
+              <h3 className="font-semibold text-green-900 dark:text-green-400 mb-3">
                 Contributing Factors
               </h3>
 
@@ -174,7 +174,7 @@ export default function IncidentDetailsPage() {
             </div>
 
             <div className="mt-6">
-              <h3 className="font-semibold text-green-900 mb-3">
+              <h3 className="font-semibold text-green-900 dark:text-green-400 mb-3">
                 Recommended Actions
               </h3>
 
@@ -204,9 +204,9 @@ export default function IncidentDetailsPage() {
         </div>
 
         {/*Logs Explorer*/}
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
               transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-          <h2 className="flex flex-wrap text-xl font-semibold text-green-900 mb-4">
+          <h2 className="flex flex-wrap text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
             Logs Explorer
           </h2>
                     
@@ -228,7 +228,7 @@ export default function IncidentDetailsPage() {
               py-3
               items-center"
           >
-            <p className="text-gray-800">
+            <p className="text-gray-700 dark:text-slate-400">
               {log.time}
             </p>
 
@@ -245,7 +245,7 @@ export default function IncidentDetailsPage() {
               {log.level}
             </p>
 
-            <p className="text-gray-800">
+            <p className="text-gray-700 dark:text-slate-400">
               {log.message}
             </p>
           </div>
@@ -254,9 +254,9 @@ export default function IncidentDetailsPage() {
         </div>
 
         {/*Service Map*/}
-        <div className="col-span-2 bg-white border border-gray-200 rounded-2xl shadow-sm p-6
+        <div className="col-span-2 bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
                 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-          <h2 className="text-xl font-semibold text-green-900 mb-6">
+          <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
             Service Map (Tracing)
           </h2>
 

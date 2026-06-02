@@ -29,10 +29,10 @@ const logs = [
 
 export default function LogsExplorer() {
   return (
-    <div className="bg-white border border-gray-300 rounded-2xl p-6 mt-8
+    <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-8
       transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
-      <h2 className="text-xl font-semibold text-green-900 mb-6">
+      <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
         Logs Explorer
       </h2>
 
@@ -45,7 +45,7 @@ export default function LogsExplorer() {
             className="
               block
               border-b
-              border-gray-200
+              border-gray-200 dark:border-slate-700
               p-2
               pb-4
               pt-4
@@ -59,7 +59,7 @@ export default function LogsExplorer() {
             className="flex items-center justify-between"
           >
 
-            <p className="text-sm text-gray-500 w-24">
+            <p className="text-sm text-gray-500 dark:text-slate-400 w-24">
               {log.time}
             </p>
 

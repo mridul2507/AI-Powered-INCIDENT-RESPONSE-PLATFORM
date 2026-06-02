@@ -26,9 +26,9 @@ const COLORS = [
 
 export default function ServiceHealthChart() {
   return (
-    <div className="bg-white border border-gray-300 rounded-2xl p-6 mt-8
+    <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-8
         transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-      <h2 className="text-green-900 text-xl uppercase font-semibold mb-6">
+      <h2 className="text-green-900 dark:text-green-400 text-xl uppercase font-semibold mb-6">
         Service Health
       </h2>
 
@@ -70,6 +70,8 @@ export default function ServiceHealthChart() {
                     data={data}
                     dataKey="value"
                     innerRadius={50}
+                    isAnimationActive={true}
+                    animationDuration={1000}
                 >
 
                 {data.map((entry,index)=>(
@@ -85,11 +87,11 @@ export default function ServiceHealthChart() {
 
     {/*TOTAL*/}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <p className="text-3xl font-bold text-green-900">
+            <p className="text-3xl font-bold text-green-900 dark:text-green-400">
                 24
             </p>
 
-            <p className="text-gray-500 text-sm">
+            <p className="text-gray-500 dark:text-slate-400 text-sm">
                 Total
             </p>
         </div>
