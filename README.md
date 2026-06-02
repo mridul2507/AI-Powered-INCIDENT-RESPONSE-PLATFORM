@@ -89,13 +89,10 @@ The project focuses on delivering a responsive, production-ready user experience
 ### Dashboard
 
 ![Dashboard](./public/screenshots/dashboard.png)
-![Dashboard](./public/screenshots/dashboard1.png)
-![Dashboard](./public/screenshots/dashboard2.png)
 
 ### Analytics
 
 ![Analytics](./public/screenshots/analytics.png)
-![Analytics](./public/screenshots/analytics(2).png)
 
 ### Settings
 
