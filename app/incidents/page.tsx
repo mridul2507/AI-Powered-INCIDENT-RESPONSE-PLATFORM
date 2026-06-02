@@ -114,52 +114,40 @@ export default function IncidentsPage() {
         )}
 
         {filteredIncidents.map((incident) => (
-          <Link
+          <div
             key={incident.id}
-            href={`/incidents/${incident.id}`}
+            className="grid grid-cols-5 p-4 text-gray-700 border-t border-gray-300 items-center"
           >
-            <div
-              className="
-                grid
-                grid-cols-5
-                p-4
-                text-gray-700
-                border-t
-                border-gray-300
-                items-center
-                hover:bg-gray-100
-                cursor-pointer
-                transition-colors
-                duration-300
-              "
-            >
-          <p className="font-medium text-green-700">
-            {incident.id}
-          </p>
+            <div>
+              <Link
+                href={`/incidents/${incident.id}`}
+                className="
+                  inline-block
+                  font-medium 
+                  text-green-700 
+                  hover:text-green-900 
+                  hover:underline 
+                  cursor-pointer
+                  transition-colors
+                  duration-200
+                "
+              >
+                {incident.id}
+              </Link>
+            </div>
 
-          <p>
-            {incident.title}
-          </p>
+            <p>{incident.title}</p>
 
-          <div>
-            <SeverityBadge
-              severity={incident.severity}
-            />
+            <div>
+              <SeverityBadge severity={incident.severity} />
+            </div>
+
+            <div>
+              <StatusBadge status={incident.status} />
+            </div>
+
+            <p className="text-gray-500">{incident.createdAt}</p>
           </div>
-
-          <div>
-            <StatusBadge
-              status={incident.status}
-            />
-          </div>
-
-          <p className="text-gray-500">
-            {incident.createdAt}
-          </p>
-          
-
-        </div>
-        </Link>
       ))}
 
       </div>

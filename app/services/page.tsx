@@ -105,28 +105,32 @@ export default function ServicesPage() {
 
         {/* Rows */}
         {filteredServices.map((service) => (
-            <Link
-                key={service.name}
-                href={`/services/${service.name}`}
-            >
-            <div
-                className="
-                grid
+          <div 
+            key={service.name}
+            className="grid
                 grid-cols-[2fr_1fr_1fr_1fr_1fr]
                 p-4
                 border-t
                 border-gray-200
-                items-center
-                hover:bg-gray-100
-                transition-colors
-                duration-100
-                cursor-pointer
-                "
+                items-center"
             >
 
-                <p className="font-medium text-gray-800">
-                {service.name}
-                </p>
+                <div>
+                  <Link
+                   href={`/services/${service.name}`}
+                   className="
+                      inline-block
+                      font-medium 
+                      text-green-700 
+                      hover:text-green-900 
+                      hover:underline 
+                      cursor-pointer
+                      transition-all
+                      duration-200
+                    ">
+                      {service.name}
+                    </Link>
+                </div>
 
                 <span
                 className={`
@@ -157,7 +161,6 @@ export default function ServicesPage() {
                 </p>
 
             </div>
-            </Link>
         ))}
 
         </div>
