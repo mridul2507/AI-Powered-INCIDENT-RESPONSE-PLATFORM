@@ -33,7 +33,7 @@ export default function AnalyticsPage(){
 
       <div className="grid lg:grid-cols-2 gap-6 mt-6">
         <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6
-          transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          transition-all duration-300 hover:shadow-lg hover:-translate-y-1 min-w-0">
           <h2 className="text-xl font-semibold text-green-900 mb-4">Incident Trend</h2>
           <div className="h-80 bg-gray-50 rounded-xl p-6">
           <div className="h-full flex items-end justify-between gap-3">
@@ -79,7 +79,7 @@ export default function AnalyticsPage(){
 
 
         <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 mt-6
-          transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          transition-all duration-300 hover:shadow-lg hover:-translate-y-1 min-w-0">
           <h2 className="text-xl font-semibold text-green-900 mb-6">
             Severity Distribution
           </h2>

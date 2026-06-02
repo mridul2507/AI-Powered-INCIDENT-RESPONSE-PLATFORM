@@ -29,12 +29,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <div className="flex min-h-screen">
+      <body className="min-h-screen bg-white">
+        <div className="flex min-h-screen bg-white">
 
           <Sidebar />
 
-          <main className="flex-1">
+          <main className="flex-1 bg-white">
             <PageTransition>{children}</PageTransition>
           </main>
 
