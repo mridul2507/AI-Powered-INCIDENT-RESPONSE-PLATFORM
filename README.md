@@ -1,36 +1,168 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IR Assist
 
-## Getting Started
+AI-Powered Incident Response Dashboard built with Next.js, TypeScript, Tailwind CSS, Recharts, and Framer Motion.
 
-First, run the development server:
+## Overview
+
+IR Assist is a modern incident management and service monitoring dashboard designed to help teams track incidents, monitor service health, analyze logs, and visualize operational metrics through an intuitive interface.
+
+The project focuses on delivering a responsive, production-ready user experience with dark mode support, smooth animations, and scalable frontend architecture.
+
+---
+
+## Features
+
+### Dashboard
+
+* Service health overview
+* Incident summary cards
+* System metrics visualization
+* Recent incidents section
+* Logs explorer
+
+### Incident Management
+
+* Incident listing page
+* Incident details page
+* Severity and status tracking
+* Search functionality
+
+### Service Monitoring
+
+* Service inventory
+* Service details view
+* Uptime and response metrics
+* Search functionality
+
+### Logs Explorer
+
+* Structured log display
+* Severity-based categorization
+* Search support
+
+### Analytics
+
+* Incident trend visualization
+* Service health distribution
+* Interactive charts
+
+### Settings
+
+* Notification preferences
+* Appearance controls
+* Dark mode support
+* Automation settings
+
+### User Experience
+
+* Responsive design
+* Smooth page transitions
+* Sidebar navigation
+* Dark / Light mode
+* Interactive animations
+
+---
+
+## Tech Stack
+
+### Frontend
+
+* Next.js 15
+* React
+* TypeScript
+* Tailwind CSS v4
+
+### UI & Visualization
+
+* Recharts
+* Framer Motion
+* Lucide React
+
+### Deployment
+
+* Vercel
+
+---
+
+## Screenshots
+
+### Dashboard
+
+![Dashboard](./public/screenshots/dashboard.png)
+![Dashboard](./public/screenshots/dashboard1.png)
+![Dashboard](./public/screenshots/dashboard2.png)
+
+### Analytics
+
+![Analytics](./public/screenshots/analytics.png)
+![Analytics](./public/screenshots/analytics(2).png)
+
+### Settings
+
+![Settings](./public/screenshots/settings.png)
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone <https://github.com/mridul2507/AI-Powered-INCIDENT-RESPONSE-PLATFORM>
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The application is deployed on Vercel.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Live Demo:
 
-## Deploy on Vercel
+https://ir-assist.vercel.app/
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Future Improvements
+
+* Authentication & Role Management
+* Real-time Monitoring
+* Backend API Integration
+* Database Support
+* AI-Powered Root Cause Analysis
+* Alerting & Notification System
+* Incident Automation Workflows
+
+---
+
+## Project Status
+
+Frontend Phase: Complete
+
+Current Focus:
+
+* Backend Development
+* Database Integration
+* AI Features
+* Production Enhancements
