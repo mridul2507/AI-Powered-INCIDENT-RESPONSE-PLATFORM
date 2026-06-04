@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  ENGINEER
+  VIEWER
+}
+
+enum Severity {
+  CRITICAL
+  WARNING
+  INFO
+}
+
+enum IncidentStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+}
+
+enum ServiceStatus {
+  HEALTHY
+  WARNING
+  CRITICAL
+}
+
+model Organization {
+  id   String @id @default(cuid())
+  name String
+
+  users     User[]
+  incidents Incident[]
+  services  Service[]
+
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id String @id @default(cuid())
+
+  email String  @unique
+  name  String?
+
+  role UserRole @default(VIEWER)
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  auditLogs AuditLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Incident {
+  id String @id @default(cuid())
+
+  title       String
+  description String?
+
+  severity Severity
+  status   IncidentStatus
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Service {
+  id String @id @default(cuid())
+
+  name   String
+  status ServiceStatus
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+
+  action String
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}

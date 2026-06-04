@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import SeverityBadge from "@/components/SeverityBadge";
 import Link from "next/link";
@@ -10,37 +10,47 @@ import ThemeToggle from "@/components/ThemeToggle";
 type Incident = {
   id: string;
   title: string;
-  severity: "Critical" | "Warning" | "Info";
-  status: "Open" | "Investigating" | "Resolved";
+  severity: "CRITICAL" | "WARNING" | "INFO";
+  status: "OPEN" | "INVESTIGATING" | "RESOLVED";
   createdAt: string;
 };
 
-const incidents:Incident[] = [
-  {
-    id: "INC-1001",
-    title: "Payment Service Failure",
-    severity: "Critical",
-    status: "Open",
-    createdAt: "2 min ago",
-  },
-  {
-    id: "INC-1002",
-    title: "Database Timeout",
-    severity: "Warning",
-    status: "Investigating",
-    createdAt: "15 min ago",
-  },
-  {
-    id: "INC-1003",
-    title: "Cache Hit Rate Degraded",
-    severity: "Info",
-    status: "Resolved",
-    createdAt: "1 hr ago",
-  },
-];
+
 
 export default function IncidentsPage() {
   const [search, setSearch] = useState("");
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+
+  useEffect(() => {
+    async function fetchIncidents() {
+      const res = await fetch("/api/incidents");
+
+      const data = await res.json();
+
+      setIncidents(data);
+    }
+
+    fetchIncidents();
+  }, []);
+
+  const severityMap: Record<
+    Incident["severity"],
+    "Critical" | "Warning" | "Info"
+  > = {
+    CRITICAL: "Critical",
+    WARNING: "Warning",
+    INFO: "Info",
+  };
+
+  const statusMap: Record<
+    Incident["status"],
+    "Open" | "Investigating" | "Resolved"
+  > = {
+    OPEN: "Open",
+    INVESTIGATING: "Investigating",
+    RESOLVED: "Resolved",
+  };
+
   const filteredIncidents = incidents.filter(
     (incident) =>
       incident.id.toLowerCase().includes(search.toLowerCase()) ||
@@ -137,21 +147,35 @@ export default function IncidentsPage() {
                   duration-200
                 "
               >
-                {incident.id}
+                {incident.id.slice(0,8)}
               </Link>
             </div>
 
             <p>{incident.title}</p>
 
             <div>
-              <SeverityBadge severity={incident.severity} />
+              <SeverityBadge
+                severity={
+                  severityMap[
+                    incident.severity
+                  ] as "Critical" | "Warning" | "Info"
+                }
+              />
             </div>
 
             <div>
-              <StatusBadge status={incident.status} />
+              <StatusBadge
+                status={
+                  statusMap[
+                    incident.status
+                  ] as "Open" | "Investigating" | "Resolved"
+                }
+              />
             </div>
 
-            <p className="text-gray-500 dark:text-slate-400">{incident.createdAt}</p>
+            <p className="text-gray-500 dark:text-slate-400">{new Date(
+                incident.createdAt
+              ).toLocaleDateString()}</p>
           </div>
       ))}
 

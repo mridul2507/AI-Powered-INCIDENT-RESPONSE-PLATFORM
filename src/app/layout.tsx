@@ -4,7 +4,6 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar"
 import PageTransition from "@/components/PageTransition";
 import ThemeProvider from "@/components/ThemeProvider";
-import Navbar from "@/components/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
