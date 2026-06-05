@@ -80,10 +80,9 @@ model Service {
   id String @id @default(cuid())
 
   name String
-  description String?
-
   status ServiceStatus
 
+  description String?
   responseTime String?
   availability String?
   requestsPerMin String?
