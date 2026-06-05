@@ -1,43 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
-const services = [
-  {
-    name: "Payment Service",
-    status: "Critical",
-    responseTime: "1.8s",
-    uptime: "97.2%",
-    lastIncident: "2 min ago",
-  },
-  {
-    name: "User Service",
-    status: "Healthy",
-    responseTime: "120ms",
-    uptime: "99.9%",
-    lastIncident: "None",
-  },
-  {
-    name: "Notification Service",
-    status: "Healthy",
-    responseTime: "180ms",
-    uptime: "99.7%",
-    lastIncident: "None",
-  },
-  {
-    name: "User Database",
-    status: "Warning",
-    responseTime: "850ms",
-    uptime: "98.5%",
-    lastIncident: "15 min ago",
-  },
-];
+type Service = {
+  id: string;
+  name: string;
+  status: "HEALTHY" | "WARNING" | "CRITICAL";
+  createdAt: string;
+};
 
 export default function ServicesPage() {
   const [search, setSearch] = useState("");
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    async function fetchServices() {
+      const res = await fetch("/api/services");
+
+      const data = await res.json();
+
+      setServices(data);
+    }
+
+    fetchServices();
+  }, []);
 
   const filteredServices = services.filter(
     (service) =>
@@ -47,12 +36,29 @@ export default function ServicesPage() {
   return (
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
 
-      <div className="flex items-center justify-between mb-6 max-w-7xl">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-green-900 dark:text-green-400">
           Services
         </h1>
 
-        <ThemeToggle/>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/services/create"
+            className="
+              bg-green-700
+              text-white
+              px-4
+              py-2
+              rounded-xl
+              hover:bg-green-800
+              transition-colors
+            "
+          >
+            Create Service
+          </Link>
+
+          <ThemeToggle />
+        </div>
       </div>
 
       <div className="relative mb-6">
@@ -122,7 +128,7 @@ export default function ServicesPage() {
 
                 <div>
                   <Link
-                   href={`/services/${service.name}`}
+                   href={`/services/${service.id}`}
                    className="
                       inline-block
                       font-medium 
@@ -138,31 +144,31 @@ export default function ServicesPage() {
                 </div>
 
                 <span
-                className={`
+                  className={`
                     px-3 py-1 rounded-full text-sm font-medium w-fit
 
                     ${
-                    service.status === "Critical"
+                      service.status === "CRITICAL"
                         ? "bg-red-100 text-red-700"
-                        : service.status === "Warning"
+                        : service.status === "WARNING"
                         ? "bg-amber-100 text-amber-700"
                         : "bg-green-100 text-green-700"
                     }
-                `}
+                  `}
                 >
-                {service.status}
+                  {service.status}
                 </span>
 
                 <p className="text-gray-600 dark:text-slate-400">
-                {service.responseTime}
+                --
                 </p>
 
                 <p className="text-gray-600 dark:text-slate-400">
-                {service.uptime}
+                --
                 </p>
 
                 <p className="text-gray-600 dark:text-slate-400">
-                {service.lastIncident}
+                  {new Date(service.createdAt).toLocaleDateString()}
                 </p>
 
             </div>

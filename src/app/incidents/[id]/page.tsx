@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import SeverityBadge from "@/components/SeverityBadge";
 import StatusBadge from "@/components/StatusBadge";
 import Link from "next/link"
@@ -19,8 +23,73 @@ const logs = [
             level: "WARNING",
             message: "Connection pool usage exceeded 90%",
           },
-          ];
+];
+
+type Incident = {
+  id: string;
+  title: string;
+  description: string | null;
+  severity: "CRITICAL" | "WARNING" | "INFO";
+  status: "OPEN" | "INVESTIGATING" | "RESOLVED";
+  createdAt: string;
+  updatedAt: string;
+};
+
 export default function IncidentDetailsPage() {
+  const params = useParams();
+  const router = useRouter();
+
+  const [incident, setIncident] =
+    useState<Incident | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+    async function fetchIncident() {
+      const res = await fetch(
+        `/api/incidents/${params.id}`
+      );
+
+      const data = await res.json();
+
+      setIncident(data);
+
+      setLoading(false);
+    }
+
+    fetchIncident();
+  }, [params.id]);
+
+  async function handleDelete() {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this incident?"
+  );
+
+  if (!confirmed) return;
+
+  const res = await fetch(
+    `/api/incidents/${incident.id}`,
+    {
+      method: "DELETE",
+    }
+  );
+
+  if (res.ok) {
+    router.push("/incidents");
+    router.refresh();
+  } else {
+    alert("Failed to delete incident");
+  }
+}
+
+  if (loading) {
+    return <div className="p-8">Loading...</div>;
+  }
+
+  if (!incident) {
+    return <div className="p-8">Incident not found</div>;
+  }
   return (
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
       <Link
@@ -43,24 +112,73 @@ export default function IncidentDetailsPage() {
           transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">
-          INC-1001
+          {incident.id.slice(0, 8)}
         </p>
 
-        <h1 className="text-3xl font-bold text-green-900 dark:text-green-400 mb-4">
-          Payment Service Failure
-        </h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl font-bold text-green-900 dark:text-green-400">
+            {incident.title}
+          </h1>
+
+          <div className="flex gap-3">
+            <Link
+              href={`/incidents/${incident.id}/edit`}
+              className="
+                bg-green-700
+                text-white
+                px-4
+                py-2
+                rounded-xl
+                hover:bg-green-800
+                transition-colors
+              "
+            >
+              Edit Incident
+            </Link>
+
+            <button
+              onClick={handleDelete}
+              className="
+                bg-red-600
+                text-white
+                px-4
+                py-2
+                rounded-xl
+                hover:bg-red-700
+                transition-colors
+              "
+            >
+              Delete
+            </button>
+          </div>
+        </div>
 
         <div className="flex gap-4 mb-4">
 
-          <SeverityBadge severity="Critical" />
+          <SeverityBadge
+            severity={
+              incident.severity === "CRITICAL"
+                ? "Critical"
+                : incident.severity === "WARNING"
+                ? "Warning"
+                : "Info"
+            }
+          />
 
-          <StatusBadge status="Open" />
+          <StatusBadge
+            status={
+              incident.status === "OPEN"
+                ? "Open"
+                : incident.status === "INVESTIGATING"
+                ? "Investigating"
+                : "Resolved"
+            }
+          />
 
         </div>
 
         <p className="text-gray-600">
-          High error rates detected in the payment processing service.
-          Multiple customer transactions are failing due to backend API timeouts.
+          {incident.description || "No description available"}
         </p>
 
       </div>

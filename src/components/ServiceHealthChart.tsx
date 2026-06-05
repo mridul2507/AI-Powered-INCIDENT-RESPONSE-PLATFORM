@@ -1,5 +1,6 @@
 "use client";
 
+import {useEffect, useState} from "react";
 import{
     PieChart,
     Pie,
@@ -7,17 +8,6 @@ import{
     ResponsiveContainer,
 } from "recharts";
 
-const data = [
-    {
-        name:"Healthy",value:18
-    },
-    {
-        name:"Warning",value:4
-    },
-    {
-        name:"Critical",value:2
-    },
-]
 const COLORS = [
   "#22c55e",
   "#f59e0b",
@@ -25,7 +15,53 @@ const COLORS = [
 ];
 
 export default function ServiceHealthChart() {
-  return (
+    const [stats, setStats] = useState({
+        healthy: 0,
+        warning: 0,
+        critical: 0,
+    });
+
+    useEffect(() => {
+        async function fetchServices() {
+            const res = await fetch("/api/services");
+
+            const services = await res.json();
+
+            setStats({
+            healthy: services.filter(
+                (s: any) => s.status === "HEALTHY"
+            ).length,
+
+            warning: services.filter(
+                (s: any) => s.status === "WARNING"
+            ).length,
+
+            critical: services.filter(
+                (s: any) => s.status === "CRITICAL"
+            ).length,
+            });
+        }
+
+        fetchServices();
+        }, []);
+
+        const data = [
+        {
+            name: "Healthy",
+            value: stats.healthy,
+        },
+        {
+            name: "Warning",
+            value: stats.warning,
+        },
+        {
+            name: "Critical",
+            value: stats.critical,
+        },
+        ];
+
+        const total = stats.healthy + stats.warning + stats.critical;
+    return (
     <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-8
         transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
       <h2 className="text-green-900 dark:text-green-400 text-xl uppercase font-semibold mb-6">
@@ -40,7 +76,7 @@ export default function ServiceHealthChart() {
                     <span className="text-gray-600">Healthy</span>
                     </div>
 
-                    <span className="text-gray-600">18 (75%)</span>
+                    <span className="text-gray-600">{stats.healthy}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -49,7 +85,7 @@ export default function ServiceHealthChart() {
                     <span className="text-gray-600">Warning</span>
                     </div>
 
-                    <span className="text-gray-600">4 (16.7%)</span>
+                    <span className="text-gray-600">{stats.warning}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
@@ -58,7 +94,7 @@ export default function ServiceHealthChart() {
                     <span className="text-gray-600">Critical</span>
                     </div>
 
-                    <span className="text-gray-600">2 (8.3%)</span>
+                    <span className="text-gray-600">{stats.critical}</span>
             </div>
         </div>
 
@@ -88,7 +124,7 @@ export default function ServiceHealthChart() {
     {/*TOTAL*/}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
             <p className="text-3xl font-bold text-green-900 dark:text-green-400">
-                24
+                {total}
             </p>
 
             <p className="text-gray-500 dark:text-slate-400 text-sm">

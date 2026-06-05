@@ -62,12 +62,30 @@ export default function IncidentsPage() {
     
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
 
-      <div className="flex items-center justify-between mb-6 max-w-7xl">
+      <div className="flex items-center justify-between mb-6 ">
         <h1 className="text-3xl font-bold text-green-900 dark:text-green-400">
           Incidents
         </h1>
 
-        <ThemeToggle/>
+        
+      <div className="flex items-center gap-4">
+        <Link
+          href="/incidents/create"
+          className="
+            bg-green-700
+            text-white
+            px-4
+            py-2
+            rounded-xl
+            hover:bg-green-800
+            transition-colors
+          "
+        >
+          Create Incident
+        </Link>
+
+        <ThemeToggle />
+      </div>
       </div>
 
       <div className="relative mb-6">

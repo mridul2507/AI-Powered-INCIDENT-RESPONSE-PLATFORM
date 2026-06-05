@@ -1,28 +1,32 @@
-import SeverityBadge,{Severity,} from "@/components/SeverityBadge";
+"use client";
+
+import {useState, useEffect} from "react";
+import SeverityBadge from "@/components/SeverityBadge";
 import Link from "next/link"
 
-const incidents:{id:string;title:string;severity:Severity;time:string}[] = [
-  {
-    id: "INC-1001",
-    title: "Payment Service Error",
-    severity: "Critical",
-    time: "2 min ago",
-  },
-  {
-    id: "INC-1002",
-    title: "Database Timeout",
-    severity: "Warning",
-    time: "6 min ago",
-  },
-  {
-    id: "INC-1003",
-    title: "Cache Degraded",
-    severity: "Info",
-    time: "14 min ago",
-  },
-];
+type Incident = {
+  id: string;
+  title: string;
+  severity: "CRITICAL" | "WARNING" | "INFO";
+  createdAt: string;
+};
 
 export default function RecentIncidents() {
+  const [incidents, setIncidents] = useState<Incident[]>([]);
+
+  useEffect(() => {
+    async function fetchIncidents() {
+      const res = await fetch(
+        "/api/incidents"
+      );
+
+      const data = await res.json();
+
+      setIncidents(data.slice(0, 5));
+    }
+
+    fetchIncidents();
+  }, []);
   return (
     <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-8
       transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
@@ -51,12 +55,19 @@ export default function RecentIncidents() {
             "
                     >
           <div
-            key={incident.title}
             className="flex items-center justify-between "
           >
 
             <div className="flex items-start gap-4">
-              <SeverityBadge severity={incident.severity} />
+              <SeverityBadge
+                severity={
+                  incident.severity === "CRITICAL"
+                    ? "Critical"
+                    : incident.severity === "WARNING"
+                    ? "Warning"
+                    : "Info"
+                }
+              />
 
               <div>
                 <p className="font-medium text-gray-600">
@@ -64,7 +75,9 @@ export default function RecentIncidents() {
                 </p>
 
                 <p className="text-sm text-gray-500 dark:text-slate-400">
-                  {incident.time}
+                  {new Date(
+                    incident.createdAt
+                  ).toLocaleDateString()}
                 </p>
               </div>
             </div>

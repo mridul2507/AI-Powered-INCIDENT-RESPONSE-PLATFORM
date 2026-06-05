@@ -1,5 +1,6 @@
 "use client"
 
+import {useEffect, useState} from "react"
 import DashboardCard from "@/components/DashboardCard";
 import {Server, ShieldCheck, AlertTriangle, Siren} from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -9,6 +10,26 @@ import RecentIncidents from "@/components/RecentIncidents"
 import LogsExplorer from "@/components/LogsExplorer";
 
 export default function Dashboard() {
+  const [stats, setStats] = useState({
+    totalServices: 0,
+    healthyServices: 0,
+    activeIncidents: 0,
+    criticalAlerts: 0,
+  });
+
+  useEffect(() => {
+    async function fetchStats() {
+      const res = await fetch(
+        "/api/dashboard/stats"
+      );
+
+      const data = await res.json();
+
+      setStats(data);
+    }
+
+    fetchStats();
+  }, []);
   return (
 
   <div className="flex min-h-screen bg-white dark:bg-emerald-950">
@@ -24,25 +45,25 @@ export default function Dashboard() {
         
         <DashboardCard
           title="Total Services"
-          value="24"
+          value={stats.totalServices.toString()}
           icon={Server}
         />
 
         <DashboardCard
           title="Healthy Services"
-          value="18"
+          value={stats.healthyServices.toString()}
           icon={ShieldCheck}
         />
 
         <DashboardCard
           title="Active Incidents"
-          value="5"
+          value={stats.activeIncidents.toString()}
           icon={AlertTriangle}
         />
 
         <DashboardCard
           title="Critical Alerts"
-          value="12"
+          value={stats.criticalAlerts.toString()}
           icon={Siren}
         />
 

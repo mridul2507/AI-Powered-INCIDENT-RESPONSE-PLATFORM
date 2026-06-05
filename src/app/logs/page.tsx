@@ -45,7 +45,7 @@ export default function LogsPage() {
     
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
 
-      <div className="flex items-center justify-between mb-6 max-w-7xl">
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-green-900 dark:text-green-400">
           Logs
         </h1>

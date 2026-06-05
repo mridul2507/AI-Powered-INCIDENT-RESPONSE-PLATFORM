@@ -1,114 +1,194 @@
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react";
+"use client";
 
-const recentIncidents = [
-  {
-    id: "INC-1001",
-    title: "Payment Service Failure",
-    severity: "Critical",
-  },
-  {
-    id: "INC-0987",
-    title: "Payment Gateway Timeout",
-    severity: "Warning",
-  },
-  {
-    id: "INC-0942",
-    title: "Duplicate Transaction Alert",
-    severity: "Info",
-  },
-];
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+
+type Service = {
+  id: string;
+  name: string;
+  description: string | null;
+  status: "HEALTHY" | "WARNING" | "CRITICAL";
+  responseTime: string | null;
+  availability: string | null;
+  requestsPerMin: string | null;
+};
 
 export default function ServiceDetailsPage() {
+  const router = useRouter();
+  const params = useParams();
+
+  const [service, setService] = useState<Service | null>(null);
+  const [incidents, setIncidents] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchService() {
+      const res = await fetch(`/api/services/${params.id}`);
+
+      const data = await res.json();
+
+      setService(data);
+
+      const incidentsRes = await fetch("/api/incidents");
+
+      const incidentsData = await incidentsRes.json();
+
+      setIncidents(incidentsData.slice(0, 5));
+    }
+
+    fetchService();
+  }, [params.id]);
+
+    async function handleDelete() {
+        const confirmed = window.confirm(
+        "Are you sure you want to delete this incident?"
+        );
+
+        if (!confirmed) return;
+
+        const res = await fetch(
+        `/api/services/${service.id}`,
+        {
+            method: "DELETE",
+        }
+        );
+
+        if (res.ok) {
+            router.push("/services");
+            router.refresh();
+        } 
+        else {
+            alert("Failed to delete services");
+        }
+    }
+
+  if (!service) {
+    return <div className="p-8">Loading...</div>;
+  }
+
   return (
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
-        <Link
-            href="/services"
-            className="
-                inline-flex
-                items-center
-                gap-2
-                text-gray-600
-                hover:text-green-900 dark:text-green-400
-                transition-colors
-                mb-6
-            "
-            >
-            <ArrowLeft size={18} />
-            Back to Services
-        </Link>
+      <Link
+        href="/services"
+        className="
+          inline-flex
+          items-center
+          gap-2
+          text-gray-600
+          hover:text-green-900
+          dark:text-green-400
+          transition-colors
+          mb-6
+        "
+      >
+        <ArrowLeft size={18} />
+        Back to Services
+      </Link>
 
-      <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-        transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-
+      <div
+        className="
+          bg-white dark:bg-emerald-950
+          border border-gray-200 dark:border-slate-700
+          rounded-2xl shadow-sm p-6
+        "
+      >
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">
-          SRV-1001
+          {service.id.slice(0, 8)}
         </p>
 
-        <h1 className="text-3xl font-bold text-green-900 dark:text-green-400 mb-4">
-          Payment Service
-        </h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl font-bold text-green-900 dark:text-green-400">
+            {service.name}
+          </h1>
 
-        <div className="flex gap-4 mb-4">
+          <div className="flex gap-3">
+            <Link
+                href={`/services/${service.id}/edit`}
+                className="
+                bg-green-700
+                text-white
+                px-4
+                py-2
+                rounded-xl
+                hover:bg-green-800
+                "
+            >
+                Edit Service
+            </Link>
 
-          <span className="px-3 py-1 rounded-full bg-red-100 text-red-700">
-            Critical
-          </span>
-
+            <button
+              onClick={handleDelete}
+              className="
+                bg-red-600
+                text-white
+                px-4
+                py-2
+                rounded-xl
+                hover:bg-red-700
+                transition-colors
+              "
+            >
+              Delete
+            </button>
+          </div>
         </div>
 
-        <p className="text-gray-600">
-          Handles customer payment processing, transaction validation,
-          and payment gateway communication.
-        </p>
+        <div className="flex gap-4 mb-4">
+          <span
+            className={`
+              px-3 py-1 rounded-full text-sm font-medium
+              ${
+                service.status === "CRITICAL"
+                  ? "bg-red-100 text-red-700"
+                  : service.status === "WARNING"
+                  ? "bg-amber-100 text-amber-700"
+                  : "bg-green-100 text-green-700"
+              }
+            `}
+          >
+            {service.status}
+          </span>
+        </div>
 
+        <p className="text-gray-600 dark:text-slate-400">
+          {service.description ?? "No description"}
+        </p>
       </div>
 
       <div className="grid grid-cols-4 gap-6 mt-6">
-        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-            transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <p className="text-sm text-gray-600">
-            Response Time
-            </p>
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+          <p className="text-sm text-gray-600">Response Time</p>
 
-            <p className="text-3xl font-bold text-blue-700 mt-2">
-            1.8s
-            </p>
+          <p className="text-3xl font-bold text-blue-700 mt-2">
+            {service.responseTime ?? "--"}
+          </p>
         </div>
 
-        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-            transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <p className="text-sm text-gray-600">
-            Error Rate
-            </p>
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+          <p className="text-sm text-gray-600">Error Rate</p>
 
-            <p className="text-3xl font-bold text-red-600 mt-2">
-            14%
-            </p>
+          <p className="text-3xl font-bold text-red-600 mt-2">
+            --
+          </p>
         </div>
 
-        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-            transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <p className="text-sm text-gray-600">
-            Availability
-            </p>
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+          <p className="text-sm text-gray-600">Availability</p>
 
-            <p className="text-3xl font-bold text-green-500 mt-2">
-            97.2%
-            </p>
+          <p className="text-3xl font-bold text-green-500 mt-2">
+            {service.availability ?? "--"}
+          </p>
         </div>
 
-        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-            transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-            <p className="text-sm text-gray-600">
-            Requests/min
-            </p>
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+          <p className="text-sm text-gray-600">Requests/min</p>
 
-            <p className="text-3xl font-bold text-violet-600 mt-2">
-            12.4k
-            </p>
+          <p className="text-3xl font-bold text-violet-600 mt-2">
+            {service.requestsPerMin ?? "--"}
+          </p>
         </div>
-        </div>
+      </div>
 
         <div className="grid grid-cols-2 gap-6 mt-6">
 
@@ -119,7 +199,7 @@ export default function ServiceDetailsPage() {
                 Recent Incidents
             </h2>
 
-            {recentIncidents.map((incident) => (
+            {incidents.map((incident) => (
                 <Link
                 key={incident.id}
                 href={`/incidents/${incident.id}`}
@@ -156,15 +236,15 @@ export default function ServiceDetailsPage() {
                         font-medium
 
                         ${
-                        incident.severity === "Critical"
+                        incident.severity === "CRITICAL"
                             ? "bg-red-100 text-red-700"
-                            : incident.severity === "Warning"
+                            : incident.severity === "WARNING"
                             ? "bg-amber-100 text-amber-700"
                             : "bg-blue-100 text-blue-700"
                         }
                     `}
                     >
-                    {incident.severity}
+                    {incident.severity.charAt(0) + incident.severity.slice(1).toLowerCase()}
                     </span>
                 </div>
                 </Link>

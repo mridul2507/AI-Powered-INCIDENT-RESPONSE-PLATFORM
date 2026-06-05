@@ -79,11 +79,17 @@ model Incident {
 model Service {
   id String @id @default(cuid())
 
-  name   String
+  name String
+  description String?
+
   status ServiceStatus
 
+  responseTime String?
+  availability String?
+  requestsPerMin String?
+
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
