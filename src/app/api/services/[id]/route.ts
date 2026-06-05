@@ -27,8 +27,8 @@ export async function PATCH(
     where: { id },
     data: {
       name: body.name,
-      description: body.description,
       status: body.status,
+      description: body.description,
       responseTime: body.responseTime,
       availability: body.availability,
       requestsPerMin: body.requestsPerMin,

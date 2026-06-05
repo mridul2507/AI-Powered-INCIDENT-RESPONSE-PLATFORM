@@ -62,26 +62,27 @@ export default function IncidentDetailsPage() {
   }, [params.id]);
 
   async function handleDelete() {
-  const confirmed = window.confirm(
-    "Are you sure you want to delete this incident?"
-  );
+    if (!incident) return;
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this incident?"
+    );
 
-  if (!confirmed) return;
+    if (!confirmed) return;
 
-  const res = await fetch(
-    `/api/incidents/${incident.id}`,
-    {
-      method: "DELETE",
+    const res = await fetch(
+      `/api/incidents/${incident.id}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (res.ok) {
+      router.push("/incidents");
+      router.refresh();
+    } else {
+      alert("Failed to delete incident");
     }
-  );
-
-  if (res.ok) {
-    router.push("/incidents");
-    router.refresh();
-  } else {
-    alert("Failed to delete incident");
   }
-}
 
   if (loading) {
     return <div className="p-8">Loading...</div>;

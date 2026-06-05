@@ -41,6 +41,7 @@ export default function ServiceDetailsPage() {
   }, [params.id]);
 
     async function handleDelete() {
+      if (!service) return;
         const confirmed = window.confirm(
         "Are you sure you want to delete this incident?"
         );
