@@ -4,6 +4,7 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar"
 import PageTransition from "@/components/PageTransition";
 import ThemeProvider from "@/components/ThemeProvider";
+import Providers from "./providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,17 +33,19 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-screen">
-        <ThemeProvider>
-          <div className="flex min-h-screen bg-white dark:bg-emerald-950">
+        <Providers>
+          <ThemeProvider>
+            <div className="flex min-h-screen bg-white dark:bg-emerald-950">
 
-            <Sidebar />
+              <Sidebar />
 
-            <main className="flex-1 bg-white dark:bg-emerald-950">
-              <PageTransition>{children}</PageTransition>
-            </main>
+              <main className="flex-1 bg-white dark:bg-emerald-950">
+                <PageTransition>{children}</PageTransition>
+              </main>
 
-          </div>
-        </ThemeProvider>
+            </div>
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );

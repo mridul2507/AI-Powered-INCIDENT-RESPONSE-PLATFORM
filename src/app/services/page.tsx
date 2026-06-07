@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
@@ -13,6 +14,8 @@ type Service = {
 };
 
 export default function ServicesPage() {
+  const { data: session } = useSession();
+
   const [search, setSearch] = useState("");
   const [services, setServices] = useState<Service[]>([]);
 
@@ -38,24 +41,26 @@ export default function ServicesPage() {
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-green-900 dark:text-green-400">
-          Services
+          Services  
         </h1>
 
         <div className="flex items-center gap-4">
-          <Link
-            href="/services/create"
-            className="
-              bg-green-700
-              text-white
-              px-4
-              py-2
-              rounded-xl
-              hover:bg-green-800
-              transition-colors
-            "
-          >
-            Create Service
-          </Link>
+          {session?.user.role === "ADMIN" && (
+            <Link
+              href="/services/create"
+              className="
+                bg-green-700
+                text-white
+                px-4
+                py-2
+                rounded-xl
+                hover:bg-green-800
+                transition-colors
+              "
+            >
+              Create Service
+            </Link>
+          )}
 
           <ThemeToggle />
         </div>

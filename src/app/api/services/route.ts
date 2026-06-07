@@ -1,5 +1,7 @@
-import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
+import { canManageServices } from "@/lib/rbac";import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { createAuditLog } from "@/lib/audit";
 
 export async function GET() {
   const services = await prisma.service.findMany({
@@ -13,6 +15,17 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const session = await auth();
+
+      if (
+        !session?.user?.role ||
+        !canManageServices(session.user.role)
+      ) {
+        return NextResponse.json(
+          { error: "Unauthorized" },
+          { status: 403 }
+        );
+      }
     const body = await req.json();
 
     const service = await prisma.service.create({
@@ -22,6 +35,12 @@ export async function POST(req: Request) {
         organizationId: body.organizationId,
       },
     });
+
+    await createAuditLog(
+      "CREATE",
+      "SERVICE",
+      service.id
+    );
 
     return NextResponse.json(service);
   } catch (error) {

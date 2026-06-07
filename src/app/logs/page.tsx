@@ -1,44 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 
-const logs = [
-  {
-    time: "12:32:45",
-    level: "ERROR",
-    service: "Payment Service",
-    message: "Database connection timeout",
-  },
-  {
-    time: "12:32:46",
-    level: "INFO",
-    service: "Payment Service",
-    message: "Retry attempt started",
-  },
-  {
-    time: "12:32:48",
-    level: "WARNING",
-    service: "User Database",
-    message: "Connection pool usage exceeded 90%",
-  },
-  {
-    time: "12:33:10",
-    level: "INFO",
-    service: "Notification Service",
-    message: "Email dispatch successful",
-  },
-];
+type Log = {
+  id: string;
+  timestamp: string;
+  level: string;
+  message: string;
+  service: {
+    id: string;
+    name: string;
+  };
+};
 
 export default function LogsPage() {
   const [search, setSearch] = useState("");
+  const [logs, setLogs] = useState<Log[]>([]);
+
+  useEffect(() => {
+  async function fetchLogs() {
+    const res = await fetch("/api/logs");
+
+    const data = await res.json();
+
+    setLogs(data);
+  }
+
+  fetchLogs();
+}, []);
 
   const filteredLogs = logs.filter(
     (log) =>
       log.level.toLowerCase().includes(search.toLowerCase()) ||
-      log.service.toLowerCase().includes(search.toLowerCase()) ||
+      log.service.id.toLowerCase().includes(search.toLowerCase()) ||
       log.message.toLowerCase().includes(search.toLowerCase())
   );
   return (
@@ -104,11 +101,11 @@ export default function LogsPage() {
 
         {filteredLogs.map((log) => (
           <Link 
-            key={log.time}
-            href={`/services/${log.service}`}
+            key={log.id}
+            href={`/services/${log.service.id}`}
             className="contents">
             <div
-                key={log.time}
+                key={log.message}
                 className="
                 grid
                 grid-cols-[220px_220px_320px_1fr]
@@ -123,7 +120,7 @@ export default function LogsPage() {
                 "
             >
                 <p className="text-gray-700 dark:text-slate-400">
-                {log.time}
+                {new Date(log.timestamp).toLocaleString()}
                 </p>
 
                 <span
@@ -148,7 +145,7 @@ export default function LogsPage() {
                 </span>
 
                 <p className="text-green-700 font-medium">
-                {log.service}
+                {log.service.name}
                 </p>
 
                 <p className="text-gray-700 dark:text-slate-400">

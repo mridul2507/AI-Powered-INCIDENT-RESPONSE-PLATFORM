@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import SeverityBadge from "@/components/SeverityBadge";
@@ -18,6 +19,7 @@ type Incident = {
 
 
 export default function IncidentsPage() {
+  const { data: session } = useSession();
   const [search, setSearch] = useState("");
   const [incidents, setIncidents] = useState<Incident[]>([]);
 
@@ -69,20 +71,22 @@ export default function IncidentsPage() {
 
         
       <div className="flex items-center gap-4">
-        <Link
-          href="/incidents/create"
-          className="
-            bg-green-700
-            text-white
-            px-4
-            py-2
-            rounded-xl
-            hover:bg-green-800
-            transition-colors
-          "
-        >
-          Create Incident
-        </Link>
+        {session?.user.role !== "VIEWER" && (
+          <Link
+            href="/incidents/create"
+            className="
+              bg-green-700
+              text-white
+              px-4
+              py-2
+              rounded-xl
+              hover:bg-green-800
+              transition-colors
+            "
+          >
+            Create Incident
+          </Link>
+        )}
 
         <ThemeToggle />
       </div>

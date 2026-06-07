@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -16,6 +17,7 @@ type Service = {
 };
 
 export default function ServiceDetailsPage() {
+  const { data: session } = useSession();
   const router = useRouter();
   const params = useParams();
 
@@ -104,34 +106,38 @@ export default function ServiceDetailsPage() {
           </h1>
 
           <div className="flex gap-3">
-            <Link
-                href={`/services/${service.id}/edit`}
-                className="
-                bg-green-700
-                text-white
-                px-4
-                py-2
-                rounded-xl
-                hover:bg-green-800
-                "
-            >
-                Edit Service
-            </Link>
+            {session?.user.role === "ADMIN" && (
+              <Link
+                  href={`/services/${service.id}/edit`}
+                  className="
+                  bg-green-700
+                  text-white
+                  px-4
+                  py-2
+                  rounded-xl
+                  hover:bg-green-800
+                  "
+              >
+                  Edit Service
+              </Link>
+            )}
 
-            <button
-              onClick={handleDelete}
-              className="
-                bg-red-600
-                text-white
-                px-4
-                py-2
-                rounded-xl
-                hover:bg-red-700
-                transition-colors
-              "
-            >
-              Delete
-            </button>
+            {session?.user.role === "ADMIN" && (
+              <button
+                onClick={handleDelete}
+                className="
+                  bg-red-600
+                  text-white
+                  px-4
+                  py-2
+                  rounded-xl
+                  hover:bg-red-700
+                  transition-colors
+                "
+              >
+                Delete
+              </button>
+            )}
           </div>
         </div>
 

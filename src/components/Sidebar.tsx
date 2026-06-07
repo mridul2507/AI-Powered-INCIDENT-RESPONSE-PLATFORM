@@ -1,8 +1,10 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
 
 import {
   LayoutDashboard,
@@ -14,6 +16,7 @@ import {
   ChevronLeft,
   LogOut,
   Shield,
+  History,
 } from "lucide-react";
 
 const generalItems = [
@@ -46,6 +49,11 @@ const generalItems = [
 
 const systemItems = [
   {
+    title: "Audit Logs",
+    icon: History,
+    href: "/audit-logs",
+  },
+  {
     title: "Settings",
     icon: Settings,
     href: "/settings",
@@ -53,6 +61,7 @@ const systemItems = [
 ];
 
 export default function Sidebar() {
+    const { data: session } = useSession();
     const [isCollapsed, setIsCollapsed] = useState(true);
     const pathname = usePathname();
   return (
@@ -270,7 +279,7 @@ export default function Sidebar() {
 
             {!isCollapsed &&(
             <p className="text-green-200 text-sm">
-              Admin
+              {session?.user.role}
             </p>
             )}
           </div>
@@ -278,12 +287,15 @@ export default function Sidebar() {
         </div>
         
         {!isCollapsed && (
-        <button className="
-          mt-6
-          text-lg
-          hover:text-green-300
-          transition-transform
-        ">
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="
+            mt-6
+            text-lg
+            hover:text-green-300
+            transition-transform
+          "
+        >
           Log out
         </button>
         )}
@@ -292,6 +304,7 @@ export default function Sidebar() {
           <div className="flex justify-center mt-6">
             <LogOut
               size={24}
+              onClick={() => signOut({ callbackUrl: "/login" })}
               className="
                 cursor-pointer
                 hover:text-green-300

@@ -1,5 +1,8 @@
+import { auth } from "@/auth";
+import { canManageIncidents } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { createAuditLog } from "@/lib/audit";
 
 export async function GET(
   req: Request,
@@ -37,6 +40,17 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+
+    if (
+      !session?.user?.role ||
+      !canManageIncidents(session.user.role)
+    ) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 }
+      );
+    }
     const { id } = await params;
 
     const body = await req.json();
@@ -52,6 +66,12 @@ export async function PATCH(
         status: body.status,
       },
     });
+
+    await createAuditLog(
+      "UPDATE",
+      "INCIDENT",
+      incident.id
+    );
 
     return NextResponse.json(incident);
   } catch (error) {
@@ -69,6 +89,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+
+    if (session?.user?.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 }
+      );
+    }
     const { id } = await params;
 
     await prisma.incident.delete({
@@ -76,6 +104,12 @@ export async function DELETE(
         id,
       },
     });
+
+    await createAuditLog(
+      "DELETE",
+      "INCIDENT",
+      id
+      );
 
     return NextResponse.json({
       success: true,

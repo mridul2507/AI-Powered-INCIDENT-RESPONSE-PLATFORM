@@ -1,5 +1,8 @@
+import { auth } from "@/auth";
+import { canManageServices } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { createAuditLog } from "@/lib/audit";
 
 export async function GET(
   req: Request,
@@ -19,6 +22,17 @@ export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await auth();
+
+  if (
+    !session?.user?.role ||
+    !canManageServices(session.user.role)
+  ) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 403 }
+    );
+  }
   const { id } = await params;
 
   const body = await req.json();
@@ -35,6 +49,12 @@ export async function PATCH(
     },
   });
 
+  await createAuditLog(
+    "UPDATE",
+    "SERVICE",
+    service.id
+  );
+
   return NextResponse.json(service);
 }
 
@@ -42,7 +62,24 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await auth();
+
+  if (
+    !session?.user?.role ||
+    !canManageServices(session.user.role)
+  ) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 403 }
+    );
+  }
   const { id } = await params;
+
+  await createAuditLog(
+    "DELETE",
+    "SERVICE",
+    id
+    );
 
   await prisma.service.delete({
     where: { id },

@@ -1,5 +1,8 @@
+import { auth } from "@/auth";
+import { canManageIncidents } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { createAuditLog } from "@/lib/audit";
 
 export async function GET() {
   const incidents = await prisma.incident.findMany({
@@ -13,6 +16,17 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const session = await auth();
+
+    if (
+      !session?.user?.role ||
+      !canManageIncidents(session.user.role)
+    ) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 }
+      );
+    }
     const body = await req.json();
 
     const incident = await prisma.incident.create({
@@ -24,6 +38,12 @@ export async function POST(req: Request) {
         organizationId: body.organizationId,
       },
     });
+
+    await createAuditLog(
+      "CREATE",
+      "INCIDENT",
+      incident.id
+      );
 
     return NextResponse.json(incident, { status: 201 });
   } catch (error) {

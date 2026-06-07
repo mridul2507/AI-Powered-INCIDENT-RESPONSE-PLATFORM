@@ -19,13 +19,24 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchStats() {
-      const res = await fetch(
-        "/api/dashboard/stats"
-      );
+      try {
+        const res = await fetch("/api/dashboard/stats");
 
-      const data = await res.json();
+        if (!res.ok) {
+          throw new Error("Failed to fetch stats");
+        }
 
-      setStats(data);
+        const data = await res.json();
+
+        setStats({
+          totalServices: data.totalServices ?? 0,
+          healthyServices: data.healthyServices ?? 0,
+          activeIncidents: data.activeIncidents ?? 0,
+          criticalAlerts: data.criticalAlerts ?? 0,
+        });
+      } catch (error) {
+        console.error(error);
+      }
     }
 
     fetchStats();

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import SeverityBadge from "@/components/SeverityBadge";
@@ -36,6 +37,7 @@ type Incident = {
 };
 
 export default function IncidentDetailsPage() {
+  const { data: session } = useSession();
   const params = useParams();
   const router = useRouter();
 
@@ -122,35 +124,39 @@ export default function IncidentDetailsPage() {
           </h1>
 
           <div className="flex gap-3">
-            <Link
-              href={`/incidents/${incident.id}/edit`}
-              className="
-                bg-green-700
-                text-white
-                px-4
-                py-2
-                rounded-xl
-                hover:bg-green-800
-                transition-colors
-              "
-            >
-              Edit Incident
-            </Link>
+            {session?.user.role !== "VIEWER" && (
+              <Link
+                href={`/incidents/${incident.id}/edit`}
+                className="
+                  bg-green-700
+                  text-white
+                  px-4
+                  py-2
+                  rounded-xl
+                  hover:bg-green-800
+                  transition-colors
+                "
+              >
+                Edit Incident
+              </Link>
+            )}
 
-            <button
-              onClick={handleDelete}
-              className="
-                bg-red-600
-                text-white
-                px-4
-                py-2
-                rounded-xl
-                hover:bg-red-700
-                transition-colors
-              "
-            >
-              Delete
-            </button>
+            {session?.user.role === "ADMIN" && (
+              <button
+                onClick={handleDelete}
+                className="
+                  bg-red-600
+                  text-white
+                  px-4
+                  py-2
+                  rounded-xl
+                  hover:bg-red-700
+                  transition-colors
+                "
+              >
+                Delete
+              </button>
+            )}
           </div>
         </div>
 
