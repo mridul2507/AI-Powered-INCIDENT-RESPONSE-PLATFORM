@@ -19,6 +19,8 @@ type Log = {
 export default function LogsPage() {
   const [search, setSearch] = useState("");
   const [logs, setLogs] = useState<Log[]>([]);
+  const [levelFilter, setLevelFilter] = useState("ALL");
+  const [serviceFilter, setServiceFilter] = useState("ALL");
 
   useEffect(() => {
   async function fetchLogs() {
@@ -32,12 +34,26 @@ export default function LogsPage() {
   fetchLogs();
 }, []);
 
-  const filteredLogs = logs.filter(
-    (log) =>
-      log.level.toLowerCase().includes(search.toLowerCase()) ||
-      log.service.id.toLowerCase().includes(search.toLowerCase()) ||
-      log.message.toLowerCase().includes(search.toLowerCase())
+  const filteredLogs = logs.filter((log) => {
+  const matchesSearch =
+    log.level.toLowerCase().includes(search.toLowerCase()) ||
+    log.service.name.toLowerCase().includes(search.toLowerCase()) ||
+    log.message.toLowerCase().includes(search.toLowerCase());
+
+  const matchesLevel =
+    levelFilter === "ALL" ||
+    log.level === levelFilter;
+
+  const matchesService =
+    serviceFilter === "ALL" ||
+    log.service.name === serviceFilter;
+
+  return (
+    matchesSearch &&
+    matchesLevel &&
+    matchesService
   );
+});
   return (
     
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
@@ -83,6 +99,67 @@ export default function LogsPage() {
             focus:border-black  
           "
         />
+
+      </div>
+
+      <div className="flex gap-4 mb-6">
+        <select
+          value={levelFilter}
+          onChange={(e) =>
+            setLevelFilter(e.target.value)
+          }
+          className="
+            p-3
+            border
+            rounded-xl
+            dark:bg-slate-900
+          "
+        >
+          <option value="ALL">
+            All Levels
+          </option>
+
+          <option value="INFO">
+            INFO
+          </option>
+
+          <option value="WARNING">
+            WARNING
+          </option>
+
+          <option value="ERROR">
+            ERROR
+          </option>
+
+        </select>
+
+        <select
+          value={serviceFilter}
+          onChange={(e) =>
+            setServiceFilter(e.target.value)
+          }
+          className="
+            p-3
+            border
+            rounded-xl
+            dark:bg-slate-900
+          "
+        >
+          <option value="ALL">
+            All Services
+          </option>
+
+          {[...new Set(
+            logs.map((log) => log.service.name)
+          )].map((service) => (
+            <option
+              key={service}
+              value={service}
+            >
+              {service}
+            </option>
+          ))}
+        </select>
 
       </div>
       <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">

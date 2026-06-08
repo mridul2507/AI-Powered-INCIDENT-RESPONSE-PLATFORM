@@ -8,28 +8,42 @@ import Link from "next/link";
 import {Search} from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
+type Service = {
+  id: string;
+  name: string;
+};
+
 type Incident = {
   id: string;
   title: string;
   severity: "CRITICAL" | "WARNING" | "INFO";
   status: "OPEN" | "INVESTIGATING" | "RESOLVED";
   createdAt: string;
+
+  service: {
+    id: string;
+    name: string;
+  } | null;
 };
-
-
 
 export default function IncidentsPage() {
   const { data: session } = useSession();
   const [search, setSearch] = useState("");
+  const [severityFilter, setSeverityFilter] = useState("ALL");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [serviceFilter, setServiceFilter] = useState("ALL");
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
 
   useEffect(() => {
     async function fetchIncidents() {
       const res = await fetch("/api/incidents");
-
       const data = await res.json();
-
       setIncidents(data);
+
+      const servicesRes = await fetch("/api/services");
+      const servicesData = await servicesRes.json();
+      setServices(servicesData);
     }
 
     fetchIncidents();
@@ -53,13 +67,30 @@ export default function IncidentsPage() {
     RESOLVED: "Resolved",
   };
 
-  const filteredIncidents = incidents.filter(
-    (incident) =>
+  const filteredIncidents = incidents.filter((incident) => {
+    const matchesSearch =
       incident.id.toLowerCase().includes(search.toLowerCase()) ||
-      incident.title.toLowerCase().includes(search.toLowerCase()) ||
-      incident.severity.toLowerCase().includes(search.toLowerCase()) ||
-      incident.status.toLowerCase().includes(search.toLowerCase())
-  );
+      incident.title.toLowerCase().includes(search.toLowerCase());
+
+    const matchesSeverity =
+      severityFilter === "ALL" ||
+      incident.severity === severityFilter;
+
+    const matchesStatus =
+      statusFilter === "ALL" ||
+      incident.status === statusFilter;
+
+    const matchesService =
+      serviceFilter === "ALL" ||
+      incident.service?.name === serviceFilter;
+
+    return (
+      matchesSearch &&
+      matchesSeverity &&
+      matchesStatus &&
+      matchesService
+    );
+  });
   return (
     
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
@@ -91,7 +122,7 @@ export default function IncidentsPage() {
         <ThemeToggle />
       </div>
       </div>
-
+      
       <div className="relative mb-6">
         <Search
           className="
@@ -125,6 +156,95 @@ export default function IncidentsPage() {
             focus:border-black  
           "
         />
+
+      </div>
+
+            <div className="flex gap-4 mb-6">
+        <select
+          value={severityFilter}
+          onChange={(e) =>
+            setSeverityFilter(e.target.value)
+          }
+          className="
+            p-3
+            border
+            rounded-xl
+            dark:bg-slate-900
+          "
+        >
+          <option value="ALL">
+            All Severities
+          </option>
+
+          <option value="INFO">
+            Info
+          </option>
+
+          <option value="WARNING">
+            Warning
+          </option>
+
+          <option value="CRITICAL">
+            Critical
+          </option>
+
+        </select>
+
+        <select
+          value={statusFilter}
+          onChange={(e) =>
+            setStatusFilter(e.target.value)
+          }
+          className="
+            p-3
+            border
+            rounded-xl
+            dark:bg-slate-900
+          "
+        >
+          <option value="ALL">
+            All Statuses
+          </option>
+
+          <option value="OPEN">
+            Open
+          </option>
+
+          <option value="INVESTIGATING">
+            Investigating
+          </option>
+
+          <option value="RESOLVED">
+            Resolved
+          </option>
+
+        </select>
+
+        <select
+          value={serviceFilter}
+          onChange={(e) =>
+            setServiceFilter(e.target.value)
+          }
+          className="
+            p-3
+            border
+            rounded-xl
+            dark:bg-slate-900
+          "
+        >
+          <option value="ALL">
+            All Services
+          </option>
+
+          {services.map((service) => (
+            <option
+              key={service.id}
+              value={service.name}
+            >
+              {service.name}
+            </option>
+          ))}
+        </select>
 
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function CreateIncidentPage() {
@@ -13,6 +13,26 @@ export default function CreateIncidentPage() {
   const [status, setStatus] = useState("OPEN");
 
   const [loading, setLoading] = useState(false);
+
+  type Service = {
+    id: string;
+    name: string;
+  };
+
+  const [services, setServices] = useState<Service[]>([]);
+  const [serviceId, setServiceId] = useState("");
+
+  useEffect(() => {
+    async function fetchServices() {
+      const res = await fetch("/api/services");
+
+      const data = await res.json();
+
+      setServices(data);
+    }
+
+    fetchServices();
+  }, []);
 
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
@@ -32,6 +52,7 @@ export default function CreateIncidentPage() {
         description,
         severity,
         status,
+        serviceId,
 
         organizationId:
           "cmpzsbax30000uwaci6jrvs8y",
@@ -131,6 +152,33 @@ export default function CreateIncidentPage() {
             <option value="RESOLVED">
               Resolved
             </option>
+          </select>
+
+          <select
+            value={serviceId}
+            onChange={(e) =>
+              setServiceId(e.target.value)
+            }
+            className="
+              w-full
+              p-4
+              border
+              rounded-xl
+              dark:bg-slate-900
+            "
+          >
+            <option value="">
+              Select Affected Service
+            </option>
+
+            {services.map((service) => (
+              <option
+                key={service.id}
+                value={service.id}
+              >
+                {service.name}
+              </option>
+            ))}
           </select>
 
           <button

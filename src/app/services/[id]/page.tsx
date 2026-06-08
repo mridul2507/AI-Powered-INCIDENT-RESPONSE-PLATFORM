@@ -14,6 +14,18 @@ type Service = {
   responseTime: string | null;
   availability: string | null;
   requestsPerMin: string | null;
+
+  incidents: {
+    id: string;
+    title: string;
+    severity: "CRITICAL" | "WARNING" | "INFO";
+  }[];
+
+  logs: {
+    id: string;
+    level: string;
+    message: string;
+  }[];
 };
 
 export default function ServiceDetailsPage() {
@@ -22,7 +34,6 @@ export default function ServiceDetailsPage() {
   const params = useParams();
 
   const [service, setService] = useState<Service | null>(null);
-  const [incidents, setIncidents] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchService() {
@@ -31,12 +42,6 @@ export default function ServiceDetailsPage() {
       const data = await res.json();
 
       setService(data);
-
-      const incidentsRes = await fetch("/api/incidents");
-
-      const incidentsData = await incidentsRes.json();
-
-      setIncidents(incidentsData.slice(0, 5));
     }
 
     fetchService();
@@ -206,7 +211,13 @@ export default function ServiceDetailsPage() {
                 Recent Incidents
             </h2>
 
-            {incidents.map((incident) => (
+            {service.incidents.length === 0 && (
+              <p className="text-gray-500 dark:text-slate-400">
+                No incidents found.
+              </p>
+            )}
+
+            {service.incidents.map((incident) => (
                 <Link
                 key={incident.id}
                 href={`/incidents/${incident.id}`}
@@ -258,51 +269,43 @@ export default function ServiceDetailsPage() {
             ))}
             </div>
 
-            {/*Dependencies*/}
+            {/* Recent Logs */}
+            <div
+              className="
+              bg-white dark:bg-emerald-950
+              border border-gray-200 dark:border-slate-700
+              rounded-2xl shadow-sm p-6
+              transition-all duration-300
+              hover:shadow-lg hover:-translate-y-1
+            "
+            >
+              <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
+                Recent Logs
+              </h2>
 
-            <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-                transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
-                    Service Dependencies
-                </h2>
+              {service.logs.length === 0 && (
+                <p className="text-gray-500 dark:text-slate-400">
+                  No logs found.
+                </p>
+              )}
 
-                <div >
-                    <Link href="/services/User Database">
-                    <div className="flex justify-between pb-3
-                        hover:bg-gray-100 rounded-lg p-4 pt-3 cursor-pointer">
-                    <p className="text-gray-700 font-medium">
-                        User Database
-                    </p>
+              {service.logs.map((log) => (
+                <div
+                  key={log.id}
+                  className="
+                    border-b border-gray-100
+                    py-4
+                  "
+                >
+                  <p className="font-medium text-gray-700 dark:text-slate-300">
+                    {log.message}
+                  </p>
 
-                    <span className="text-amber-600">
-                        Warning
-                    </span>
-                    </div>
-                    </Link>
-
-                    <div className="flex justify-between pb-3
-                        hover:bg-gray-100 rounded-lg p-4 pt-3 cursor-pointer">
-                    <p className="text-gray-700 font-medium">
-                        Notification Service
-                    </p>
-
-                    <span className="text-green-600">
-                        Healthy
-                    </span>
-                    </div>
-
-                    <div className="flex justify-between pb-3 hover:bg-gray-100 rounded-lg p-4 pt-3 cursor-pointer">
-                    <p className="text-gray-700 font-medium">
-                        Fraud Detection Service
-                    </p>
-
-                    <span className="text-green-600">
-                        Healthy
-                    </span>
-                    </div>
-
+                  <p className="text-sm text-gray-500 mt-1">
+                    {log.level}
+                  </p>
                 </div>
-
+              ))}
             </div>
 
         </div>

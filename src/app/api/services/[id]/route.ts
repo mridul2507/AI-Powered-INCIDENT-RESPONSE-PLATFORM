@@ -14,6 +14,11 @@ export async function GET(
     where: {
       id,
     },
+
+    include: {
+      incidents: true,
+      logs: true,
+    },
   });
 
   return NextResponse.json(service);

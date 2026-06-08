@@ -32,6 +32,12 @@ type Incident = {
   description: string | null;
   severity: "CRITICAL" | "WARNING" | "INFO";
   status: "OPEN" | "INVESTIGATING" | "RESOLVED";
+
+  service: {
+    id: string;
+    name: string;
+  } | null;
+
   createdAt: string;
   updatedAt: string;
 };
@@ -187,6 +193,17 @@ export default function IncidentDetailsPage() {
         <p className="text-gray-600">
           {incident.description || "No description available"}
         </p>
+        {incident.service && (
+          <div className="mt-4">
+            <p className="text-sm text-gray-500 dark:text-slate-400">
+              Affected Service
+            </p>
+
+            <p className="font-semibold text-green-700">
+              {incident.service.name}
+            </p>
+          </div>
+         )}
 
       </div>
 

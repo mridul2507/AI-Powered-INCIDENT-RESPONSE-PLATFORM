@@ -6,6 +6,10 @@ import { createAuditLog } from "@/lib/audit";
 
 export async function GET() {
   const incidents = await prisma.incident.findMany({
+    include: {
+      service: true,
+    },
+
     orderBy: {
       createdAt: "desc",
     },
@@ -35,6 +39,7 @@ export async function POST(req: Request) {
         description: body.description,
         severity: body.severity,
         status: body.status,
+        serviceId: body.serviceId || null,
         organizationId: body.organizationId,
       },
     });

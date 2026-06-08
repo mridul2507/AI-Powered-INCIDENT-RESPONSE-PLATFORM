@@ -15,6 +15,9 @@ export async function GET(
       where: {
         id,
       },
+      include: {
+        service: true,
+      },
     });
 
     if (!incident) {

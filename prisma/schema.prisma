@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
   engineType = "binary"
 }
 
@@ -69,6 +69,9 @@ model Incident {
   severity Severity
   status   IncidentStatus
 
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id])
+
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
 
@@ -79,18 +82,19 @@ model Incident {
 model Service {
   id String @id @default(cuid())
 
-  name String
+  name   String
   status ServiceStatus
 
-  description String?
-  responseTime String?
-  availability String?
+  description    String?
+  responseTime   String?
+  availability   String?
   requestsPerMin String?
 
   organizationId String
-  organization Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
 
-  logs Log[]
+  incidents Incident[]
+  logs      Log[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -100,8 +104,8 @@ model Log {
   id        String   @id @default(cuid())
   timestamp DateTime @default(now())
 
-  level     String
-  message   String
+  level   String
+  message String
 
   serviceId String
   service   Service @relation(fields: [serviceId], references: [id])
@@ -112,12 +116,12 @@ model Log {
 model AuditLog {
   id String @id @default(cuid())
 
-  action String
+  action     String
   entityType String
-  entityId String
+  entityId   String
 
   userId String?
-  user User? @relation(fields: [userId], references: [id])
+  user   User?   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
 }
