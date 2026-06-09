@@ -49,6 +49,13 @@ export async function POST(req: Request) {
       "INCIDENT",
       incident.id
       );
+      
+    await prisma.notification.create({
+      data: {
+        title: "New Incident Created",
+        message: incident.title,
+      },
+    });
 
     return NextResponse.json(incident, { status: 201 });
   } catch (error) {

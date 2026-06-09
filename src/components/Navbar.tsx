@@ -1,20 +1,38 @@
 "use client";
 
-import { Bell, Search, Moon, Sun } from "lucide-react";
+import { Bell, Search, Moon, Sun, X } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import {motion} from "framer-motion";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
-
   const [mounted, setMounted] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    async function fetchNotifications() {
+      const res = await fetch("/api/notifications");
+      const data = await res.json();
+
+      if (Array.isArray(data)) {
+        setNotifications(data);
+      } else {
+        setNotifications([]);
+      }
+    }
+    fetchNotifications();
   }, []);
 
   if (!mounted) return null;
+
+  const unreadCount = Array.isArray(notifications)
+    ? notifications.filter(
+        (notification) => !notification.isRead
+      ).length
+    : 0;
 
   return (                    
     
@@ -69,8 +87,176 @@ export default function Navbar() {
           </motion.div>
         </button>
 
-        <div className="p-3 bg-white dark:bg-emerald-950 border border-gray-300 rounded-xl cursor-pointer hover:bg-gray-100 transition-all">
-          <Bell className="text-gray-700" size={20} />
+        <div className="relative">
+          <div
+            onClick={() => setOpen(!open)}
+            className="
+              p-3
+              bg-white dark:bg-emerald-950
+              border border-gray-300
+              rounded-xl
+              cursor-pointer
+              hover:bg-gray-100
+              transition-all
+              relative
+            "
+          >
+            <Bell className="text-gray-700" size={20} />
+            {unreadCount > 0 && (
+              <span
+                className="
+                  absolute
+                  -top-2
+                  -right-2
+                  bg-red-600
+                  text-white
+                  rounded-full
+                  text-xs
+                  px-2
+                "
+              >
+                {unreadCount}
+              </span>
+            )}
+          </div>
+
+          {open && (
+            <div
+              className="
+                absolute
+                right-0
+                mt-3
+                w-80
+                bg-white dark:bg-emerald-900
+                border border-gray-200 dark:border-white
+                rounded-2xl
+                shadow-xl
+                z-50
+                p-4
+              "
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold">
+                  Notifications
+                </h2>
+
+                <button
+                  onClick={async () => {
+                    await Promise.all(
+                      notifications
+                        .filter((n) => !n.isRead)
+                        .map((n) =>
+                          fetch(
+                            `/api/notifications/${n.id}`,
+                            {
+                              method: "PATCH",
+                            }
+                          )
+                        )
+                    );
+
+                    setNotifications(
+                      notifications.map((n) => ({
+                        ...n,
+                        isRead: true,
+                      }))
+                    );
+                  }}
+                  className="
+                    text-sm
+                    text-green-700
+                    hover:underline
+                  "
+                >
+                  Mark all
+                </button>
+              </div>
+
+              {Array.isArray(notifications) && notifications.length === 0 && (
+                <p className="text-gray-500">
+                  No notifications
+                </p>
+              )}
+
+              {Array.isArray(notifications) &&
+                notifications.slice(0, 5).map((notification) => (
+                <div
+                  key={notification.id}
+                  onClick={async () => {
+                    await fetch(
+                      `/api/notifications/${notification.id}`,
+                      {
+                        method: "PATCH",
+                      }
+                    );
+
+                    setNotifications(
+                      notifications.map((n) =>
+                        n.id === notification.id
+                          ? { ...n, isRead: true }
+                          : n
+                      )
+                    );
+                  }}
+                  className={`
+                    border-b border-gray-100
+                    pb-3 mb-3
+                    rounded-xl
+                    p-2
+                    cursor-pointer
+                    transition-colors
+                    hover:bg-gray-100
+                    ${
+                      notification.isRead
+                        ? ""
+                        : "bg-green-50"
+                    }
+                  `}
+                >
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium">
+                      {notification.title}
+                    </p>
+
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+
+                        await fetch(
+                          `/api/notifications/${notification.id}`,
+                          {
+                            method: "DELETE",
+                          }
+                        );
+
+                        setNotifications(
+                          notifications.filter(
+                            (n) => n.id !== notification.id
+                          )
+                        );
+                      }}
+                      className="
+                        text-gray-400
+                        hover:text-red-600
+                        transition-colors
+                      "
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <div className="text-sm text-gray-500">
+                    <p>{notification.message}</p>
+
+                    <p className="text-xs mt-1 text-gray-400">
+                      {new Date(notification.createdAt).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
         </div>
 
         <div className="flex items-center gap-3 bg-white dark:bg-emerald-950 border border-gray-300 rounded-xl px-4 py-2">
