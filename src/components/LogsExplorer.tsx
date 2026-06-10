@@ -33,7 +33,7 @@ export default function LogsExplorer() {
       className="
       bg-white dark:bg-emerald-950
       border border-gray-300 dark:border-slate-700
-      rounded-2xl p-6 mt-8
+      rounded-2xl p-6 mt-6
       transition-all duration-300
       hover:shadow-lg hover:-translate-y-1
     "
@@ -55,7 +55,7 @@ export default function LogsExplorer() {
               pb-4
               rounded-lg
               hover:bg-gray-100
-              dark:hover:bg-slate-800
+              dark:hover:bg-white
               p-3
               transition-colors
             "

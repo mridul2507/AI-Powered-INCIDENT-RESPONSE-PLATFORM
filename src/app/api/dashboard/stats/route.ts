@@ -28,12 +28,38 @@ export async function GET() {
           severity: "CRITICAL",
         },
       });
+    
+    const warningAlerts =
+      await prisma.incident.count({
+        where: {
+          severity: "WARNING",
+        },
+      });
+
+    const infoAlerts =
+      await prisma.incident.count({
+        where: {
+          severity: "INFO",
+        },
+      });
+
+    const resolvedIncidents =
+      await prisma.incident.count({
+        where: {
+          status: "RESOLVED",
+        },
+      });
 
     return NextResponse.json({
       totalServices,
       healthyServices,
+
       activeIncidents,
+      resolvedIncidents,
+
       criticalAlerts,
+      warningAlerts,
+      infoAlerts,
     });
   } catch (error) {
     console.error(error);
