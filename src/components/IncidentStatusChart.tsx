@@ -71,7 +71,7 @@ export default function IncidentStatusChart() {
         bg-white dark:bg-emerald-950
         border border-gray-300
         rounded-2xl
-        p-6 mt-8
+        p-6 mt-6
         transition-all duration-300
         hover:shadow-lg hover:-translate-y-1
       "
