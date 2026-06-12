@@ -19,13 +19,17 @@ export default function LogsExplorer() {
   useEffect(() => {
     async function fetchLogs() {
       const res = await fetch("/api/logs");
-
       const data = await res.json();
-
       setLogs(data.slice(0, 5));
     }
 
     fetchLogs();
+    const interval = setInterval(
+      fetchLogs,
+      10000
+    );
+
+    return () => clearInterval(interval);
   }, []);
 
   return (

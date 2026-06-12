@@ -6,7 +6,12 @@ import { useParams, useRouter } from "next/navigation";
 import SeverityBadge from "@/components/SeverityBadge";
 import StatusBadge from "@/components/StatusBadge";
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, 
+  CirclePlus,
+  RefreshCw,
+  AlertTriangle,
+  Server, 
+  CheckCircle,} from "lucide-react";
 
 const logs = [
           {
@@ -47,26 +52,58 @@ export default function IncidentDetailsPage() {
   const params = useParams();
   const router = useRouter();
 
-  const [incident, setIncident] =
-    useState<Incident | null>(null);
-
-  const [loading, setLoading] =
-    useState(true);
-
+  const [incident, setIncident] = useState<Incident | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [timeline, setTimeline] = useState<any[]>([]);
+  const [mttr, setMttr] = useState<string | null>(null);
   useEffect(() => {
     async function fetchIncident() {
       const res = await fetch(
         `/api/incidents/${params.id}`
       );
-
       const data = await res.json();
+      const timelineRes = await fetch(`/api/incidents/${params.id}/timeline`);
+      const timelineData = await timelineRes.json();
+      const resolvedEvent = [...timelineData]
+        .reverse()
+        .find(
+          (e: any) =>
+            e.type === "RESOLVED" ||
+            (
+              e.type === "STATUS_CHANGED" &&
+              e.message.includes("RESOLVED")
+            )
+        );
 
+      if (resolvedEvent) {
+        const diff =
+          new Date(resolvedEvent.createdAt).getTime() -
+          new Date(data.createdAt).getTime();
+
+        const totalMinutes = Math.floor(diff / 60000);
+        const days = Math.floor(totalMinutes / (24 * 60));
+        const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
+        const minutes = totalMinutes % 60;
+      
+        let formatted = "";
+        if (days > 0) formatted += `${days}d `;
+        if (hours > 0) formatted += `${hours}h `;
+        formatted += `${minutes}m`;
+        setMttr(formatted);
+      }
+      setTimeline(timelineData);
       setIncident(data);
-
       setLoading(false);
+      
     }
 
     fetchIncident();
+    const interval = setInterval(
+      fetchIncident,
+      10000
+    );
+
+    return () => clearInterval(interval);
   }, [params.id]);
 
   async function handleDelete() {
@@ -89,6 +126,34 @@ export default function IncidentDetailsPage() {
       router.refresh();
     } else {
       alert("Failed to delete incident");
+    }
+  }
+
+  async function handleResolve() {
+    if (!incident) return;
+
+    const res = await fetch(
+      `/api/incidents/${incident.id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: incident.title,
+          description: incident.description,
+          severity: incident.severity,
+          status: "RESOLVED",
+          serviceId: incident.service?.id,
+        }),
+      }
+    );
+
+    if (res.ok) {
+      router.refresh();
+      window.location.reload();
+    } else {
+      alert("Failed to resolve incident");
     }
   }
 
@@ -147,6 +212,24 @@ export default function IncidentDetailsPage() {
               </Link>
             )}
 
+            {session?.user.role !== "VIEWER" &&
+              incident.status !== "RESOLVED" && (
+                <button
+                  onClick={handleResolve}
+                  className="
+                    bg-blue-600
+                    text-white
+                    px-4
+                    py-2
+                    rounded-xl
+                    hover:bg-blue-700
+                    transition-colors
+                  "
+                >
+                  Resolve Incident
+                </button>
+              )}
+
             {session?.user.role === "ADMIN" && (
               <button
                 onClick={handleDelete}
@@ -204,6 +287,15 @@ export default function IncidentDetailsPage() {
             </p>
           </div>
          )}
+         <div className="mt-4">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
+            MTTR
+          </p>
+
+          <p className="font-semibold text-blue-700">
+            {mttr ?? "--"}
+          </p>
+        </div>
 
       </div>
 
@@ -397,7 +489,7 @@ export default function IncidentDetailsPage() {
 
         {/*Service Map*/}
         <div className="col-span-2 bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-                transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                transition-colors duration-300 hover:shadow-lg hover:-translate-y-1">
           <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
             Service Map (Tracing)
           </h2>
@@ -440,6 +532,60 @@ export default function IncidentDetailsPage() {
 
             
           </div>
+        </div>
+      </div>
+
+      <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
+        rounded-2xl shadow-sm p-6 mt-6 transition-colors duration-300 hover:shadow-lg hover:-translate-y-1">
+        <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
+          Timeline
+        </h2>
+
+        <div className="space-y-6">
+          {timeline.map((event, index) => (
+            <div
+              key={event.id}
+              className="flex gap-4"
+            >
+              <div className="flex flex-col items-center">
+                <div className={`p-2 rounded-full
+                    ${
+                      event.type === "CREATED"
+                        ? "bg-green-100 text-green-700"
+                        : event.type === "STATUS_CHANGED"
+                        ? "bg-blue-100 text-blue-700"
+                        : event.type === "SEVERITY_CHANGED"
+                        ? "bg-orange-100 text-orange-700"
+                        : event.type === "RESOLVED"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : "bg-purple-100 text-purple-700"
+                    }
+                  `}
+                >
+                  {event.type === "CREATED" ? (<CirclePlus size={16} />) 
+                  : event.type === "STATUS_CHANGED" ? (<RefreshCw size={16} />)
+                  : event.type === "SEVERITY_CHANGED" ? (<AlertTriangle size={16} />) 
+                  : event.type === "RESOLVED" ? (<CheckCircle size={16} />) 
+                  : (<Server size={16} />)
+                  }
+                </div>
+
+                {index !== timeline.length - 1 && (
+                  <div className="w-[2px] flex-1 bg-gray-300 dark:bg-white mt-2"/>
+                )}
+              </div>
+
+              <div className="pb-8">
+                <p className="font-medium">
+                  {event.message}
+                </p>
+
+                <p className="text-sm text-gray-500">
+                  {new Date(event.createdAt).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 

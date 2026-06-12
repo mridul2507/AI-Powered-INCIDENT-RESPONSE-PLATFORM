@@ -43,6 +43,12 @@ export default function ServiceHealthChart() {
         }
 
         fetchServices();
+        const interval = setInterval(
+            fetchServices,
+            10000
+        );
+
+        return () => clearInterval(interval);
         }, []);
 
         const data = [

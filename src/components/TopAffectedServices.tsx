@@ -42,6 +42,12 @@ export default function TopAffectedServices() {
     }
 
     fetchIncidents();
+    const interval = setInterval(
+      fetchIncidents,
+      10000
+    );
+
+    return () => clearInterval(interval);
   }, []);
 
   return (

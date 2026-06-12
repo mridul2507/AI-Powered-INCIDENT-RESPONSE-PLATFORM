@@ -32,6 +32,12 @@ export default function LogsPage() {
   }
 
   fetchLogs();
+  const interval = setInterval(
+    fetchLogs,
+    10000
+  );
+
+  return () => clearInterval(interval);
 }, []);
 
   const filteredLogs = logs.filter((log) => {

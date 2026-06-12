@@ -55,9 +55,54 @@ export async function PATCH(
       );
     }
     const { id } = await params;
-
     const body = await req.json();
+    const oldIncident = await prisma.incident.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        service: true,
+      },
+    });
 
+    if (!oldIncident) {
+      return NextResponse.json(
+        { error: "Incident not found" },
+        { status: 404 }
+      );
+    }
+    if (oldIncident.status !== body.status) {
+      await prisma.timelineEvent.create({
+        data: {
+          incidentId: id,
+          type: "STATUS_CHANGED",
+          message: `Status changed from ${oldIncident.status} to ${body.status}`,
+        },
+      });
+    }
+
+    if (
+      oldIncident.status !== "RESOLVED" &&
+      body.status === "RESOLVED"
+    ) {
+      await prisma.timelineEvent.create({
+        data: {
+          incidentId: id,
+          type: "RESOLVED",
+          message: "Incident resolved",
+        },
+      });
+    }
+
+    if (oldIncident.severity !== body.severity) {
+      await prisma.timelineEvent.create({
+        data: {
+          incidentId: id,
+          type: "SEVERITY_CHANGED",
+          message: `Severity changed from ${oldIncident.severity} to ${body.severity}`,
+        },
+      });
+    }
     const incident = await prisma.incident.update({
       where: {
         id,
@@ -67,8 +112,24 @@ export async function PATCH(
         description: body.description,
         severity: body.severity,
         status: body.status,
+        serviceId: body.serviceId || null,
+      },
+      include: {
+        service: true,
       },
     });
+
+    if (oldIncident.serviceId !== body.serviceId) {
+      await prisma.timelineEvent.create({
+        data: {
+          incidentId: id,
+          type: "SERVICE_CHANGED",
+          message: body.serviceId
+            ? `Assigned to ${incident.service?.name}`
+            : "Service unassigned",
+        },
+      });
+    }
 
     await createAuditLog(
       "UPDATE",

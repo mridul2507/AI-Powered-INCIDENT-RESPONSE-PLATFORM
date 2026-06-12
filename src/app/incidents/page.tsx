@@ -7,6 +7,8 @@ import SeverityBadge from "@/components/SeverityBadge";
 import Link from "next/link";
 import {Search} from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 type Service = {
   id: string;
@@ -39,15 +41,55 @@ export default function IncidentsPage() {
     async function fetchIncidents() {
       const res = await fetch("/api/incidents");
       const data = await res.json();
+
       setIncidents(data);
 
       const servicesRes = await fetch("/api/services");
       const servicesData = await servicesRes.json();
+
       setServices(servicesData);
     }
 
     fetchIncidents();
+
+    const interval = setInterval(
+      fetchIncidents,
+      10000
+    );
+
+    return () => clearInterval(interval);
   }, []);
+
+  async function handleExportPdf() {
+      const res = await fetch("/api/incidents/export");
+      const incidents = await res.json();
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.text("IR Assist Incident Report", 14, 20);
+
+      autoTable(doc, {
+        startY: 30,
+        head: [[
+          "Title",
+          "Severity",
+          "Status",
+          "Service",
+          "Created"
+        ]],
+        body: incidents.map((incident: any) => [
+          incident.title,
+          incident.severity,
+          incident.status,
+          incident.service?.name || "",
+          new Date(
+            incident.createdAt
+          ).toLocaleString(),
+        ]),
+      });
+
+      doc.save("incident-report.pdf");
+    }
 
   const severityMap: Record<
     Incident["severity"],
@@ -119,6 +161,69 @@ export default function IncidentsPage() {
           </Link>
         )}
 
+        <button
+          onClick={async () => {
+            const res = await fetch("/api/incidents/export");
+            const incidents = await res.json();
+            const csv = [
+              [
+                "Title",
+                "Severity",
+                "Status",
+                "Service",
+                "Created At",
+              ],
+              ...incidents.map((incident: any) => [
+                incident.title,
+                incident.severity,
+                incident.status,
+                incident.service?.name || "",
+                new Date(
+                  incident.createdAt
+                ).toLocaleString(),
+              ]),
+            ].map((row) => row.join(",")).join("\n");
+
+            const blob = new Blob([csv], {
+              type: "text/csv",
+            });
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "incidents.csv";
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+          }}
+          className="
+            bg-blue-600
+            text-white
+            px-4
+            py-2
+            rounded-xl
+            hover:bg-blue-700
+            transition-colors
+          "
+        >
+          Export CSV
+        </button>
+
+        <button
+          onClick={handleExportPdf}
+          className="
+            bg-red-600
+            text-white
+            px-4
+            py-2
+            rounded-xl
+            hover:bg-red-700
+            transition-colors
+          "
+        >
+          Export PDF
+        </button>
+
         <ThemeToggle />
       </div>
       </div>
@@ -160,93 +265,93 @@ export default function IncidentsPage() {
       </div>
 
             <div className="flex gap-4 mb-6">
-        <select
-          value={severityFilter}
-          onChange={(e) =>
-            setSeverityFilter(e.target.value)
-          }
-          className="
-            p-3
-            border
-            rounded-xl
-            dark:bg-slate-900
-          "
-        >
-          <option value="ALL">
-            All Severities
-          </option>
+              <select
+                value={severityFilter}
+                onChange={(e) =>
+                  setSeverityFilter(e.target.value)
+                }
+                className="
+                  p-3
+                  border
+                  rounded-xl
+                  dark:bg-slate-900
+                "
+              >
+                <option value="ALL">
+                  All Severities
+                </option>
 
-          <option value="INFO">
-            Info
-          </option>
+                <option value="INFO">
+                  Info
+                </option>
 
-          <option value="WARNING">
-            Warning
-          </option>
+                <option value="WARNING">
+                  Warning
+                </option>
 
-          <option value="CRITICAL">
-            Critical
-          </option>
+                <option value="CRITICAL">
+                  Critical
+                </option>
 
-        </select>
+              </select>
 
-        <select
-          value={statusFilter}
-          onChange={(e) =>
-            setStatusFilter(e.target.value)
-          }
-          className="
-            p-3
-            border
-            rounded-xl
-            dark:bg-slate-900
-          "
-        >
-          <option value="ALL">
-            All Statuses
-          </option>
+              <select
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value)
+                }
+                className="
+                  p-3
+                  border
+                  rounded-xl
+                  dark:bg-slate-900
+                "
+              >
+                <option value="ALL">
+                  All Statuses
+                </option>
 
-          <option value="OPEN">
-            Open
-          </option>
+                <option value="OPEN">
+                  Open
+                </option>
 
-          <option value="INVESTIGATING">
-            Investigating
-          </option>
+                <option value="INVESTIGATING">
+                  Investigating
+                </option>
 
-          <option value="RESOLVED">
-            Resolved
-          </option>
+                <option value="RESOLVED">
+                  Resolved
+                </option>
 
-        </select>
+              </select>
 
-        <select
-          value={serviceFilter}
-          onChange={(e) =>
-            setServiceFilter(e.target.value)
-          }
-          className="
-            p-3
-            border
-            rounded-xl
-            dark:bg-slate-900
-          "
-        >
-          <option value="ALL">
-            All Services
-          </option>
+              <select
+                value={serviceFilter}
+                onChange={(e) =>
+                  setServiceFilter(e.target.value)
+                }
+                className="
+                  p-3
+                  border
+                  rounded-xl
+                  dark:bg-slate-900
+                "
+              >
+                <option value="ALL">
+                  All Services
+                </option>
 
-          {services.map((service) => (
-            <option
-              key={service.id}
-              value={service.name}
-            >
-              {service.name}
-            </option>
-          ))}
-        </select>
+                {services.map((service) => (
+                  <option
+                    key={service.id}
+                    value={service.name}
+                  >
+                    {service.name}
+                  </option>
+                ))}
+              </select>
 
-      </div>
+          </div>
 
       <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
 

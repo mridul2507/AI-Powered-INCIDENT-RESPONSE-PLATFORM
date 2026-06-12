@@ -59,6 +59,12 @@ export default function MetricsChart() {
     }
 
     fetchStats();
+    const interval = setInterval(
+    fetchStats,
+    10000
+  );
+
+  return () => clearInterval(interval);
   }, []);
   return (
     <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-6

@@ -9,6 +9,7 @@ type Incident = {
   description: string | null;
   severity: "CRITICAL" | "WARNING" | "INFO";
   status: "OPEN" | "INVESTIGATING" | "RESOLVED";
+  serviceId: string | null;
 };
 
 export default function EditIncidentPage() {
@@ -20,11 +21,10 @@ export default function EditIncidentPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const [severity, setSeverity] =
-    useState<Incident["severity"]>("INFO");
-
-  const [status, setStatus] =
-    useState<Incident["status"]>("OPEN");
+  const [severity, setSeverity] = useState<Incident["severity"]>("INFO");
+  const [status, setStatus] = useState<Incident["status"]>("OPEN");
+  const [serviceId, setServiceId] = useState("");
+  const [services, setServices] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchIncident() {
@@ -38,7 +38,12 @@ export default function EditIncidentPage() {
       setDescription(data.description || "");
       setSeverity(data.severity);
       setStatus(data.status);
+      setServiceId(data.serviceId || "");
+      
+      const servicesRes = await fetch("/api/services");
+      const servicesData = await servicesRes.json();
 
+      setServices(servicesData);
       setLoading(false);
     }
 
@@ -63,6 +68,7 @@ export default function EditIncidentPage() {
           description,
           severity,
           status,
+          serviceId,
         }),
       }
     );
@@ -168,6 +174,32 @@ export default function EditIncidentPage() {
             <option value="RESOLVED">
               Resolved
             </option>
+          </select>
+
+          <select
+            value={serviceId}
+            onChange={(e) =>
+              setServiceId(e.target.value)
+            }
+            className="
+              w-full
+              p-4
+              border
+              rounded-xl
+              dark:bg-slate-900
+            ">
+            <option value="">
+              No Service
+            </option>
+
+            {services.map((service) => (
+              <option
+                key={service.id}
+                value={service.id}
+              >
+                {service.name}
+              </option>
+            ))}
           </select>
 
           <button

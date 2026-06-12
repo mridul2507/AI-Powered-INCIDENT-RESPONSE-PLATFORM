@@ -41,6 +41,13 @@ export async function POST(req: Request) {
         status: body.status,
         serviceId: body.serviceId || null,
         organizationId: body.organizationId,
+
+        timelineEvents: {
+          create: {
+            type: "CREATED",
+            message: "Incident created",
+          },
+        },
       },
     });
 

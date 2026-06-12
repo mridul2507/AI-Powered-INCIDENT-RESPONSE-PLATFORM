@@ -13,17 +13,21 @@ export default function Navbar() {
 
   useEffect(() => {
     setMounted(true);
+
     async function fetchNotifications() {
       const res = await fetch("/api/notifications");
       const data = await res.json();
-
-      if (Array.isArray(data)) {
-        setNotifications(data);
-      } else {
-        setNotifications([]);
-      }
+      setNotifications(data);
     }
+
     fetchNotifications();
+
+    const interval = setInterval(
+      fetchNotifications,
+      10000
+    );
+
+    return () => clearInterval(interval);
   }, []);
 
   if (!mounted) return null;

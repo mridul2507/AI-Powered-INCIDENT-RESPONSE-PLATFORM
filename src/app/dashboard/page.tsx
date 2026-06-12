@@ -2,7 +2,7 @@
 
 import {useEffect, useState} from "react"
 import DashboardCard from "@/components/DashboardCard";
-import {Server, ShieldCheck, AlertTriangle, Siren} from "lucide-react";
+import {Server, ShieldCheck, AlertTriangle, Siren, Clock3} from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Metrics from "@/components/MetricsChart";
 import ServiceHealthChart from "@/components/ServiceHealthChart";
@@ -23,6 +23,8 @@ export default function Dashboard() {
     criticalAlerts: 0,
     warningAlerts: 0,
     infoAlerts: 0,
+
+    averageMttr: "--",
   });
 
   useEffect(() => {
@@ -39,13 +41,12 @@ export default function Dashboard() {
         setStats({
           totalServices: data.totalServices ?? 0,
           healthyServices: data.healthyServices ?? 0,
-
           activeIncidents: data.activeIncidents ?? 0,
           resolvedIncidents: data.resolvedIncidents ?? 0,
-
           criticalAlerts: data.criticalAlerts ?? 0,
           warningAlerts: data.warningAlerts ?? 0,
           infoAlerts: data.infoAlerts ?? 0,
+          averageMttr: data.averageMttr ?? "--",
         });
       } catch (error) {
         console.error(error);
@@ -53,6 +54,10 @@ export default function Dashboard() {
     }
 
     fetchStats();
+
+    const interval = setInterval(fetchStats, 10000);
+
+    return () => clearInterval(interval);
   }, []);
   return (
 
@@ -107,6 +112,12 @@ export default function Dashboard() {
           title="Info Alerts"
           value={stats.infoAlerts.toString()}
           icon={Server}
+        />
+
+        <DashboardCard
+          title="Average MTTR"
+          value={stats.averageMttr}
+          icon={Clock3}
         />
 
       </div>

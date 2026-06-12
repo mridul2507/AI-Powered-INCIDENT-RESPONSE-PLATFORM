@@ -26,6 +26,12 @@ export default function RecentIncidents() {
     }
 
     fetchIncidents();
+    const interval = setInterval(
+      fetchIncidents,
+      10000
+    );
+
+    return () => clearInterval(interval);
   }, []);
   return (
     <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-6

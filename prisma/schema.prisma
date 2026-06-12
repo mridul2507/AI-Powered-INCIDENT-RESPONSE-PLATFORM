@@ -75,6 +75,8 @@ model Incident {
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id])
 
+  timelineEvents TimelineEvent[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -132,6 +134,18 @@ model Notification {
   message String
 
   isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+model TimelineEvent {
+  id String @id @default(cuid())
+
+  type String
+  message String
+
+  incidentId String
+  incident Incident @relation(fields: [incidentId], references: [id])
 
   createdAt DateTime @default(now())
 }

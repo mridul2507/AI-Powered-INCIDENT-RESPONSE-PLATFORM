@@ -43,6 +43,12 @@ export default function IncidentStatusChart() {
     }
 
     fetchIncidents();
+    const interval = setInterval(
+      fetchIncidents,
+      10000
+    );
+
+    return () => clearInterval(interval);
   }, []);
 
   const data = [

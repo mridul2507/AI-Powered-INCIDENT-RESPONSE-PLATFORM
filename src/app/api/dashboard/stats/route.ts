@@ -50,6 +50,46 @@ export async function GET() {
         },
       });
 
+    const resolvedEvents = await prisma.timelineEvent.findMany({
+      where: {
+        type: "RESOLVED",
+      },
+      include: {
+        incident: true,
+      },
+    });
+
+    let averageMttr = "--";
+
+    if (resolvedEvents.length > 0) {
+      const totalMs = resolvedEvents.reduce(
+        (sum, event) =>
+          sum +
+          (
+            new Date(event.createdAt).getTime() -
+            new Date(event.incident.createdAt).getTime()
+          ),
+        0
+      );
+
+      const avgMs = totalMs / resolvedEvents.length;
+
+      const totalMinutes = Math.floor(avgMs / 60000);
+
+      const days = Math.floor(totalMinutes / (24 * 60));
+      const hours = Math.floor(
+        (totalMinutes % (24 * 60)) / 60
+      );
+      const minutes = totalMinutes % 60;
+
+      averageMttr =
+        days > 0
+          ? `${days}d ${hours}h ${minutes}m`
+          : hours > 0
+          ? `${hours}h ${minutes}m`
+          : `${minutes}m`;
+    }
+
     return NextResponse.json({
       totalServices,
       healthyServices,
@@ -60,6 +100,8 @@ export async function GET() {
       criticalAlerts,
       warningAlerts,
       infoAlerts,
+
+      averageMttr,
     });
   } catch (error) {
     console.error(error);
