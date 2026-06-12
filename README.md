@@ -1,65 +1,93 @@
 # IR Assist
 
-AI-Powered Incident Response Dashboard built with Next.js, TypeScript, Tailwind CSS, Recharts, and Framer Motion.
+# AI-Powered Incident Response & Observability Platform
 
-## Overview
+IR Assist is a full-stack incident response and observability platform built with **Next.js, TypeScript, Prisma, and PostgreSQL**. It helps teams manage incidents, monitor service health, analyze logs, track operational metrics, and maintain audit trails through a modern and responsive interface.
 
-IR Assist is a modern incident management and service monitoring dashboard designed to help teams track incidents, monitor service health, analyze logs, and visualize operational metrics through an intuitive interface.
-
-The project focuses on delivering a responsive, production-ready user experience with dark mode support, smooth animations, and scalable frontend architecture.
+The project is inspired by modern incident management and observability platforms and focuses on building production-style features with scalable architecture.
 
 ---
 
 ## Features
 
-### Dashboard
+### Dashboard & Analytics
 
-* Service health overview
-* Incident summary cards
-* System metrics visualization
-* Recent incidents section
-* Logs explorer
+* System overview dashboard
+* Service health monitoring
+* Incident status distribution
+* Incident trend analytics
+* Top affected services
+* MTTR (Mean Time To Resolution) analytics
+* Real-time metric updates
 
 ### Incident Management
 
-* Incident listing page
+* Create, update and delete incidents
 * Incident details page
 * Severity and status tracking
-* Search functionality
+* Service association
+* Search and filtering
+* Resolve incident workflow
+
+### Incident Timeline
+
+* Incident activity feed
+* Timeline events
+* Status change tracking
+* Severity change tracking
+* Service assignment tracking
+* Resolution events
+* Colored badges and icons
 
 ### Service Monitoring
 
 * Service inventory
-* Service details view
-* Uptime and response metrics
-* Search functionality
+* Service details
+* Health status tracking
+* Response metrics
+* Availability monitoring
 
 ### Logs Explorer
 
-* Structured log display
-* Severity-based categorization
-* Search support
+* Structured log viewer
+* Search functionality
+* Severity categorization
+* Real-time log updates
 
-### Analytics
+### Notifications
 
-* Incident trend visualization
-* Service health distribution
-* Interactive charts
+* Notification center
+* Unread notification count
+* Incident notifications
+* Real-time updates
 
-### Settings
+### Role-Based Access Control (RBAC)
 
-* Notification preferences
-* Appearance controls
-* Dark mode support
-* Automation settings
+* Admin
+* Engineer
+* Viewer
+
+### Audit Logs
+
+Track system activities including:
+
+* Incident creation
+* Updates
+* Resolution
+* Deletion
+
+### Exports
+
+* CSV export
+* PDF report generation
 
 ### User Experience
 
 * Responsive design
-* Smooth page transitions
-* Sidebar navigation
-* Dark / Light mode
-* Interactive animations
+* Dark mode support
+* Smooth animations
+* Interactive charts
+* Modern UI
 
 ---
 
@@ -71,6 +99,13 @@ The project focuses on delivering a responsive, production-ready user experience
 * React
 * TypeScript
 * Tailwind CSS v4
+
+### Backend
+
+* Next.js API Routes
+* Prisma ORM
+* PostgreSQL
+* NextAuth
 
 ### UI & Visualization
 
@@ -84,37 +119,70 @@ The project focuses on delivering a responsive, production-ready user experience
 
 ---
 
+## Architecture
+
+```
+Frontend
+├── Next.js App Router
+├── Tailwind CSS
+├── Recharts
+└── Framer Motion
+
+Backend
+├── API Routes
+├── Prisma ORM
+├── PostgreSQL
+└── NextAuth
+
+Core Modules
+├── Dashboard
+├── Incident Management
+├── Timeline Events
+├── Service Monitoring
+├── Notifications
+├── Logs Explorer
+├── Audit Logs
+├── Analytics
+└── Exports
+```
+
+---
+
 ## Screenshots
 
 ### Dashboard
 
 ![Dashboard](./public/screenshots/dashboard.png)
 
-### Analytics
+### Incident Details
 
-![Analytics](./public/screenshots/analytics.png)
+![Incident Details](./public/screenshots/incident-details.png)
 
-### Settings
+### Logs Explorer
 
-![Settings](./public/screenshots/settings.png)
+![Logs Explorer](./public/screenshots/logs.png)
+
+### Audit Logs
+
+![Audit Logs](./public/screenshots/audit.png)
 
 ---
 
 ## Installation
 
-Clone the repository:
+Clone the repository
 
 ```bash
-git clone <https://github.com/mridul2507/AI-Powered-INCIDENT-RESPONSE-PLATFORM>
+git clone https://github.com/mridul2507/AI-Powered-INCIDENT-RESPONSE-PLATFORM.git
 ```
 
-Install dependencies:
+Install dependencies
 
 ```bash
 npm install
 ```
 
-Start development server:
+Run development server
 
 ```bash
 npm run dev
@@ -130,36 +198,61 @@ npm run build
 
 ---
 
-## Deployment
-
-The application is deployed on Vercel.
-
-Live Demo:
+## Live Demo
 
 https://ir-assist.vercel.app/
-
-
----
-
-## Future Improvements
-
-* Authentication & Role Management
-* Real-time Monitoring
-* Backend API Integration
-* Database Support
-* AI-Powered Root Cause Analysis
-* Alerting & Notification System
-* Incident Automation Workflows
 
 ---
 
 ## Project Status
 
-Frontend Phase: Complete
+### Current Stage
 
-Current Focus:
+Production-Style Full-Stack Observability Platform
 
-* Backend Development
-* Database Integration
-* AI Features
-* Production Enhancements
+### Completed
+
+* Dashboard Analytics
+* Incident Management
+* Service Monitoring
+* Logs Explorer
+* Notifications
+* RBAC
+* Audit Logs
+* Timeline Events
+* MTTR Analytics
+* CSV Export
+* PDF Export
+* Real-Time Updates
+
+---
+
+## Upcoming Features
+
+### AI
+
+* AI Root Cause Analysis
+* AI Incident Summaries
+* AI Postmortem Generation
+* AI Log Analysis
+* AI Insights Dashboard
+
+### Platform Enhancements
+
+* Server-Sent Events (SSE)
+* Multi-Tenant Organizations
+* Advanced Analytics
+* SLA Tracking
+* MTTD Metrics
+
+---
+
+## Deployment
+
+The application is deployed on Vercel.
+
+---
+
+## License
+
+MIT
