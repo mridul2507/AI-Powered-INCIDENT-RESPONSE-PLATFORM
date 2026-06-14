@@ -11,7 +11,9 @@ import { ArrowLeft,
   RefreshCw,
   AlertTriangle,
   Server, 
-  CheckCircle,} from "lucide-react";
+  CheckCircle,
+  Loader2,} from "lucide-react";
+import ReactMarkdown from "react-markdown"
 
 const logs = [
           {
@@ -56,6 +58,16 @@ export default function IncidentDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [timeline, setTimeline] = useState<any[]>([]);
   const [mttr, setMttr] = useState<string | null>(null);
+
+  const [analysis, setAnalysis] = useState("");
+  const [analyzing, setAnalyzing] = useState(false);
+
+  const [logAnalysis, setLogAnalysis] = useState("");
+  const [analyzingLogs, setAnalyzingLogs] = useState(false);
+
+  const [summary, setSummary] = useState("");
+  const [summarizing, setSummarizing] = useState(false);
+
   useEffect(() => {
     async function fetchIncident() {
       const res = await fetch(
@@ -93,6 +105,7 @@ export default function IncidentDetailsPage() {
       }
       setTimeline(timelineData);
       setIncident(data);
+      setAnalysis(data.aiSummary || "");
       setLoading(false);
       
     }
@@ -105,6 +118,94 @@ export default function IncidentDetailsPage() {
 
     return () => clearInterval(interval);
   }, [params.id]);
+
+  async function analyzeIncident() {
+    setAnalyzing(true);
+      const res = await fetch("/api/ai-analysis",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            id: incident.id,
+            title: incident.title,
+            description:
+              incident.description,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      setAnalysis(data.summary);
+      setAnalyzing(false);
+    }
+
+    async function analyzeLogs() {
+      setAnalyzingLogs(true);
+
+      const res = await fetch(
+        "/api/ai-log-analysis",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            logs,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      setLogAnalysis(
+        data.analysis
+      );
+
+      setAnalyzingLogs(false);
+    }
+
+    async function generateSummary() {
+      setSummarizing(true);
+
+      const res = await fetch(
+        "/api/ai-summary",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            title: incident?.title,
+            description:
+              incident?.description,
+            severity:
+              incident?.severity,
+            status:
+              incident?.status,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      setSummary(
+        data.summary
+      );
+
+      setSummarizing(false);
+    }
 
   async function handleDelete() {
     if (!incident) return;
@@ -198,14 +299,8 @@ export default function IncidentDetailsPage() {
             {session?.user.role !== "VIEWER" && (
               <Link
                 href={`/incidents/${incident.id}/edit`}
-                className="
-                  bg-green-700
-                  text-white
-                  px-4
-                  py-2
-                  rounded-xl
-                  hover:bg-green-800
-                  transition-colors
+                className=" bg-green-700 text-white px-4 py-2
+                  rounded-xl hover:bg-green-800 transition-colors
                 "
               >
                 Edit Incident
@@ -216,15 +311,8 @@ export default function IncidentDetailsPage() {
               incident.status !== "RESOLVED" && (
                 <button
                   onClick={handleResolve}
-                  className="
-                    bg-blue-600
-                    text-white
-                    px-4
-                    py-2
-                    rounded-xl
-                    hover:bg-blue-700
-                    transition-colors
-                  "
+                  className=" bg-blue-600 text-white px-4 py-2
+                    rounded-xl hover:bg-blue-700 transition-colors"
                 >
                   Resolve Incident
                 </button>
@@ -233,19 +321,57 @@ export default function IncidentDetailsPage() {
             {session?.user.role === "ADMIN" && (
               <button
                 onClick={handleDelete}
-                className="
-                  bg-red-600
-                  text-white
-                  px-4
-                  py-2
-                  rounded-xl
-                  hover:bg-red-700
-                  transition-colors
-                "
+                className=" bg-red-600 text-white px-4 py-2
+                  rounded-xl hover:bg-red-700 transition-colors "
               >
                 Delete
               </button>
             )}
+
+            <button
+              onClick={generateSummary}
+              className=" bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-xl"
+            >
+              {
+                summarizing
+                  ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                "Generate with summary"
+              )}
+            </button>
+
+            <button
+              onClick={analyzeIncident}
+              className=" bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl"
+            >
+              {analyzing
+                ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  <span>Analyzing...</span>
+                </>
+              ) : (
+                "Analyze with AI"
+              )}
+            </button>
+
+            <button
+              onClick={analyzeLogs}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl flex items-center gap-2"
+            >
+              {analyzingLogs ? (
+                <>
+                  <Loader2 className="animate-spin" size={18} />
+                  <span>Analyzing Logs...</span>
+                </>
+              ) : (
+                "Analyze Logs"
+              )}
+            </button>
           </div>
         </div>
 
@@ -296,11 +422,85 @@ export default function IncidentDetailsPage() {
             {mttr ?? "--"}
           </p>
         </div>
-
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6 mt-6">
-        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
+      <div className=" bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl
+        shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 mt-6">
+
+        <h2 className=" text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
+          AI Incident Summary
+        </h2>
+
+        <ReactMarkdown
+          components={{
+            h2: ({ children }) => (
+              <h2 className=" text-xl font-bold text-blue-700 mt-6 mb-3">
+                {children}
+              </h2>
+            ),
+
+            p: ({ children }) => (
+              <p className=" leading-8 mb-4 text-gray-700 dark:text-slate-300">
+                {children}
+              </p>
+            ),
+
+            li: ({ children }) => (
+              <li className="
+                ml-6
+                mb-2
+                list-disc
+              ">
+                {children}
+              </li>
+            ),
+          }}
+        >
+          {summary || "Click Generate with summary"}
+        </ReactMarkdown>
+      </div>
+
+      <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 
+          rounded-2xl shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 mt-6">
+
+        <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
+          AI Root Cause Analysis
+        </h2>
+          <ReactMarkdown
+            components={{
+              h1: ({ children }) => (
+                <h1 className=" text-2xl font-bold text-purple-700 mb-4">
+                  {children}
+                </h1>
+              ),
+              h2: ({ children }) => (
+                <h2 className=" text-xl font-semibold text-blue-700 mt-6 mb-3">
+                  {children}
+                </h2>
+              ),
+              p: ({ children }) => (
+                <p className=" text-gray-700 dark:text-slate-300 leading-8 mb-4">
+                  {children}
+                </p>
+              ),
+              li: ({ children }) => (
+                <li className=" ml-6 mb-2 list-disc">
+                  {children}
+                </li>
+              ),
+              strong: ({ children }) => (
+                <strong className="font-bold text-green-700">
+                  {children}
+                </strong>
+              ),
+            }}
+          >
+            {analysis || "Click Analyze with AI"}
+          </ReactMarkdown>
+        </div>
+
+        <div className="grid grid-cols-2 gap-6 mt-6">
+          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
               transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
           <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
@@ -340,103 +540,8 @@ export default function IncidentDetailsPage() {
             </div>
 
           </div>
-
         </div>
-
-        {/* AI Analysis Card */}
-        <div className="col-span-2">
-          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 h-full 
-              transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-
-            <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
-              AI Root Cause Analysis
-            </h2>
-
-            <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
-
-              <p className="font-semibold text-violet-700 mb-2">
-                Root Cause
-              </p>
-
-              <p className="text-gray-700">
-                The payment service is experiencing elevated error rates due to
-                database connection pool exhaustion. Incoming requests are
-                exceeding available database connections.
-              </p>
-
-            </div>
-
-            <div className="mt-6">
-              <p className="font-semibold text-yellow-800 mb-2">
-                Confidence Score
-              </p>
-
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div className="bg-green-600 h-3 rounded-full w-[92%] transition-all duration-700"></div>
-              </div>
-
-              <p className="text-sm text-gray-600 mt-2">
-                Confidence Score: 92%
-              </p>
-            </div>
-
-            <div className="mt-6">
-              <h3 className="font-semibold text-green-900 dark:text-green-400 mb-3">
-                Contributing Factors
-              </h3>
-
-              <ul className="space-y-2 text-gray-700">
-
-                <li>
-                  • Increased payment traffic after promotional campaign
-                </li>
-
-                <li>
-                  • Database connection pool reached maximum capacity
-                </li>
-
-                <li>
-                  • Slow database queries causing connection retention
-                </li>
-
-                <li>
-                  • Retry logic amplifying incoming requests
-                </li>
-
-              </ul>
-
-            </div>
-
-            <div className="mt-6">
-              <h3 className="font-semibold text-green-900 dark:text-green-400 mb-3">
-                Recommended Actions
-              </h3>
-
-              <ul className="space-y-2 text-gray-700">
-
-                <li>
-                  • Increase database connection pool size
-                </li>
-
-                <li>
-                  • Optimize slow-running queries
-                </li>
-
-                <li>
-                  • Add rate limiting to retry mechanism
-                </li>
-
-                <li>
-                  • Monitor active connections more aggressively
-                </li>
-
-              </ul>
-
-            </div>
-
-          </div>
-        </div>
-
+        
         {/*Logs Explorer*/}
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
               transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
@@ -484,12 +589,51 @@ export default function IncidentDetailsPage() {
             </p>
           </div>
         ))}
-
         </div>
+      </div>
+
+      <div className=" bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
+              rounded-2xl shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 mt-6">
+
+              <h2 className=" text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
+                AI Log Analysis
+              </h2>
+
+              <ReactMarkdown
+                components={{
+                  h2: ({ children }) => (
+                    <h2 className=" text-xl font-bold text-blue-700 mt-6 mb-3">
+                      {children}
+                    </h2>
+                  ),
+
+                  p: ({ children }) => (
+                    <p className=" leading-8 mb-4 text-gray-700 dark:text-slate-300">
+                      {children}
+                    </p>
+                  ),
+
+                  li: ({ children }) => (
+                    <li className=" ml-6 mb-2 list-disc">
+                      {children}
+                    </li>
+                  ),
+
+                  strong: ({ children }) => (
+                    <strong className=" text-green-700 font-bold">
+                      {children}
+                    </strong>
+                  ),
+                }}
+              >
+                {logAnalysis || "Click Analyze Logs."}
+              </ReactMarkdown>
+
+            </div>
 
         {/*Service Map*/}
-        <div className="col-span-2 bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-                transition-colors duration-300 hover:shadow-lg hover:-translate-y-1">
+        <div className="col-span-2 bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl 
+            shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 mt-6">
           <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
             Service Map (Tracing)
           </h2>
@@ -533,61 +677,60 @@ export default function IncidentDetailsPage() {
             
           </div>
         </div>
-      </div>
 
-      <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
-        rounded-2xl shadow-sm p-6 mt-6 transition-colors duration-300 hover:shadow-lg hover:-translate-y-1">
-        <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
-          Timeline
-        </h2>
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
+          rounded-2xl shadow-sm p-6 mt-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
+            Timeline
+          </h2>
 
-        <div className="space-y-6">
-          {timeline.map((event, index) => (
-            <div
-              key={event.id}
-              className="flex gap-4"
-            >
-              <div className="flex flex-col items-center">
-                <div className={`p-2 rounded-full
-                    ${
-                      event.type === "CREATED"
-                        ? "bg-green-100 text-green-700"
-                        : event.type === "STATUS_CHANGED"
-                        ? "bg-blue-100 text-blue-700"
-                        : event.type === "SEVERITY_CHANGED"
-                        ? "bg-orange-100 text-orange-700"
-                        : event.type === "RESOLVED"
-                        ? "bg-emerald-100 text-emerald-700"
-                        : "bg-purple-100 text-purple-700"
+          <div className="space-y-6">
+            {timeline.map((event, index) => (
+              <div
+                key={event.id}
+                className="flex gap-4"
+              >
+                <div className="flex flex-col items-center">
+                  <div className={`p-2 rounded-full
+                      ${
+                        event.type === "CREATED"
+                          ? "bg-green-100 text-green-700"
+                          : event.type === "STATUS_CHANGED"
+                          ? "bg-blue-100 text-blue-700"
+                          : event.type === "SEVERITY_CHANGED"
+                          ? "bg-orange-100 text-orange-700"
+                          : event.type === "RESOLVED"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-purple-100 text-purple-700"
+                      }
+                    `}
+                  >
+                    {event.type === "CREATED" ? (<CirclePlus size={16} />) 
+                    : event.type === "STATUS_CHANGED" ? (<RefreshCw size={16} />)
+                    : event.type === "SEVERITY_CHANGED" ? (<AlertTriangle size={16} />) 
+                    : event.type === "RESOLVED" ? (<CheckCircle size={16} />) 
+                    : (<Server size={16} />)
                     }
-                  `}
-                >
-                  {event.type === "CREATED" ? (<CirclePlus size={16} />) 
-                  : event.type === "STATUS_CHANGED" ? (<RefreshCw size={16} />)
-                  : event.type === "SEVERITY_CHANGED" ? (<AlertTriangle size={16} />) 
-                  : event.type === "RESOLVED" ? (<CheckCircle size={16} />) 
-                  : (<Server size={16} />)
-                  }
+                  </div>
+
+                  {index !== timeline.length - 1 && (
+                    <div className="w-[2px] flex-1 bg-gray-300 dark:bg-white mt-2"/>
+                  )}
                 </div>
 
-                {index !== timeline.length - 1 && (
-                  <div className="w-[2px] flex-1 bg-gray-300 dark:bg-white mt-2"/>
-                )}
-              </div>
+                <div className="pb-8">
+                  <p className="font-medium">
+                    {event.message}
+                  </p>
 
-              <div className="pb-8">
-                <p className="font-medium">
-                  {event.message}
-                </p>
-
-                <p className="text-sm text-gray-500">
-                  {new Date(event.createdAt).toLocaleString()}
-                </p>
+                  <p className="text-sm text-gray-500">
+                    {new Date(event.createdAt).toLocaleString()}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
     </div>
   );
