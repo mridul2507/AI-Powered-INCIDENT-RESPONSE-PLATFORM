@@ -120,6 +120,7 @@ export default function IncidentDetailsPage() {
   }, [params.id]);
 
   async function analyzeIncident() {
+    if(!incident) return
     setAnalyzing(true);
       const res = await fetch("/api/ai-analysis",
         {
