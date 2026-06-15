@@ -1,5 +1,6 @@
 import { ai } from "@/lib/gemini";
 import { NextResponse } from "next/server";
+import {prisma} from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -43,9 +44,20 @@ Keep everything concise.
 `,
       });
 
+    const summary =
+      response.text || "No summary generated.";
+
+    await prisma.incident.update({
+      where: {
+        id: body.id,
+      },
+      data: {
+        aiIncidentSummary: summary,
+      },
+    });
+
     return NextResponse.json({
-      summary:
-        response.text,
+      summary,
     });
 
   } catch (error) {

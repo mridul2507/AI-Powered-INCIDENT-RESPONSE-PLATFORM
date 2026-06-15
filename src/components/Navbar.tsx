@@ -52,7 +52,7 @@ export default function Navbar() {
         <input
           type="text"
           placeholder="Search incidents, logs..."
-          className="outline-none w-full text-gray-700"
+          className="outline-none w-full text-gray-700 dark:text-gray-300"
         />
 
       </div>

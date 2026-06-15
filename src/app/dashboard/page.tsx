@@ -11,6 +11,7 @@ import LogsExplorer from "@/components/LogsExplorer";
 import IncidentStatusChart from "@/components/IncidentStatusChart";
 import TopAffectedServices from "@/components/TopAffectedServices";
 import IncidentTrendChart from "@/components/IncidentTrendChart";
+import ReactMarkdown from "react-markdown";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -26,6 +27,8 @@ export default function Dashboard() {
 
     averageMttr: "--",
   });
+  const [dashboardInsights, setDashboardInsights] = useState("");
+  const [analyzingDashboard, setAnalyzingDashboard] = useState(false);
 
   useEffect(() => {
     async function fetchStats() {
@@ -59,6 +62,32 @@ export default function Dashboard() {
 
     return () => clearInterval(interval);
   }, []);
+
+  async function generateDashboardInsights() {
+    setAnalyzingDashboard(true);
+
+    const res = await fetch(
+      "/api/ai-dashboard",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify(stats),
+      }
+    );
+
+    const data = await res.json();
+
+    setDashboardInsights(
+      data.insights
+    );
+
+    setAnalyzingDashboard(false);
+  }
   return (
 
   <div className="flex min-h-screen bg-white dark:bg-emerald-950">
@@ -66,9 +95,22 @@ export default function Dashboard() {
     <main className="flex-1 p-10">
       <Navbar />
       
-      <h1 className="text-green-900 dark:text-green-400 text-4xl font-bold mb-8">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-green-900 dark:text-green-400 text-4xl font-bold">
         IR Assist
       </h1>
+
+      <button
+        onClick={generateDashboardInsights}
+        className=" bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-xl"
+      >
+        {
+          analyzingDashboard
+            ? "Analyzing..."
+            : "Analyze Dashboard"
+        }
+      </button>
+      </div>
 
       <div className="grid grid-cols-4 gap-4 mb-8">
         
@@ -141,6 +183,51 @@ export default function Dashboard() {
         <LogsExplorer />
       </div>
 
+      <div
+        className=" bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
+          rounded-2xl shadow-sm p-6 mt-6"
+      >
+
+        <h2
+          className=" text-xl font-semibold text-green-900 dark:text-green-400 mb-4"
+        >
+          AI Dashboard Insights
+        </h2>
+
+        <ReactMarkdown
+          components={{
+            h2: ({ children }) => (
+              <h2
+                className=" text-xl font-bold text-blue-700 mt-6 mb-3"
+              >
+                {children}
+              </h2>
+            ),
+
+            p: ({ children }) => (
+              <p
+                className=" leading-8 mb-4 text-gray-700 dark:text-slate-300"
+              >
+                {children}
+              </p>
+            ),
+
+            li: ({ children }) => (
+              <li
+                className=" ml-6 mb-2 list-disc"
+              >
+                {children}
+              </li>
+            ),
+          }}
+        >
+          {
+            dashboardInsights ||
+            "Analyze the dashboard to understand overall system health and risks."
+          }
+        </ReactMarkdown>
+
+      </div>
     </main>
 
   </div>

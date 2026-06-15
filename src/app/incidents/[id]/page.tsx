@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import SeverityBadge from "@/components/SeverityBadge";
 import StatusBadge from "@/components/StatusBadge";
+import AIInsightCard from "@/components/AIInsightCard";
 import Link from "next/link"
 import { ArrowLeft, 
   CirclePlus,
@@ -12,7 +13,8 @@ import { ArrowLeft,
   AlertTriangle,
   Server, 
   CheckCircle,
-  Loader2,} from "lucide-react";
+  Loader2,
+  FileText, Brain, FileSearch, Network, GitBranch} from "lucide-react";
 import ReactMarkdown from "react-markdown"
 
 const logs = [
@@ -68,6 +70,12 @@ export default function IncidentDetailsPage() {
   const [summary, setSummary] = useState("");
   const [summarizing, setSummarizing] = useState(false);
 
+  const [timelineInsights, setTimelineInsights] = useState("");
+  const [analyzingTimeline, setAnalyzingTimeline] = useState(false);
+
+  const [dependencyExplanation, setDependencyExplanation] = useState("");
+  const [analyzingDependencies, setAnalyzingDependencies] = useState(false);
+
   useEffect(() => {
     async function fetchIncident() {
       const res = await fetch(
@@ -105,7 +113,13 @@ export default function IncidentDetailsPage() {
       }
       setTimeline(timelineData);
       setIncident(data);
-      setAnalysis(data.aiSummary || "");
+
+      setAnalysis(data.aiRootCauseAnalysis || "");
+      setSummary(data.aiIncidentSummary || "");
+      setLogAnalysis(data.aiLogAnalysis || "");
+      setTimelineInsights(data.aiTimelineInsights || "");
+      setDependencyExplanation(data.aiDependencyAnalysis || "");
+      
       setLoading(false);
       
     }
@@ -120,6 +134,7 @@ export default function IncidentDetailsPage() {
   }, [params.id]);
 
   async function analyzeIncident() {
+    if(analysis) return
     if(!incident) return
     setAnalyzing(true);
       const res = await fetch("/api/ai-analysis",
@@ -134,8 +149,7 @@ export default function IncidentDetailsPage() {
           body: JSON.stringify({
             id: incident.id,
             title: incident.title,
-            description:
-              incident.description,
+            description: incident.description,
           }),
         }
       );
@@ -147,6 +161,7 @@ export default function IncidentDetailsPage() {
     }
 
     async function analyzeLogs() {
+      if(logAnalysis) return
       setAnalyzingLogs(true);
 
       const res = await fetch(
@@ -160,6 +175,7 @@ export default function IncidentDetailsPage() {
           },
 
           body: JSON.stringify({
+            id: incident?.id,
             logs,
           }),
         }
@@ -175,6 +191,7 @@ export default function IncidentDetailsPage() {
     }
 
     async function generateSummary() {
+      if(summary) return
       setSummarizing(true);
 
       const res = await fetch(
@@ -188,13 +205,11 @@ export default function IncidentDetailsPage() {
           },
 
           body: JSON.stringify({
+            id: incident?.id,
             title: incident?.title,
-            description:
-              incident?.description,
-            severity:
-              incident?.severity,
-            status:
-              incident?.status,
+            description: incident?.description,
+            severity: incident?.severity,
+            status: incident?.status,
           }),
         }
       );
@@ -206,6 +221,69 @@ export default function IncidentDetailsPage() {
       );
 
       setSummarizing(false);
+    }
+
+    async function generateTimelineInsights() {
+      if(timelineInsights) return
+      setAnalyzingTimeline(true);
+
+      const res = await fetch(
+        "/api/ai-timeline",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            id: incident?.id,
+            timeline,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      setTimelineInsights(
+        data.insights
+      );
+
+      setAnalyzingTimeline(false);
+    }
+
+    async function generateDependencyExplanation() {
+      if(dependencyExplanation) return
+      if (!incident) return;
+
+      setAnalyzingDependencies(true);
+
+      const res = await fetch(
+        "/api/ai-service-dependency",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            id: incident.id,
+            serviceName: incident.service?.name,
+            incidentTitle: incident.title,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      setDependencyExplanation(
+        data.explanation
+      );
+
+      setAnalyzingDependencies(false);
     }
 
   async function handleDelete() {
@@ -328,51 +406,6 @@ export default function IncidentDetailsPage() {
                 Delete
               </button>
             )}
-
-            <button
-              onClick={generateSummary}
-              className=" bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-xl"
-            >
-              {
-                summarizing
-                  ? (
-                <>
-                  <Loader2 className="animate-spin" size={18} />
-                  <span>Generating...</span>
-                </>
-              ) : (
-                "Generate with summary"
-              )}
-            </button>
-
-            <button
-              onClick={analyzeIncident}
-              className=" bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl"
-            >
-              {analyzing
-                ? (
-                <>
-                  <Loader2 className="animate-spin" size={18} />
-                  <span>Analyzing...</span>
-                </>
-              ) : (
-                "Analyze with AI"
-              )}
-            </button>
-
-            <button
-              onClick={analyzeLogs}
-              className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl flex items-center gap-2"
-            >
-              {analyzingLogs ? (
-                <>
-                  <Loader2 className="animate-spin" size={18} />
-                  <span>Analyzing Logs...</span>
-                </>
-              ) : (
-                "Analyze Logs"
-              )}
-            </button>
           </div>
         </div>
 
@@ -425,84 +458,35 @@ export default function IncidentDetailsPage() {
         </div>
       </div>
 
-      <div className=" bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl
-        shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 mt-6">
+      <div className="grid grid-cols-2 gap-6">
+        <AIInsightCard
+          title="AI Incident Summary"
+          icon={<FileText className="text-cyan-600" />}
+          content={summary}
+          placeholder="Generate an executive summary."
+          loading={summarizing}
+          buttonText="Generate"
+          loadingText="Generating..."
+          buttonColor="bg-cyan-600 hover:bg-cyan-700"
+          onClick={generateSummary}
+        />
 
-        <h2 className=" text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
-          AI Incident Summary
-        </h2>
-
-        <ReactMarkdown
-          components={{
-            h2: ({ children }) => (
-              <h2 className=" text-xl font-bold text-blue-700 mt-6 mb-3">
-                {children}
-              </h2>
-            ),
-
-            p: ({ children }) => (
-              <p className=" leading-8 mb-4 text-gray-700 dark:text-slate-300">
-                {children}
-              </p>
-            ),
-
-            li: ({ children }) => (
-              <li className="
-                ml-6
-                mb-2
-                list-disc
-              ">
-                {children}
-              </li>
-            ),
-          }}
-        >
-          {summary || "Click Generate with summary"}
-        </ReactMarkdown>
-      </div>
-
-      <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 
-          rounded-2xl shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 mt-6">
-
-        <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
-          AI Root Cause Analysis
-        </h2>
-          <ReactMarkdown
-            components={{
-              h1: ({ children }) => (
-                <h1 className=" text-2xl font-bold text-purple-700 mb-4">
-                  {children}
-                </h1>
-              ),
-              h2: ({ children }) => (
-                <h2 className=" text-xl font-semibold text-blue-700 mt-6 mb-3">
-                  {children}
-                </h2>
-              ),
-              p: ({ children }) => (
-                <p className=" text-gray-700 dark:text-slate-300 leading-8 mb-4">
-                  {children}
-                </p>
-              ),
-              li: ({ children }) => (
-                <li className=" ml-6 mb-2 list-disc">
-                  {children}
-                </li>
-              ),
-              strong: ({ children }) => (
-                <strong className="font-bold text-green-700">
-                  {children}
-                </strong>
-              ),
-            }}
-          >
-            {analysis || "Click Analyze with AI"}
-          </ReactMarkdown>
+        <AIInsightCard
+          title="AI Root Cause Analysis"
+          icon={<Brain className="text-purple-600" />}
+          content={analysis}
+          placeholder="Analyze the incident root cause."
+          loading={analyzing}
+          buttonText="Analyze"
+          loadingText="Analyzing..."
+          buttonColor="bg-purple-600 hover:bg-purple-700"
+          onClick={analyzeIncident}
+        />
         </div>
 
-        <div className="grid grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-2 gap-6 mt-12">
           <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-              transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              transition-all duration-300 hover:shadow-lg ">
 
           <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
             Incident Timeline
@@ -545,7 +529,7 @@ export default function IncidentDetailsPage() {
         
         {/*Logs Explorer*/}
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-              transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+              transition-all duration-300 hover:shadow-lg">
           <h2 className="flex flex-wrap text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
             Logs Explorer
           </h2>
@@ -553,20 +537,8 @@ export default function IncidentDetailsPage() {
           {logs.map((log) => (
           <div
             key={log.time}
-            className="
-              text-sm
-              grid
-              flex-wrap
-              grid-cols-[80px_90px_minmax(0,1fr)]
-              hover:bg-gray-100
-              rounded-lg
-              px-2
-              transition-colors
-              duration-200
-              border-b
-              border-gray-100
-              py-3
-              items-center"
+            className=" text-sm grid flex-wrap grid-cols-[80px_90px_minmax(0,1fr)] hover:bg-gray-100 rounded-lg
+              px-2 transition-colors duration-200 border-b border-gray-100 py-3 items-center"
           >
             <p className="text-gray-700 dark:text-slate-400">
               {log.time}
@@ -593,48 +565,35 @@ export default function IncidentDetailsPage() {
         </div>
       </div>
 
-      <div className=" bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
-              rounded-2xl shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 mt-6">
+      <div className="grid grid-cols-2 gap-6">
+        <AIInsightCard
+          title="AI Log Analysis"
+          icon={<FileSearch className="text-amber-600" />}
+          content={logAnalysis}
+          placeholder="Analyze logs and detect suspicious events."
+          loading={analyzingLogs}
+          buttonText="Analyze Logs"
+          loadingText="Analyzing..."
+          buttonColor="bg-amber-600 hover:bg-amber-700"
+          onClick={analyzeLogs}
+        />
 
-              <h2 className=" text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
-                AI Log Analysis
-              </h2>
-
-              <ReactMarkdown
-                components={{
-                  h2: ({ children }) => (
-                    <h2 className=" text-xl font-bold text-blue-700 mt-6 mb-3">
-                      {children}
-                    </h2>
-                  ),
-
-                  p: ({ children }) => (
-                    <p className=" leading-8 mb-4 text-gray-700 dark:text-slate-300">
-                      {children}
-                    </p>
-                  ),
-
-                  li: ({ children }) => (
-                    <li className=" ml-6 mb-2 list-disc">
-                      {children}
-                    </li>
-                  ),
-
-                  strong: ({ children }) => (
-                    <strong className=" text-green-700 font-bold">
-                      {children}
-                    </strong>
-                  ),
-                }}
-              >
-                {logAnalysis || "Click Analyze Logs."}
-              </ReactMarkdown>
-
-            </div>
+        <AIInsightCard
+          title="AI Service Dependency Analysis"
+          icon={<Network className="text-teal-600" />}
+          content={dependencyExplanation}
+          placeholder="Analyze service dependencies and failure propagation."
+          loading={analyzingDependencies}
+          buttonText="Analyze"
+          loadingText="Analyzing..."
+          buttonColor="bg-teal-600 hover:bg-teal-700"
+          onClick={generateDependencyExplanation}
+        />
+      </div>
 
         {/*Service Map*/}
         <div className="col-span-2 bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl 
-            shadow-sm p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 mt-6">
+            shadow-sm p-6 transition-all duration-300 hover:shadow-lg mt-12">
           <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
             Service Map (Tracing)
           </h2>
@@ -679,8 +638,10 @@ export default function IncidentDetailsPage() {
           </div>
         </div>
 
+
+
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
-          rounded-2xl shadow-sm p-6 mt-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+          rounded-2xl shadow-sm p-6 mt-6 transition-all duration-300 hover:shadow-lg max-h-[500px] overflow-y-auto">
           <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
             Timeline
           </h2>
@@ -732,6 +693,18 @@ export default function IncidentDetailsPage() {
             ))}
           </div>
         </div>
+
+        <AIInsightCard
+          title="AI Timeline Insights"
+          icon={<GitBranch className="text-indigo-600" />}
+          content={timelineInsights}
+          placeholder="Analyze timeline escalation and resolution."
+          loading={analyzingTimeline}
+          buttonText="Analyze Timeline"
+          loadingText="Analyzing..."
+          buttonColor="bg-indigo-600 hover:bg-indigo-700"
+          onClick={generateTimelineInsights}
+        />
 
     </div>
   );

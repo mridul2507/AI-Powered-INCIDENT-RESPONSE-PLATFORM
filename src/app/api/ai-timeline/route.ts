@@ -12,50 +12,53 @@ export async function POST(req: Request) {
         model: "gemini-2.5-flash",
 
         contents: `
-Analyze these logs.
+These are incident timeline events:
 
-${JSON.stringify(body.logs)}
+${JSON.stringify(body.timeline)}
 
-Identify:
+Explain:
 
-1. Suspicious events
+## Event Sequence
 
-2. Root cause
+How did the incident evolve?
 
-3. Impact
+## Escalation
 
-4. Recommended actions
+How did the situation worsen?
 
-Keep the response concise.
+## Resolution
+
+How was it resolved?
+
+Keep concise.
 `,
       });
 
-    const analysis =
-      response.text || "No analysis generated.";
+    const insights =
+      response.text || "No insights generated.";
 
     await prisma.incident.update({
       where: {
         id: body.id,
       },
       data: {
-        aiLogAnalysis: analysis,
+        aiTimelineInsights: insights,
       },
     });
+
+return NextResponse.json({
+  insights,
+});
+
+  } catch {
 
     return NextResponse.json({
-      analysis,
+      insights: `
+## AI Service Unavailable
+
+Timeline insights could not be generated.
+`,
     });
 
-  } catch (error) {
-
-    return NextResponse.json(
-      {
-        error:
-          "Analysis failed",
-      },
-      {
-        status: 500,
-      }
-    );
   }
 }

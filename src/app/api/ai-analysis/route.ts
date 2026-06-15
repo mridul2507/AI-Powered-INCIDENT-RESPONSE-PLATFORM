@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         id: body.id,
       },
       data: {
-        aiSummary: summary,
+        aiRootCauseAnalysis: summary,
       },
     });
 

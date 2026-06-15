@@ -69,8 +69,11 @@ model Incident {
   severity Severity
   status   IncidentStatus
 
-  aiSummary String?
-  aiPostmortem String?
+  aiRootCauseAnalysis String?
+  aiIncidentSummary String?
+  aiLogAnalysis String?
+  aiTimelineInsights String?
+  aiDependencyAnalysis String?
 
   serviceId String?
   service   Service? @relation(fields: [serviceId], references: [id])
