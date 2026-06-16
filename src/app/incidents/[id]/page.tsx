@@ -15,7 +15,7 @@ import { ArrowLeft,
   CheckCircle,
   Loader2,
   FileText, Brain, FileSearch, Network, GitBranch} from "lucide-react";
-import ReactMarkdown from "react-markdown"
+import {toast} from "sonner";
 
 const logs = [
           {
@@ -133,157 +133,210 @@ export default function IncidentDetailsPage() {
     return () => clearInterval(interval);
   }, [params.id]);
 
-  async function analyzeIncident() {
-    if(analysis) return
-    if(!incident) return
-    setAnalyzing(true);
-      const res = await fetch("/api/ai-analysis",
-        {
-          method: "POST",
+  async function analyzeIncident(force=false) {
+    try{
+      if(analysis && !force){
+        toast.info("Root cause already generated");
+        return;
+      }
+      if(!incident) return
+      setAnalyzing(true);
+        const res = await fetch("/api/ai-analysis",
+          {
+            method: "POST",
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
 
-          body: JSON.stringify({
-            id: incident.id,
-            title: incident.title,
-            description: incident.description,
-          }),
-        }
-      );
+            body: JSON.stringify({
+              id: incident.id,
+              title: incident.title,
+              description: incident.description,
+            }),
+          }
+        );
 
-      const data = await res.json();
+        const data = await res.json();
 
-      setAnalysis(data.summary);
-      setAnalyzing(false);
+        setAnalysis(data.summary);
+        toast.success("Root cause analysis complete");
+      }
+
+      catch {
+        toast.error("Failed to generate Root Cause");
+      }
+
+      finally{
+        setAnalyzing(false);
+      }
     }
 
-    async function analyzeLogs() {
-      if(logAnalysis) return
-      setAnalyzingLogs(true);
+    async function analyzeLogs(force=false) {
+      try{  
+      if(logAnalysis && !force){
+        toast.info("Log already analyzed");
+        return;
+      }
+        setAnalyzingLogs(true);
 
-      const res = await fetch(
-        "/api/ai-log-analysis",
-        {
-          method: "POST",
+        const res = await fetch(
+          "/api/ai-log-analysis",
+          {
+            method: "POST",
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
 
-          body: JSON.stringify({
-            id: incident?.id,
-            logs,
-          }),
-        }
-      );
+            body: JSON.stringify({
+              id: incident?.id,
+              logs,
+            }),
+          }
+        );
 
-      const data = await res.json();
+        const data = await res.json();
 
-      setLogAnalysis(
-        data.analysis
-      );
-
-      setAnalyzingLogs(false);
+        setLogAnalysis(data.analysis);
+        toast.success("Logs Analyzed");
+      }
+      
+      catch {
+        toast.error("Failed to generate Log analysis");
+      }
+      
+      finally{
+        setAnalyzingLogs(false);
+      }
     }
 
-    async function generateSummary() {
-      if(summary) return
-      setSummarizing(true);
-
-      const res = await fetch(
-        "/api/ai-summary",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            id: incident?.id,
-            title: incident?.title,
-            description: incident?.description,
-            severity: incident?.severity,
-            status: incident?.status,
-          }),
+    async function generateSummary(force=false) {
+      try{  
+        if(summary && !force) {
+          toast.info("Summary already exists");
+          return;
         }
-      );
+        setSummarizing(true);
 
-      const data = await res.json();
+        const res = await fetch(
+          "/api/ai-summary",
+          {
+            method: "POST",
 
-      setSummary(
-        data.summary
-      );
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
 
-      setSummarizing(false);
+            body: JSON.stringify({
+              id: incident?.id,
+              title: incident?.title,
+              description: incident?.description,
+              severity: incident?.severity,
+              status: incident?.status,
+            }),
+          }
+        );
+
+        const data = await res.json();
+
+        setSummary(data.summary);
+        toast.success("AI summary generated");
+      }
+
+      catch {
+        toast.error("Failed to generate summary");
+      }
+
+      finally{
+        setSummarizing(false);
+      }
     }
 
-    async function generateTimelineInsights() {
-      if(timelineInsights) return
-      setAnalyzingTimeline(true);
-
-      const res = await fetch(
-        "/api/ai-timeline",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            id: incident?.id,
-            timeline,
-          }),
+    async function generateTimelineInsights(force=false) {
+      try{  
+        if(timelineInsights && !force){
+          toast.info("Timeline Insights already generated");
+          return;
         }
-      );
+        setAnalyzingTimeline(true);
 
-      const data = await res.json();
+        const res = await fetch(
+          "/api/ai-timeline",
+          {
+            method: "POST",
 
-      setTimelineInsights(
-        data.insights
-      );
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
 
-      setAnalyzingTimeline(false);
+            body: JSON.stringify({
+              id: incident?.id,
+              timeline,
+            }),
+          }
+        );
+
+        const data = await res.json();
+
+        setTimelineInsights(data.insights);
+        toast.success("Timeline Analyzed");
+      }
+
+      catch {
+        toast.error("Failed to generate Timeline Insights");
+      }
+
+      finally{
+        setAnalyzingTimeline(false);
+      }
     }
 
-    async function generateDependencyExplanation() {
-      if(dependencyExplanation) return
-      if (!incident) return;
-
-      setAnalyzingDependencies(true);
-
-      const res = await fetch(
-        "/api/ai-service-dependency",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            id: incident.id,
-            serviceName: incident.service?.name,
-            incidentTitle: incident.title,
-          }),
+    async function generateDependencyExplanation(force=false) {
+      try{  
+        if(dependencyExplanation && !force){
+          toast.info("Dependency analysis already exists");
+          return;
         }
-      );
+        if (!incident) return;
 
-      const data = await res.json();
+        setAnalyzingDependencies(true);
 
-      setDependencyExplanation(
-        data.explanation
-      );
+        const res = await fetch(
+          "/api/ai-service-dependency",
+          {
+            method: "POST",
 
-      setAnalyzingDependencies(false);
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+
+            body: JSON.stringify({
+              id: incident.id,
+              serviceName: incident.service?.name,
+              incidentTitle: incident.title,
+            }),
+          }
+        );
+
+        const data = await res.json();
+
+        setDependencyExplanation(data.explanation);
+        toast.success("Dependencies Analyzed");
+      }
+
+      catch {
+        toast.error("Failed to generate Dependencies");
+      }
+
+      finally{
+        setAnalyzingDependencies(false);
+      }
     }
 
   async function handleDelete() {
@@ -468,7 +521,8 @@ export default function IncidentDetailsPage() {
           buttonText="Generate"
           loadingText="Generating..."
           buttonColor="bg-cyan-600 hover:bg-cyan-700"
-          onClick={generateSummary}
+          onClick={()=>generateSummary()}
+          onRegenerate={()=>generateSummary(true)}
         />
 
         <AIInsightCard
@@ -480,7 +534,8 @@ export default function IncidentDetailsPage() {
           buttonText="Analyze"
           loadingText="Analyzing..."
           buttonColor="bg-purple-600 hover:bg-purple-700"
-          onClick={analyzeIncident}
+          onClick={()=>analyzeIncident()}
+          onRegenerate={()=>analyzeIncident(true)}
         />
         </div>
 
@@ -575,7 +630,8 @@ export default function IncidentDetailsPage() {
           buttonText="Analyze Logs"
           loadingText="Analyzing..."
           buttonColor="bg-amber-600 hover:bg-amber-700"
-          onClick={analyzeLogs}
+          onClick={()=>analyzeLogs()}
+          onRegenerate={()=>analyzeLogs(true)}
         />
 
         <AIInsightCard
@@ -587,58 +643,10 @@ export default function IncidentDetailsPage() {
           buttonText="Analyze"
           loadingText="Analyzing..."
           buttonColor="bg-teal-600 hover:bg-teal-700"
-          onClick={generateDependencyExplanation}
+          onClick={()=>generateDependencyExplanation()}
+          onRegenerate={()=>generateDependencyExplanation(true)}
         />
       </div>
-
-        {/*Service Map*/}
-        <div className="col-span-2 bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl 
-            shadow-sm p-6 transition-all duration-300 hover:shadow-lg mt-12">
-          <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
-            Service Map (Tracing)
-          </h2>
-
-          <div className="flex flex-wrap items-center justify-center gap-8">
-            <div className="text-gray-700 font-semibold border border-green-300 bg-green-100 rounded-xl px-6 py-4">
-              User
-            </div>
-
-            <div className="text-3xl text-gray-400">→</div>
-
-            <div className="border border-red-300 bg-red-50 rounded-xl px-10 py-8">
-              <p className="text-gray-700 font-semibold">
-                Payment Service
-              </p>
-              <p className="text-red-600 text-sm">
-                Critical
-              </p>
-            </div>
-
-            <div className="text-3xl text-gray-400">→</div>
-
-            <div className="border border-green-300 bg-green-50 rounded-xl px-6 py-4">
-              <p className=" text-gray-700 font-semibold">
-                Notification
-              </p>
-              <p className="text-green-600 text-sm">
-                Healthy
-              </p>
-            </div>
-            
-            <div className="text-gray-700 border border-amber-300 bg-amber-100 rounded-xl px-6 py-4">
-              <p className="text-gray-700 font-semibold">
-                User DB
-              </p>
-              <p className="text-amber-600 text-sm">
-                Warning
-              </p>
-            </div>
-
-            
-          </div>
-        </div>
-
-
 
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
           rounded-2xl shadow-sm p-6 mt-6 transition-all duration-300 hover:shadow-lg max-h-[500px] overflow-y-auto">
@@ -703,7 +711,8 @@ export default function IncidentDetailsPage() {
           buttonText="Analyze Timeline"
           loadingText="Analyzing..."
           buttonColor="bg-indigo-600 hover:bg-indigo-700"
-          onClick={generateTimelineInsights}
+          onClick={()=>generateTimelineInsights()}
+          onRegenerate={()=>generateTimelineInsights(true)}
         />
 
     </div>

@@ -5,6 +5,8 @@ import Sidebar from "@/components/Sidebar"
 import PageTransition from "@/components/PageTransition";
 import ThemeProvider from "@/components/ThemeProvider";
 import Providers from "./providers";
+import {Toaster} from "sonner";
+import AIAssistant from "@/components/AIAssistant";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +48,11 @@ export default function RootLayout({
             </div>
           </ThemeProvider>
         </Providers>
+        <Toaster
+          richColors
+          position="top-right"
+        />
+        <AIAssistant/>
       </body>
     </html>
   );
