@@ -104,6 +104,8 @@ model Service {
   incidents Incident[]
   logs      Log[]
 
+  aiServiceInsights String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

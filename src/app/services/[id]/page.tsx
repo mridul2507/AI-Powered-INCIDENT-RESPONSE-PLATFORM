@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import AIInsightCard from "@/components/AIInsightCard";
+import { Activity } from "lucide-react";
 
 type Service = {
   id: string;
@@ -34,6 +36,8 @@ export default function ServiceDetailsPage() {
   const params = useParams();
 
   const [service, setService] = useState<Service | null>(null);
+  const [serviceInsights, setServiceInsights] = useState("");
+  const [analyzingServices, setAnalyzingServices] = useState(false);
 
   useEffect(() => {
     async function fetchService() {
@@ -42,34 +46,66 @@ export default function ServiceDetailsPage() {
       const data = await res.json();
 
       setService(data);
+      setServiceInsights(data.aiServiceInsights || "");
     }
 
     fetchService();
   }, [params.id]);
 
-    async function handleDelete() {
-      if (!service) return;
-        const confirmed = window.confirm(
-        "Are you sure you want to delete this incident?"
-        );
+  async function handleDelete() {
+    if (!service) return;
+      const confirmed = window.confirm(
+      "Are you sure you want to delete this incident?"
+      );
+      if (!confirmed) return;
+      const res = await fetch(
+      `/api/services/${service.id}`,
+      {
+          method: "DELETE",
+      }
+      );
+      if (res.ok) {
+          router.push("/services");
+          router.refresh();
+      } 
+      else {
+          alert("Failed to delete services");
+      }
+  }
 
-        if (!confirmed) return;
+  async function generateServiceInsights(force = false) {
+    if (serviceInsights && !force) return;
 
-        const res = await fetch(
-        `/api/services/${service.id}`,
+    try {
+      setAnalyzingServices(true);
+
+      const res = await fetch(
+        "/api/ai-service-health",
         {
-            method: "DELETE",
-        }
-        );
+          method: "POST",
 
-        if (res.ok) {
-            router.push("/services");
-            router.refresh();
-        } 
-        else {
-            alert("Failed to delete services");
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            service,
+          }),
         }
+      );
+
+      const data = await res.json();
+
+      setServiceInsights(data.insights);
+
     }
+
+    finally {
+      setAnalyzingServices(false);
+    }
+
+  }
 
   if (!service) {
     return <div className="p-8">Loading...</div>;
@@ -309,6 +345,19 @@ export default function ServiceDetailsPage() {
             </div>
 
         </div>
+
+        <AIInsightCard
+          title="AI Service Health Insights"
+          icon={<Activity className=" text-green-600 " />}
+          content={serviceInsights}
+          placeholder="Click Analyze Service Health"
+          loading={analyzingServices}
+          buttonText="Analyze Service Health"
+          loadingText="Analyzing..."
+          buttonColor="bg-green-600 hover:bg-green-700"
+          onClick={() =>generateServiceInsights()}
+          onRegenerate={() =>generateServiceInsights(true)}
+        />
     </div>
   );
 }
