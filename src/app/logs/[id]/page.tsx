@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
+import AIInsightCard from "@/components/AIInsightCard";
 
 type Log = {
   id: string;
@@ -20,6 +21,8 @@ export default function LogDetailsPage() {
   const params = useParams();
 
   const [log, setLog] = useState<Log | null>(null);
+  const [logAnalysis, setLogAnalysis] = useState("");
+  const [analyzingLog, setAnalyzingLog] = useState(false);
 
   useEffect(() => {
     async function fetchLog() {
@@ -32,6 +35,34 @@ export default function LogDetailsPage() {
 
     fetchLog();
   }, [params.id]);
+
+  async function analyzeLog(force = false) {
+    if (logAnalysis && !force) return;
+
+    try {
+      setAnalyzingLog(true);
+
+      const res = await fetch(
+        "/api/ai-log-analysis",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            logs: [log],
+          }),
+        }
+      );  
+
+      const data = await res.json();
+
+      setLogAnalysis(data.analysis);
+
+    } finally {
+      setAnalyzingLog(false);
+    }
+  }
 
   if (!log) {
     return (
@@ -46,15 +77,7 @@ export default function LogDetailsPage() {
 
       <Link
         href="/logs"
-        className="
-          inline-flex
-          items-center
-          gap-2
-          text-gray-600
-          hover:text-green-900
-          dark:text-green-400
-          mb-6
-        "
+        className=" inline-flex items-center gap-2 text-gray-600 hover:text-green-900 dark:text-green-400 mb-6"
       >
         <ArrowLeft size={18}/>
         Back to Logs
@@ -130,6 +153,19 @@ export default function LogDetailsPage() {
         </div>
 
       </div>
+
+      <AIInsightCard
+        title="AI Log Analysis"
+        icon={<FileText className="text-cyan-600" />}
+        content={logAnalysis}
+        placeholder="Generate an executive summary."
+        loading={analyzingLog}
+        buttonText="Generate"
+        loadingText="Generating..."
+        buttonColor="bg-cyan-600 hover:bg-cyan-700"
+        onClick={()=>analyzeLog()}
+        onRegenerate={()=>analyzeLog(true)}
+      />
 
     </div>
   );

@@ -79,6 +79,13 @@ export async function PATCH(
           message: `Status changed from ${oldIncident.status} to ${body.status}`,
         },
       });
+
+      await prisma.notification.create({
+        data: {
+          title: "Status Changed",
+          message: `${oldIncident.title}: ${oldIncident.status} → ${body.status}`,
+        },
+      });
     }
 
     if (
@@ -92,6 +99,13 @@ export async function PATCH(
           message: "Incident resolved",
         },
       });
+
+      await prisma.notification.create({
+        data: {
+          title: "Incident Resolved",
+          message: `${oldIncident.title} has been resolved.`,
+        },
+      });
     }
 
     if (oldIncident.severity !== body.severity) {
@@ -100,6 +114,13 @@ export async function PATCH(
           incidentId: id,
           type: "SEVERITY_CHANGED",
           message: `Severity changed from ${oldIncident.severity} to ${body.severity}`,
+        },
+      });
+
+      await prisma.notification.create({
+        data: {
+          title: "Severity Updated",
+          message: `${oldIncident.title}: ${oldIncident.severity} → ${body.severity}`,
         },
       });
     }
@@ -124,6 +145,15 @@ export async function PATCH(
         data: {
           incidentId: id,
           type: "SERVICE_CHANGED",
+          message: body.serviceId
+            ? `Assigned to ${incident.service?.name}`
+            : "Service unassigned",
+        },
+      });
+
+      await prisma.notification.create({
+        data: {
+          title: "Service Assignment Changed",
           message: body.serviceId
             ? `Assigned to ${incident.service?.name}`
             : "Service unassigned",

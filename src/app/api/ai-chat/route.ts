@@ -63,6 +63,18 @@ export async function POST(req: Request) {
 
     }
 
+    else if (body.pathname.startsWith("/logs")) {
+
+      context = `
+      Current page: Log Details
+
+      The user is investigating logs and failures.
+
+      Act as an SRE and log analysis expert.
+      `;
+
+    }
+
     const response =
       await ai.models.generateContent({
 

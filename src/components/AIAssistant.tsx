@@ -51,37 +51,78 @@ export default function AIAssistant() {
   useEffect(() => {
     async function fetchContext() {
 
-      if (!pathname.startsWith("/incidents/"))
-        return;
+      if (pathname.startsWith("/incidents/")) {
 
-      const id =
-        pathname.split("/")[2];
+        const id = pathname.split("/")[2];
+        const res = await fetch(`/api/incidents/${id}`);
+        const incident = await res.json();
 
-      const res = await fetch(
-        `/api/incidents/${id}`
-      );
+        setPageContext(`
+          Title:
+          ${incident.title}
 
-      const incident =
-        await res.json();
+          Description:
+          ${incident.description}
 
-      setPageContext(
-  `
-  Title:
-  ${incident.title}
+          Severity:
+          ${incident.severity}
 
-  Description:
-  ${incident.description}
+          Status:
+          ${incident.status}
 
-  Severity:
-  ${incident.severity}
+          Service:
+          ${incident.service?.name}
+          `);
 
-  Status:
-  ${incident.status}
+      }
 
-  Service:
-  ${incident.service?.name}
-  `
-      );
+      else if (pathname.startsWith("/services/")) {
+
+        const id = pathname.split("/")[2];
+
+        const res =
+          await fetch(`/api/services/${id}`);
+
+        const service =
+          await res.json();
+
+        setPageContext(`
+    Service:
+    ${service.name}
+
+    Status:
+    ${service.status}
+
+    Availability:
+    ${service.availability}
+
+    Response Time:
+    ${service.responseTime}
+
+    Requests Per Min:
+    ${service.requestsPerMin}
+    `);
+      }
+
+    else if (pathname.startsWith("/logs/")) {
+      const id = pathname.split("/")[2];
+      const res = await fetch(`/api/logs/${id}`);
+      const log = await res.json();
+
+      setPageContext(`
+    Log Level:
+    ${log.level}
+
+    Timestamp:
+    ${log.timestamp}
+
+    Message:
+    ${log.message}
+
+    Service:
+    ${log.service?.name}
+    `);
+    }
 
     }
 
@@ -211,10 +252,25 @@ export default function AIAssistant() {
                     IR Assist Copilot
                 </h2>
 
-                <X
-                size={20}
-                onClick={()=>setOpen(false)}
-                className=" cursor-pointer text-gray-500 hover:text-red-500 "/>
+                <div className="flex items-center gap-2">
+                  <X
+                  size={20}
+                  onClick={()=>setOpen(false)}
+                  className=" cursor-pointer text-gray-500 hover:text-red-500 "/>
+
+                  <button
+                    onClick={() => {
+                      setMessages([]);
+                      localStorage.removeItem(
+                        "ai-chat-history"
+                      );
+                    }}
+
+                    className=" text-sm text-red-500 hover:underline "
+                  >
+                  Clear
+                </button>
+              </div>
             </div>
           </div>
 
@@ -275,6 +331,30 @@ export default function AIAssistant() {
                 <div ref={bottomRef}/>
 
             </div>
+          
+          <div className="flex flex-wrap gap-2 mb-4">
+            {[
+              "Summarize this page",
+              "Explain current issues",
+              "Show possible root causes",
+              "What should I do next?"
+            ].map((prompt) => (
+
+              <button
+                key={prompt}
+                onClick={() => {
+                  setInput(prompt);
+                  setTimeout(handleSend, 100);
+                  }
+                }
+                className=" px-3 py-2 text-sm rounded-xl bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 "
+              >
+                {prompt}
+              </button>
+
+            ))}
+
+          </div>
 
           {/* Input */}
 
@@ -297,8 +377,9 @@ export default function AIAssistant() {
                 />
 
             <button
+              disabled={loading}
               onClick={handleSend}
-              className=" bg-green-700 hover:bg-green-800 text-white p-4 rounded-2xl"
+              className=" bg-green-700 hover:bg-green-800 text-white p-4 rounded-2xl disabled:opacity-50"
             >
               <Send size={18}/>
             </button>

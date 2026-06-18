@@ -185,7 +185,7 @@ export default function LogsPage() {
         {filteredLogs.map((log) => (
           <Link 
             key={log.id}
-            href={`/services/${log.service.id}`}
+            href={`/logs/${log.id}`}
             className="contents">
             <div
                 key={log.message}

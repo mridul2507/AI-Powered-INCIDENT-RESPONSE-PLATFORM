@@ -51,6 +51,13 @@ export async function POST(req: Request) {
       },
     });
 
+    await prisma.notification.create({
+      data: {
+        title: "New Incident",
+        message: `${incident.title} has been created.`,
+      },
+    });
+
     await createAuditLog(
       "CREATE",
       "INCIDENT",

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
         model: "gemini-2.5-flash",
 
         contents: `
-Analyze these logs.
+Analyze these logs. 
 
 ${JSON.stringify(body.logs)}
 
@@ -30,17 +30,21 @@ Keep the response concise.
 `,
       });
 
-    const analysis =
-      response.text || "No analysis generated.";
+    const analysis = response.text || "No analysis generated.";
 
-    await prisma.incident.update({
-      where: {
-        id: body.id,
-      },
-      data: {
-        aiLogAnalysis: analysis,
-      },
-    });
+    if (body.id) {
+      try {
+        await prisma.incident.update({
+          where: {
+            id: body.id,
+          },
+          data: {
+            aiLogAnalysis: analysis,
+          },
+        });
+      } 
+      catch {}
+    }
 
     return NextResponse.json({
       analysis,
