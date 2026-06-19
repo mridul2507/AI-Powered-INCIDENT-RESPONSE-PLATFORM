@@ -13,7 +13,6 @@ import { ArrowLeft,
   AlertTriangle,
   Server, 
   CheckCircle,
-  Loader2,
   FileText, Brain, FileSearch, Network, GitBranch} from "lucide-react";
 import {toast} from "sonner";
 

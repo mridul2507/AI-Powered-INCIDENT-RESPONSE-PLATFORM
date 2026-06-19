@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Search, Moon, Sun, X } from "lucide-react";
+import { Bell, Search, Moon, Sun, X, BellCheck } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import {motion} from "framer-motion";
@@ -177,9 +177,13 @@ export default function Navbar() {
               </div>
 
               {Array.isArray(notifications) && notifications.length === 0 && (
-                <p className="text-gray-500">
-                  No notifications
-                </p>
+                <div className=" py-16 flex flex-col items-center justify-center text-center">
+                  <BellCheck size={48} className="text-gray-300 mb-4"/>
+
+                  <h2 className="text-xl font-semibold mb-2">
+                    No Notifications
+                  </h2>
+                </div>
               )}
 
               {Array.isArray(notifications) &&

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, FileText } from "lucide-react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 
@@ -177,8 +177,16 @@ export default function LogsPage() {
         </div>
 
         {filteredLogs.length === 0 && (
-          <div className="p-8 text-center text-gray-500 dark:text-slate-400">
-            No logs found.
+          <div className=" py-16 flex flex-col items-center justify-center text-center">
+            <FileText size={48} className="text-gray-300 mb-4"/>
+
+            <h2 className="text-xl font-semibold mb-2">
+              No Logs Found
+            </h2>
+
+            <p className="text-gray-500">
+              There are currently no logs matching your filters.
+            </p>
           </div>
         )}
 

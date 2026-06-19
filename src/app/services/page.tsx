@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Search, Server } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
 type Service = {
@@ -114,8 +114,16 @@ export default function ServicesPage() {
         </div>
 
         {filteredServices.length === 0 && (
-          <div className="p-8 text-center text-gray-500 dark:text-slate-400">
-            No services found.
+          <div className=" py-16 flex flex-col items-center justify-center text-center">
+            <Server size={48} className="text-gray-300 mb-4"/>
+
+            <h2 className="text-xl font-semibold mb-2">
+              No Services Found
+            </h2>
+
+            <p className="text-gray-500">
+              There are currently no services matching your filters.
+            </p>
           </div>
         )}
 

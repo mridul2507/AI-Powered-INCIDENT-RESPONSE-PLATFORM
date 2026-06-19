@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import StatusBadge from "@/components/StatusBadge";
 import SeverityBadge from "@/components/SeverityBadge";
 import Link from "next/link";
-import {Search} from "lucide-react";
+import {AlertTriangle, Search} from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -370,8 +370,16 @@ export default function IncidentsPage() {
         </div>
 
         {filteredIncidents.length === 0 && (
-          <div className="p-8 text-center text-gray-500 dark:text-slate-400">
-            No incidents found.
+          <div className=" py-16 flex flex-col items-center justify-center text-center">
+            <AlertTriangle size={48} className="text-gray-300 mb-4"/>
+
+            <h2 className="text-xl font-semibold mb-2">
+              No Incidents Found
+            </h2>
+
+            <p className="text-gray-500">
+              There are currently no incidents matching your filters.
+            </p>
           </div>
         )}
 
