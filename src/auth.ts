@@ -3,10 +3,9 @@ import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  
   providers: [
 
     Google({
@@ -59,7 +58,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   callbacks: {
+    authorized({ auth, request }) {
+
+      const protectedRoutes = [
+        "/dashboard",
+        "/services",
+        "/incidents",
+        "/logs",
+        "/analytics",
+        "/settings",
+      ];
+
+      const pathname = request.nextUrl.pathname;
+
+      const requiresAuth =
+        protectedRoutes.some(route =>
+          pathname.startsWith(route)
+        );
+
+      if (!requiresAuth)
+        return true;
+
+      return !!auth;
+    },
+
     async jwt({ token, user }) {
+
       if (user) {
         token.role = (user as any).role;
       }
@@ -68,6 +92,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async session({ session, token }) {
+
       session.user.role = token.role as string;
 
       return session;
