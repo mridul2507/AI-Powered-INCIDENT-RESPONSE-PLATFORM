@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Search, Server } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { isAdmin, isEngineer } from "@/lib/roles";
 
 type Service = {
   id: string;
@@ -15,6 +16,7 @@ type Service = {
 
 export default function ServicesPage() {
   const { data: session } = useSession();
+  const role = session?.user.role;
 
   const [search, setSearch] = useState("");
   const [services, setServices] = useState<Service[]>([]);
@@ -45,7 +47,7 @@ export default function ServicesPage() {
         </h1>
 
         <div className="flex items-center gap-4">
-          {session?.user.role === "ADMIN" && (
+          {(isAdmin(role) || isEngineer(role)) && (
             <Link
               href="/services/create"
               className="

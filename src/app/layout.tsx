@@ -37,22 +37,14 @@ export default function RootLayout({
       <body className="min-h-screen">
         <Providers>
           <ThemeProvider>
-            <div className="flex min-h-screen bg-white dark:bg-emerald-950">
-
-              <Sidebar />
-
-              <main className="flex-1 bg-white dark:bg-emerald-950">
-                <PageTransition>{children}</PageTransition>
-              </main>
-
-            </div>
+            {children}
           </ThemeProvider>
         </Providers>
         <Toaster
           richColors
           position="top-right"
         />
-        <AIAssistant/>
+        
       </body>
     </html>
   );

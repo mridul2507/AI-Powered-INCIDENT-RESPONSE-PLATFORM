@@ -15,6 +15,7 @@ import { ArrowLeft,
   CheckCircle,
   FileText, Brain, FileSearch, Network, GitBranch} from "lucide-react";
 import {toast} from "sonner";
+import { isAdmin, isEngineer, isViewer } from "@/lib/roles";
 
 const logs = [
           {
@@ -52,6 +53,7 @@ type Incident = {
 
 export default function IncidentDetailsPage() {
   const { data: session } = useSession();
+  const role = session?.user.role;
   const params = useParams();
   const router = useRouter();
 
@@ -134,6 +136,10 @@ export default function IncidentDetailsPage() {
 
   async function analyzeIncident(force=false) {
     try{
+      if (!isAdmin(role) && !isEngineer(role)) {
+          toast.error("Permission denied");
+          return;
+      }
       if(analysis && !force){
         toast.info("Root cause already generated");
         return;
@@ -174,6 +180,10 @@ export default function IncidentDetailsPage() {
 
     async function analyzeLogs(force=false) {
       try{  
+      if (!isAdmin(role) && !isEngineer(role)) {
+        toast.error("Permission denied");
+        return;
+      }
       if(logAnalysis && !force){
         toast.info("Log already analyzed");
         return;
@@ -214,6 +224,10 @@ export default function IncidentDetailsPage() {
 
     async function generateSummary(force=false) {
       try{  
+        if (!isAdmin(role) && !isEngineer(role)) {
+          toast.error("Permission denied");
+          return;
+        }
         if(summary && !force) {
           toast.info("Summary already exists");
           return;
@@ -257,6 +271,10 @@ export default function IncidentDetailsPage() {
 
     async function generateTimelineInsights(force=false) {
       try{  
+        if (!isAdmin(role) && !isEngineer(role)) {
+          toast.error("Permission denied");
+          return;
+        }
         if(timelineInsights && !force){
           toast.info("Timeline Insights already generated");
           return;
@@ -297,6 +315,10 @@ export default function IncidentDetailsPage() {
 
     async function generateDependencyExplanation(force=false) {
       try{  
+        if (!isAdmin(role) && !isEngineer(role)) {
+          toast.error("Permission denied");
+          return;
+        }
         if(dependencyExplanation && !force){
           toast.info("Dependency analysis already exists");
           return;
@@ -427,7 +449,7 @@ export default function IncidentDetailsPage() {
           </h1>
 
           <div className="flex gap-3">
-            {session?.user.role !== "VIEWER" && (
+            {(isAdmin(role) || isEngineer(role)) && (
               <Link
                 href={`/incidents/${incident.id}/edit`}
                 className=" bg-green-700 text-white px-4 py-2
@@ -438,7 +460,7 @@ export default function IncidentDetailsPage() {
               </Link>
             )}
 
-            {session?.user.role !== "VIEWER" &&
+            {(isAdmin(role) || isEngineer(role)) &&
               incident.status !== "RESOLVED" && (
                 <button
                   onClick={handleResolve}
@@ -449,7 +471,7 @@ export default function IncidentDetailsPage() {
                 </button>
               )}
 
-            {session?.user.role === "ADMIN" && (
+            {isAdmin(role) && (
               <button
                 onClick={handleDelete}
                 className=" bg-red-600 text-white px-4 py-2
@@ -511,31 +533,33 @@ export default function IncidentDetailsPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-6">
-        <AIInsightCard
-          title="AI Incident Summary"
-          icon={<FileText className="text-cyan-600" />}
-          content={summary}
-          placeholder="Generate an executive summary."
-          loading={summarizing}
-          buttonText="Generate"
-          loadingText="Generating..."
-          buttonColor="bg-cyan-600 hover:bg-cyan-700"
-          onClick={()=>generateSummary()}
-          onRegenerate={()=>generateSummary(true)}
-        />
+        {!isViewer(role) && (  
+          <AIInsightCard
+            title="AI Incident Summary"
+            icon={<FileText className="text-cyan-600" />}
+            content={summary}
+            placeholder="Generate an executive summary."
+            loading={summarizing}
+            buttonText="Generate"
+            loadingText="Generating..."
+            buttonColor="bg-cyan-600 hover:bg-cyan-700"
+            onClick={()=>generateSummary()}
+            onRegenerate={()=>generateSummary(true)}
+          />)}
 
-        <AIInsightCard
-          title="AI Root Cause Analysis"
-          icon={<Brain className="text-purple-600" />}
-          content={analysis}
-          placeholder="Analyze the incident root cause."
-          loading={analyzing}
-          buttonText="Analyze"
-          loadingText="Analyzing..."
-          buttonColor="bg-purple-600 hover:bg-purple-700"
-          onClick={()=>analyzeIncident()}
-          onRegenerate={()=>analyzeIncident(true)}
-        />
+        {!isViewer(role) && (  
+          <AIInsightCard
+            title="AI Root Cause Analysis"
+            icon={<Brain className="text-purple-600" />}
+            content={analysis}
+            placeholder="Analyze the incident root cause."
+            loading={analyzing}
+            buttonText="Analyze"
+            loadingText="Analyzing..."
+            buttonColor="bg-purple-600 hover:bg-purple-700"
+            onClick={()=>analyzeIncident()}
+            onRegenerate={()=>analyzeIncident(true)}
+          />)}
         </div>
 
         <div className="grid grid-cols-2 gap-6 mt-12">
@@ -620,35 +644,37 @@ export default function IncidentDetailsPage() {
       </div>
 
       <div className="grid grid-cols-2 gap-6">
-        <AIInsightCard
-          title="AI Log Analysis"
-          icon={<FileSearch className="text-amber-600" />}
-          content={logAnalysis}
-          placeholder="Analyze logs and detect suspicious events."
-          loading={analyzingLogs}
-          buttonText="Analyze Logs"
-          loadingText="Analyzing..."
-          buttonColor="bg-amber-600 hover:bg-amber-700"
-          onClick={()=>analyzeLogs()}
-          onRegenerate={()=>analyzeLogs(true)}
-        />
+        {!isViewer(role) && (  
+          <AIInsightCard
+            title="AI Log Analysis"
+            icon={<FileSearch className="text-amber-600" />}
+            content={logAnalysis}
+            placeholder="Analyze logs and detect suspicious events."
+            loading={analyzingLogs}
+            buttonText="Analyze Logs"
+            loadingText="Analyzing..."
+            buttonColor="bg-amber-600 hover:bg-amber-700"
+            onClick={()=>analyzeLogs()}
+            onRegenerate={()=>analyzeLogs(true)}
+          />)}
 
-        <AIInsightCard
-          title="AI Service Dependency Analysis"
-          icon={<Network className="text-teal-600" />}
-          content={dependencyExplanation}
-          placeholder="Analyze service dependencies and failure propagation."
-          loading={analyzingDependencies}
-          buttonText="Analyze"
-          loadingText="Analyzing..."
-          buttonColor="bg-teal-600 hover:bg-teal-700"
-          onClick={()=>generateDependencyExplanation()}
-          onRegenerate={()=>generateDependencyExplanation(true)}
-        />
+        {!isViewer(role) && (  
+          <AIInsightCard
+            title="AI Service Dependency Analysis"
+            icon={<Network className="text-teal-600" />}
+            content={dependencyExplanation}
+            placeholder="Analyze service dependencies and failure propagation."
+            loading={analyzingDependencies}
+            buttonText="Analyze"
+            loadingText="Analyzing..."
+            buttonColor="bg-teal-600 hover:bg-teal-700"
+            onClick={()=>generateDependencyExplanation()}
+            onRegenerate={()=>generateDependencyExplanation(true)}
+          />)}
       </div>
 
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
-          rounded-2xl shadow-sm p-6 mt-6 transition-all duration-300 hover:shadow-lg max-h-[500px] overflow-y-auto">
+          rounded-2xl shadow-sm p-6 mt-12 transition-all duration-300 hover:shadow-lg max-h-[500px] overflow-y-auto">
           <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
             Timeline
           </h2>
@@ -701,18 +727,19 @@ export default function IncidentDetailsPage() {
           </div>
         </div>
 
-        <AIInsightCard
-          title="AI Timeline Insights"
-          icon={<GitBranch className="text-indigo-600" />}
-          content={timelineInsights}
-          placeholder="Analyze timeline escalation and resolution."
-          loading={analyzingTimeline}
-          buttonText="Analyze Timeline"
-          loadingText="Analyzing..."
-          buttonColor="bg-indigo-600 hover:bg-indigo-700"
-          onClick={()=>generateTimelineInsights()}
-          onRegenerate={()=>generateTimelineInsights(true)}
-        />
+        {!isViewer(role) && (  
+          <AIInsightCard
+            title="AI Timeline Insights"
+            icon={<GitBranch className="text-indigo-600" />}
+            content={timelineInsights}
+            placeholder="Analyze timeline escalation and resolution."
+            loading={analyzingTimeline}
+            buttonText="Analyze Timeline"
+            loadingText="Analyzing..."
+            buttonColor="bg-indigo-600 hover:bg-indigo-700"
+            onClick={()=>generateTimelineInsights()}
+            onRegenerate={()=>generateTimelineInsights(true)}
+          />)}
 
     </div>
   );

@@ -1,11 +1,38 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs"
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const org = await prisma.organization.create({
-    data: {
-      name: "IR Assist",
+  const org =
+    await prisma.organization.upsert({
+      where: {
+        id: "default-org",
+      },
+
+      update: {},
+
+      create: {
+        id: "default-org",
+        name: "IR Assist",
+      },
+  });
+
+  const hashedPassword = await bcrypt.hash("password123",10);
+
+  await prisma.user.upsert({
+    where: {
+      email: "admin@test.com",
+    },
+
+    update: {},
+
+    create: {
+      email: "admin@test.com",
+      name: "Mridul",
+      password: hashedPassword,
+      role: "ADMIN",
+      organizationId: org.id,
     },
   });
 

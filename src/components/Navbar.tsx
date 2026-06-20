@@ -4,12 +4,15 @@ import { Bell, Search, Moon, Sun, X, BellCheck } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import {motion} from "framer-motion";
+import { useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
+  const { data: session } = useSession();
 
   useEffect(() => {
     setMounted(true);
@@ -273,13 +276,19 @@ export default function Navbar() {
 
           <div>
             <p className="font-semibold text-sm">
-              Mridul
+              {session?.user?.name}
             </p>
 
             <p className="text-xs text-gray-500 dark:text-slate-400">
-              Admin
+              {session?.user?.role}
             </p>
           </div>
+
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className=" text-sm text-red-500 hover:underline">
+            Logout
+          </button>
 
         </div>
 

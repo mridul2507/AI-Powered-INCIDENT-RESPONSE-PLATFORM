@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import { FcGoogle } from "react-icons/fc";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -31,6 +33,27 @@ export default function LoginPage() {
           IR Assist Login
         </h1>
 
+        <button
+          type="button"
+          onClick={() =>
+            signIn("google", {
+              callbackUrl: "/dashboard",
+            })
+          }
+          className=" w-full border p-3 rounded-xl flex items-center
+          justify-center gap-3 hover:bg-gray-50 transition mb-4">
+          <FcGoogle size={22} />
+          Continue with Google
+        </button>
+
+        <div className="flex items-center my-4">
+          <div className="flex-1 h-px bg-gray-300"></div>
+
+          <span className="px-3 text-gray-500">OR</span>
+
+          <div className="flex-1 h-px bg-gray-300"></div>
+        </div>
+
         <input
           type="email"
           placeholder="Email"
@@ -57,6 +80,17 @@ export default function LoginPage() {
         >
           Login
         </button>
+
+        <p className="text-center mt-6 text-gray-500">
+          Don't have an account?
+
+          <Link
+            href="/signup"
+            className="ml-2 text-green-700 hover:underline"
+          >
+            Create Account
+          </Link>
+        </p>
 
       </form>
 

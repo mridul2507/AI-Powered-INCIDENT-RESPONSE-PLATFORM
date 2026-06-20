@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import AIInsightCard from "@/components/AIInsightCard";
 import { Activity } from "lucide-react";
+import { isAdmin, isEngineer, isViewer } from "@/lib/roles";
+import { toast } from "sonner";
 
 type Service = {
   id: string;
@@ -32,6 +34,7 @@ type Service = {
 
 export default function ServiceDetailsPage() {
   const { data: session } = useSession();
+  const role = session?.user.role;
   const router = useRouter();
   const params = useParams();
 
@@ -74,6 +77,10 @@ export default function ServiceDetailsPage() {
   }
 
   async function generateServiceInsights(force = false) {
+    if (!isAdmin(role) && !isEngineer(role)) {
+      toast.error("Permission denied");
+      return;
+    }
     if (serviceInsights && !force) return;
 
     try {
@@ -147,7 +154,7 @@ export default function ServiceDetailsPage() {
           </h1>
 
           <div className="flex gap-3">
-            {session?.user.role === "ADMIN" && (
+            {(isAdmin(role) || isEngineer(role)) && (
               <Link
                   href={`/services/${service.id}/edit`}
                   className="
@@ -163,7 +170,7 @@ export default function ServiceDetailsPage() {
               </Link>
             )}
 
-            {session?.user.role === "ADMIN" && (
+            {isAdmin(role) && (
               <button
                 onClick={handleDelete}
                 className="
@@ -346,18 +353,20 @@ export default function ServiceDetailsPage() {
 
         </div>
 
-        <AIInsightCard
-          title="AI Service Health Insights"
-          icon={<Activity className=" text-green-600 " />}
-          content={serviceInsights}
-          placeholder="Click Analyze Service Health"
-          loading={analyzingServices}
-          buttonText="Analyze Service Health"
-          loadingText="Analyzing..."
-          buttonColor="bg-green-600 hover:bg-green-700"
-          onClick={() =>generateServiceInsights()}
-          onRegenerate={() =>generateServiceInsights(true)}
-        />
+        {!isViewer(role) && (
+          <AIInsightCard
+            title="AI Service Health Insights"
+            icon={<Activity className=" text-green-600 " />}
+            content={serviceInsights}
+            placeholder="Click Analyze Service Health"
+            loading={analyzingServices}
+            buttonText="Analyze Service Health"
+            loadingText="Analyzing..."
+            buttonColor="bg-green-600 hover:bg-green-700"
+            onClick={() =>generateServiceInsights()}
+            onRegenerate={() =>generateServiceInsights(true)}
+          />
+        )}
     </div>
   );
 }

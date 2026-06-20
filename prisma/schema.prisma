@@ -46,13 +46,15 @@ model Organization {
 model User {
   id String @id @default(cuid())
 
-  email String  @unique
-  name  String?
+  email String @unique
+  name String?
+
+  password String
 
   role UserRole @default(VIEWER)
 
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization Organization @relation(fields:[organizationId],references:[id])
 
   auditLogs AuditLog[]
 

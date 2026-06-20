@@ -5,7 +5,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -18,6 +17,7 @@ import {
   Shield,
   History,
 } from "lucide-react";
+import { isAdmin } from "@/lib/roles";
 
 const generalItems = [
   {
@@ -53,15 +53,11 @@ const systemItems = [
     icon: History,
     href: "/audit-logs",
   },
-  {
-    title: "Settings",
-    icon: Settings,
-    href: "/settings",
-  },
 ];
 
 export default function Sidebar() {
     const { data: session } = useSession();
+    const role = session?.user.role;
     const [isCollapsed, setIsCollapsed] = useState(true);
     const pathname = usePathname();
   return (
@@ -258,6 +254,33 @@ export default function Sidebar() {
                 </Link>
               );
             })}
+
+            {
+              isAdmin(role) && (
+                <Link
+                  href="/settings"
+                  className={`
+                    flex items-center
+                    ${isCollapsed ? "justify-center" : "gap-3"}
+                    p-3 rounded-xl
+                    hover:bg-green-900
+                    ${
+                      pathname === "/settings"
+                        ? "bg-green-900"
+                        : ""
+                    }
+                  `}
+                >
+                  <Settings className="w-6 h-6 shrink-0" />
+
+                  {!isCollapsed && (
+                    <span className="text-lg">
+                      Settings
+                    </span>
+                  )}
+                </Link>
+              )
+            }
 
           </div>
 

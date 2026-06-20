@@ -3,8 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { Bot, Send, X } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { isViewer } from "@/lib/roles";
 
 export default function AIAssistant() {
+  const {data: session} = useSession();
+  const role = session?.user.role;
+
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");  
   const [messages, setMessages] = useState<
@@ -222,6 +227,8 @@ export default function AIAssistant() {
       setLoading(false);
     }
   }
+
+  if(isViewer(role)) return null;
   return (
     
     <>
