@@ -2,10 +2,11 @@
 
 import { Bell, Search, Moon, Sun, X, BellCheck } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {motion} from "framer-motion";
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
+import Link from "next/link";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
@@ -13,6 +14,31 @@ export default function Navbar() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(
+          event.target as Node
+        )
+      ) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener(
+      "mousedown",
+      handleClickOutside
+    );
+
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -94,7 +120,7 @@ export default function Navbar() {
           </motion.div>
         </button>
 
-        <div className="relative">
+        <div ref={dropdownRef} className="relative">
           <div
             onClick={() => setOpen(!open)}
             className="
@@ -168,6 +194,8 @@ export default function Navbar() {
                         isRead: true,
                       }))
                     );
+
+                    setOpen(false);
                   }}
                   className="
                     text-sm
@@ -225,9 +253,15 @@ export default function Navbar() {
                   `}
                 >
                   <div className="flex items-center justify-between">
-                    <p className="font-medium">
-                      {notification.title}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">
+                        {notification.title}
+                      </p>
+
+                      {!notification.isRead && (
+                        <div className="w-2 h-2 rounded-full bg-green-600"/>
+                      )}
+                    </div>
 
                     <button
                       onClick={async (e) => {
@@ -265,6 +299,17 @@ export default function Navbar() {
                   </div>
                 </div>
               ))}
+              <div className="pt-3 text-center">
+                <Link
+                  href="/notifications"
+                  className="
+                    text-green-700
+                    hover:underline
+                  "
+                >
+                  View All Notifications
+                </Link>
+              </div>
             </div>
           )}
 

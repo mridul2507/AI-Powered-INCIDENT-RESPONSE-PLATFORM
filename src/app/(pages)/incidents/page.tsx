@@ -264,94 +264,94 @@ export default function IncidentsPage() {
 
       </div>
 
-            <div className="flex gap-4 mb-6">
-              <select
-                value={severityFilter}
-                onChange={(e) =>
-                  setSeverityFilter(e.target.value)
-                }
-                className="
-                  p-3
-                  border
-                  rounded-xl
-                  dark:bg-slate-900
-                "
-              >
-                <option value="ALL">
-                  All Severities
-                </option>
+      <div className="flex gap-4 mb-6">
+        <select
+          value={severityFilter}
+          onChange={(e) =>
+            setSeverityFilter(e.target.value)
+          }
+          className="
+            p-3
+            border
+            rounded-xl
+            dark:bg-slate-900
+          "
+        >
+        <option value="ALL">
+          All Severities
+        </option>
 
-                <option value="INFO">
-                  Info
-                </option>
+        <option value="INFO">
+          Info
+        </option>
 
-                <option value="WARNING">
-                  Warning
-                </option>
+        <option value="WARNING">
+          Warning
+        </option>
 
-                <option value="CRITICAL">
-                  Critical
-                </option>
+        <option value="CRITICAL">
+          Critical
+        </option>
 
-              </select>
+          </select>
 
-              <select
-                value={statusFilter}
-                onChange={(e) =>
-                  setStatusFilter(e.target.value)
-                }
-                className="
-                  p-3
-                  border
-                  rounded-xl
-                  dark:bg-slate-900
-                "
-              >
-                <option value="ALL">
-                  All Statuses
-                </option>
+          <select
+            value={statusFilter}
+            onChange={(e) =>
+              setStatusFilter(e.target.value)
+            }
+            className="
+              p-3
+              border
+              rounded-xl
+              dark:bg-slate-900
+            "
+          >
+          <option value="ALL">
+            All Statuses
+          </option>
 
-                <option value="OPEN">
-                  Open
-                </option>
+          <option value="OPEN">
+            Open
+          </option>
 
-                <option value="INVESTIGATING">
-                  Investigating
-                </option>
+          <option value="INVESTIGATING">
+            Investigating
+          </option>
 
-                <option value="RESOLVED">
-                  Resolved
-                </option>
+          <option value="RESOLVED">
+            Resolved
+          </option>
 
-              </select>
+          </select>
 
-              <select
-                value={serviceFilter}
-                onChange={(e) =>
-                  setServiceFilter(e.target.value)
-                }
-                className="
-                  p-3
-                  border
-                  rounded-xl
-                  dark:bg-slate-900
-                "
-              >
-                <option value="ALL">
-                  All Services
-                </option>
+          <select
+            value={serviceFilter}
+            onChange={(e) =>
+              setServiceFilter(e.target.value)
+            }
+            className="
+              p-3
+              border
+              rounded-xl
+              dark:bg-slate-900
+            "
+          >
+          <option value="ALL">
+            All Services
+          </option>
 
-                {services.map((service) => (
-                  <option
-                    key={service.id}
-                    value={service.name}
-                  >
-                    {service.name}
-                  </option>
-                ))}
-              </select>
+          {services.map((service) => (
+            <option
+              key={service.id}
+              value={service.name}
+            >
+              {service.name}
+            </option>
+          ))}
+        </select>
 
-          </div>
+      </div>
 
       <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm overflow-hidden">
 

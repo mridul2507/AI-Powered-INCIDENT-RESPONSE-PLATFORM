@@ -9,3 +9,11 @@ export function isEngineer(role?: string) {
 export function isViewer(role?: string) {
   return role === "VIEWER";
 }
+
+export function canManageServices(role?: string) {
+  return isAdmin(role);
+}
+
+export function canManageIncidents(role?: string) {
+  return isAdmin(role) || isEngineer(role);
+}

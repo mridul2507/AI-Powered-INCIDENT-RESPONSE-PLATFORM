@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { canManageIncidents } from "@/lib/rbac";
+import { canManageIncidents } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
@@ -15,8 +15,17 @@ export async function GET(
       where: {
         id,
       },
+      
       include: {
-        service: true,
+        service: {
+          include: {
+            logs: {
+              orderBy: {
+                createdAt: "desc",
+              },
+            },
+          },
+        },
       },
     });
 

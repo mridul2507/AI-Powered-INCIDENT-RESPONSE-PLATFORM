@@ -183,14 +183,10 @@ export default function Dashboard() {
         <LogsExplorer />
       </div>
 
-      <div
-        className=" bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
-          rounded-2xl shadow-sm p-6 mt-6"
-      >
+      <div className=" bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
+          rounded-2xl shadow-sm hover:shadow-lg p-6 mt-6">
 
-        <h2
-          className=" text-xl font-semibold text-green-900 dark:text-green-400 mb-4"
-        >
+        <h2 className=" text-xl font-semibold text-green-900 dark:text-green-400 mb-4 uppercase">
           AI Dashboard Insights
         </h2>
 

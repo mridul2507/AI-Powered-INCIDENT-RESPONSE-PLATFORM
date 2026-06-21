@@ -1,15 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
 
 export default function TopAffectedServices() {
   const [services, setServices] = useState<
@@ -38,7 +29,7 @@ export default function TopAffectedServices() {
         }))
         .sort((a, b) => b.count - a.count);
 
-      setServices(sorted);
+      setServices(sorted.slice(0,5));
     }
 
     fetchIncidents();
@@ -54,7 +45,7 @@ export default function TopAffectedServices() {
     <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-6
       transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
       <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
-        Top Affected Services
+        TOP AFFECTED SERVICES
       </h2>
 
       <div className="space-y-6">

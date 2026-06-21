@@ -60,7 +60,7 @@ export default function IncidentTrendChart() {
         text-green-900 dark:text-green-400
         mb-6
       ">
-        Incident Trend
+        INCIDENT TREND
       </h2>
 
       <div className="h-[300px]">

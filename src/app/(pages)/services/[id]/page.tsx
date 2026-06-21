@@ -29,6 +29,7 @@ type Service = {
     id: string;
     level: string;
     message: string;
+    createdAt: string;
   }[];
 };
 
@@ -48,12 +49,35 @@ export default function ServiceDetailsPage() {
 
       const data = await res.json();
 
-      setService(data);
-      setServiceInsights(data.aiServiceInsights || "");
+      setService({
+        ...data,
+
+        logs: data.logs.sort(
+          (
+            a: {
+              createdAt: string;
+            },
+            b: {
+              createdAt: string;
+            }
+          ) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+        ),
+      });
+
+      setServiceInsights(
+        data.aiServiceInsights || ""
+      );
     }
 
     fetchService();
+
+    const interval = setInterval(fetchService,10000);
+    return () => clearInterval(interval);
   }, [params.id]);
+
+  
 
   async function handleDelete() {
     if (!service) return;
@@ -115,8 +139,21 @@ export default function ServiceDetailsPage() {
   }
 
   if (!service) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className=" min-h-screen flex items-center justify-center">
+        <div className="text-xl text-green-700">
+          Loading service...
+        </div>
+      </div>
+    );
   }
+
+  const totalLogs = service.logs.length;
+  const errorLogs = service.logs.filter(log =>log.level.toUpperCase() === "ERROR").length;
+  const errorRate =
+    totalLogs > 0
+      ? ((errorLogs / totalLogs) *100).toFixed(1) + "%"
+      : "--";
 
   return (
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
@@ -224,7 +261,7 @@ export default function ServiceDetailsPage() {
           <p className="text-sm text-gray-600">Error Rate</p>
 
           <p className="text-3xl font-bold text-red-600 mt-2">
-            --
+              {errorRate}
           </p>
         </div>
 
@@ -251,7 +288,7 @@ export default function ServiceDetailsPage() {
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
             transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
-                Recent Incidents
+                RECENT INCIDENTS
             </h2>
 
             {service.incidents.length === 0 && (
@@ -279,7 +316,7 @@ export default function ServiceDetailsPage() {
                     "
                 >
                     <p className="font-medium text-gray-700 dark:text-slate-400">
-                    {incident.id}
+                    {incident.id.slice(0,8)}
                     </p>
 
                     <p className="text-gray-600 mt-1">
@@ -323,7 +360,7 @@ export default function ServiceDetailsPage() {
             "
             >
               <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
-                Recent Logs
+                RECENT LOGS
               </h2>
 
               {service.logs.length === 0 && (
@@ -345,7 +382,7 @@ export default function ServiceDetailsPage() {
                   </p>
 
                   <p className="text-sm text-gray-500 mt-1">
-                    {log.level}
+                    {log.level} • {new Date(log.createdAt).toLocaleString()}
                   </p>
                 </div>
               ))}

@@ -15,6 +15,8 @@ type AuditLog = {
 export default function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [search, setSearch] = useState("");
+  const [actionFilter,setActionFilter] = useState("ALL");
+  
 
   useEffect(() => {
     async function fetchLogs() {
@@ -26,14 +28,30 @@ export default function AuditLogsPage() {
     }
 
     fetchLogs();
+
+    const interval = setInterval(
+      fetchLogs,
+      10000
+    );
+
+    return () => clearInterval(interval);
+
   }, []);
 
-  const filteredLogs = logs.filter(
-    (log) =>
-      log.action.toLowerCase().includes(search.toLowerCase()) ||
-      log.entityType.toLowerCase().includes(search.toLowerCase()) ||
-      log.entityId.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredLogs = logs.filter(log => {
+
+  const matchesSearch =
+    log.action.toLowerCase().includes(search.toLowerCase()) ||
+    log.entityType.toLowerCase().includes(search.toLowerCase()) ||
+    log.entityId.toLowerCase().includes(search.toLowerCase());
+
+  const matchesAction =
+    actionFilter==="ALL" ||
+    log.action===actionFilter;
+
+  return matchesSearch && matchesAction;
+
+  });
 
   return (
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
@@ -48,17 +66,7 @@ export default function AuditLogsPage() {
 
       <div className="relative mb-6">
 
-        <Search
-          className="
-          absolute
-          left-4
-          top-1/2
-          -translate-y-1/2
-          text-gray-400
-          w-5
-          h-5
-        "
-        />
+        <Search className=" absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
 
         <input
           value={search}
@@ -77,26 +85,58 @@ export default function AuditLogsPage() {
 
       </div>
 
-      <div className="
-        bg-white dark:bg-emerald-950
-        border border-gray-200 dark:border-slate-700
-        rounded-2xl
-        overflow-hidden
-      ">
+      <div className="flex gap-4 mb-6">
+        <select
+          value={actionFilter}
+          onChange={(e)=>setActionFilter(e.target.value)}
+        >
 
-        <div className="
-          grid
-          grid-cols-[1fr_1fr_1fr_2fr]
-          bg-gray-50
-          text-black dark:text-black
-          p-4
-          font-semibold
-        ">
+        <option value="ALL">
+          All Actions
+        </option>
+
+        <option value="CREATE">
+          CREATE
+        </option>
+
+        <option value="UPDATE">
+          UPDATE
+        </option>
+
+        <option value="DELETE">
+          DELETE
+        </option>
+
+        </select>
+      </div>
+
+      <div className=" bg-white dark:bg-emerald-950 border border-gray-200
+       dark:border-slate-700 rounded-2xl overflow-hidden">
+
+        <div className=" grid grid-cols-[1fr_1fr_1fr_2fr] bg-gray-50 text-black dark:text-black p-4 font-semibold">
           <p>Action</p>
           <p>Entity</p>
           <p>ID</p>
           <p>Time</p>
         </div>
+
+        {filteredLogs.length === 0 && (
+          <div className="
+            py-16
+            flex
+            flex-col
+            items-center
+            text-center
+          ">
+            <h2 className="text-xl font-semibold mb-2">
+              No Audit Logs
+            </h2>
+
+            <p className="text-gray-500">
+              No logs match the current filters.
+            </p>
+          </div>
+        )}
 
         {filteredLogs.map((log) => (
           <div

@@ -11,7 +11,12 @@ type Service = {
   id: string;
   name: string;
   status: "HEALTHY" | "WARNING" | "CRITICAL";
+  responseTime: string | null;
+  availability: string | null;
   createdAt: string;
+  incidents:{
+    createdAt: string;
+  }[];
 };
 
 export default function ServicesPage() {
@@ -31,6 +36,10 @@ export default function ServicesPage() {
     }
 
     fetchServices();
+
+    const interval = setInterval(fetchServices,10000);
+    return () => clearInterval(interval);
+    
   }, []);
 
   const filteredServices = services.filter(
@@ -175,15 +184,19 @@ export default function ServicesPage() {
                 </span>
 
                 <p className="text-gray-600 dark:text-slate-400">
-                --
+                  {service.responseTime ?? "--"}
                 </p>
 
                 <p className="text-gray-600 dark:text-slate-400">
-                --
+                  {service.availability ?? "--"}
                 </p>
 
                 <p className="text-gray-600 dark:text-slate-400">
-                  {new Date(service.createdAt).toLocaleDateString()}
+                  {
+                    service.incidents.length > 0
+                      ? new Date(service.incidents[0].createdAt).toLocaleDateString()
+                      : "--"
+                  }
                 </p>
 
             </div>

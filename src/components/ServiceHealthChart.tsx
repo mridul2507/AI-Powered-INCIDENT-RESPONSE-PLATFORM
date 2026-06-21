@@ -28,17 +28,9 @@ export default function ServiceHealthChart() {
             const services = await res.json();
 
             setStats({
-            healthy: services.filter(
-                (s: any) => s.status === "HEALTHY"
-            ).length,
-
-            warning: services.filter(
-                (s: any) => s.status === "WARNING"
-            ).length,
-
-            critical: services.filter(
-                (s: any) => s.status === "CRITICAL"
-            ).length,
+                healthy: services.filter((s: any) => s.status === "HEALTHY").length,
+                warning: services.filter((s: any) => s.status === "WARNING").length,
+                critical: services.filter((s: any) => s.status === "CRITICAL").length,
             });
         }
 

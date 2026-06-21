@@ -38,7 +38,7 @@ export default function AIInsightCard({
         <div className="flex items-center gap-3">
           {icon}
 
-          <h2 className="text-2xl font-semibold text-green-900 dark:text-green-400">
+          <h2 className="text-2xl font-semibold text-green-900 dark:text-green-400 uppercase">
             {title}
           </h2>
         </div>

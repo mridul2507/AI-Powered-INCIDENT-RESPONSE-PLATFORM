@@ -17,24 +17,6 @@ import { ArrowLeft,
 import {toast} from "sonner";
 import { isAdmin, isEngineer, isViewer } from "@/lib/roles";
 
-const logs = [
-          {
-            time: "12:32:45",
-            level: "ERROR",
-            message: "Database connection timeout",
-          },
-          {
-            time: "12:32:46",
-            level: "INFO",
-            message: "Retry attempt started",
-          },
-          {
-            time: "12:32:48",
-            level: "WARNING",
-            message: "Connection pool usage exceeded 90%",
-          },
-];
-
 type Incident = {
   id: string;
   title: string;
@@ -45,6 +27,13 @@ type Incident = {
   service: {
     id: string;
     name: string;
+
+    logs:{
+      id:string;
+      level:string;
+      message:string;
+      createdAt:string;
+    }[];
   } | null;
 
   createdAt: string;
@@ -202,7 +191,7 @@ export default function IncidentDetailsPage() {
 
             body: JSON.stringify({
               id: incident?.id,
-              logs,
+              logs: incident?.service?.logs,
             }),
           }
         );
@@ -379,7 +368,7 @@ export default function IncidentDetailsPage() {
       router.push("/incidents");
       router.refresh();
     } else {
-      alert("Failed to delete incident");
+      toast.error("Failed to delete incident");
     }
   }
 
@@ -405,9 +394,13 @@ export default function IncidentDetailsPage() {
 
     if (res.ok) {
       router.refresh();
-      window.location.reload();
+
+      const updated = await fetch(`/api/incidents/${incident.id}`);
+      const data = await updated.json();
+
+      setIncident(data);
     } else {
-      alert("Failed to resolve incident");
+      toast.error("Failed to resolve incident");
     }
   }
 
@@ -440,7 +433,7 @@ export default function IncidentDetailsPage() {
           transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
 
         <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">
-          {incident.id.slice(0, 8)}
+          #{incident.id.slice(0, 8)}
         </p>
 
         <div className="flex items-center justify-between mb-4">
@@ -530,6 +523,26 @@ export default function IncidentDetailsPage() {
             {mttr ?? "--"}
           </p>
         </div>
+
+        <div className="mt-4">
+          <p className="text-sm text-gray-500">
+            Created
+          </p>
+
+          <p className="font-semibold">
+            {new Date(incident.createdAt).toLocaleString()}
+          </p>
+        </div>
+
+        <div className="mt-4">
+          <p className="text-sm text-gray-500">
+            Last Updated
+          </p>
+
+          <p className="font-semibold">
+            {new Date(incident.updatedAt).toLocaleString()}
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-6">
@@ -561,87 +574,48 @@ export default function IncidentDetailsPage() {
             onRegenerate={()=>analyzeIncident(true)}
           />)}
         </div>
-
-        <div className="grid grid-cols-2 gap-6 mt-12">
-          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-              transition-all duration-300 hover:shadow-lg ">
-
-          <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
-            Incident Timeline
-          </h2>
-
-          <div className="space-y-8">
-
-            <div className="border-l-2 border-green-600 pl-4">
-              <p className="font-medium text-gray-700 dark:text-slate-400">
-                12:30 PM
-              </p>
-
-              <p className="text-gray-500 dark:text-slate-400">
-                Error rate exceeded threshold.
-              </p>
-            </div>
-
-            <div className="border-l-2 border-green-600 pl-4">
-              <p className="font-medium text-gray-700 dark:text-slate-400">
-                12:32 PM
-              </p>
-
-              <p className="text-gray-500 dark:text-slate-400">
-                Alert triggered for Payment Service.
-              </p>
-            </div>
-
-            <div className="border-l-2 border-green-600 pl-4">
-              <p className="font-medium text-gray-700 dark:text-slate-400">
-                12:35 PM
-              </p>
-
-              <p className="text-gray-500 dark:text-slate-400">
-                Incident created automatically.
-              </p>
-            </div>
-
-          </div>
-        </div>
-        
+          
         {/*Logs Explorer*/}
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
-              transition-all duration-300 hover:shadow-lg">
+              transition-all duration-300 hover:shadow-lg mt-12">
           <h2 className="flex flex-wrap text-xl font-semibold text-green-900 dark:text-green-400 mb-4">
-            Logs Explorer
+            LOGS EXPLORER
           </h2>
                     
-          {logs.map((log) => (
-          <div
-            key={log.time}
-            className=" text-sm grid flex-wrap grid-cols-[80px_90px_minmax(0,1fr)] hover:bg-gray-100 rounded-lg
-              px-2 transition-colors duration-200 border-b border-gray-100 py-3 items-center"
-          >
-            <p className="text-gray-700 dark:text-slate-400">
-              {log.time}
-            </p>
+          {incident.service?.logs?.length ? (
+            incident.service?.logs?.map((log) => (
+            <div
+              key={log.id}
+              className=" text-sm grid flex-wrap grid-cols-[80px_90px_minmax(0,1fr)] hover:bg-gray-100 rounded-lg
+                px-2 transition-colors duration-200 border-b border-gray-100 py-3 items-center"
+            >
+              <p className="text-gray-700 dark:text-slate-400">
+                {new Date(log.createdAt).toLocaleTimeString()}
+              </p>
 
-            <p className={`
-                font-semibold
-                ${
-                  log.level === "ERROR"
-                    ? "text-red-600"
-                    : log.level === "WARNING"
-                    ? "text-amber-600"
-                    : "text-blue-600"
-                }
-              `}>
-              {log.level}
-            </p>
+              <p className={`
+                  font-semibold
+                  ${
+                    log.level === "ERROR"
+                      ? "text-red-600"
+                      : log.level === "WARNING"
+                      ? "text-amber-600"
+                      : "text-blue-600"
+                  }
+                `}>
+                {log.level}
+              </p>
 
-            <p className="text-gray-700 dark:text-slate-400">
-              {log.message}
-            </p>
-          </div>
-        ))}
+              <p className="text-gray-700 dark:text-slate-400">
+                {log.message}
+              </p>
+            </div>
+          ))
+          ) : ( <p className="text-gray-500">
+                No logs available.
+              </p>
+        )}
         </div>
-      </div>
 
       <div className="grid grid-cols-2 gap-6">
         {!isViewer(role) && (  
@@ -674,12 +648,12 @@ export default function IncidentDetailsPage() {
       </div>
 
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
-          rounded-2xl shadow-sm p-6 mt-12 transition-all duration-300 hover:shadow-lg max-h-[500px] overflow-y-auto">
+          rounded-2xl shadow-sm p-6 mt-12 transition-all duration-300 hover:shadow-lg ">
           <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
-            Timeline
+            TIMELINE
           </h2>
 
-          <div className="space-y-6">
+          <div className="space-y-6 max-h-[400px] overflow-y-auto">
             {timeline.map((event, index) => (
               <div
                 key={event.id}

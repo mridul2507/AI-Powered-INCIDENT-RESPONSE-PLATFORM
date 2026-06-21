@@ -19,8 +19,17 @@ export default function LogsExplorer() {
   useEffect(() => {
     async function fetchLogs() {
       const res = await fetch("/api/logs");
-      const data = await res.json();
-      setLogs(data.slice(0, 5));
+
+      const data: Log[] = await res.json();
+      setLogs(
+        data
+          .sort(
+            (a: Log, b: Log) =>
+              new Date(b.timestamp).getTime() -
+              new Date(a.timestamp).getTime()
+          )
+          .slice(0, 5)
+      );
     }
 
     fetchLogs();
@@ -43,7 +52,7 @@ export default function LogsExplorer() {
     "
     >
       <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
-        Logs Explorer
+        LOGS EXPLORER
       </h2>
 
       <div className="space-y-4">

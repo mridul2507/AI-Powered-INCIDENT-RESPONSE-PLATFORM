@@ -1,24 +1,62 @@
 "use client"
 
 import ThemeToggle from "@/components/ThemeToggle"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AIInsightCard from "@/components/AIInsightCard";
 import { FileText, Brain } from "lucide-react";
+import AnalyticsTrendChart from "@/components/AnalyticsTrendChart";
 
 export default function AnalyticsPage(){
   const [executiveReport, setExecutiveReport] = useState("");
   const [generatingReport, setGeneratingReport] = useState(false);
   const [analyticsInsights,setAnalyticsInsights]=useState("");
   const [analyzingInsights,setAnalyzingInsights]=useState(false);
-  const metrics = {
-    totalIncidents: 124,
-    mttr: "42 min",
-    availability: "99.8%",
-    errorRate: "1.4%",
-    criticalIncidents: 12,
-    warningIncidents: 45,
-    infoIncidents: 67,
-  };
+  const [metrics, setMetrics] = useState({
+    totalIncidents: 0,
+    mttr: "--",
+    availability: "--",
+    errorRate: "--",
+    criticalIncidents: 0,
+    warningIncidents: 0,
+    infoIncidents: 0,
+  });
+
+  useEffect(() => {
+    async function fetchAnalytics() {
+      const res = await fetch("/api/dashboard/stats");
+      const data = await res.json();
+
+      setMetrics({
+        totalIncidents: data.activeIncidents + data.resolvedIncidents,
+        mttr: data.averageMttr,
+        availability:
+          data.totalServices > 0
+            ? (
+                (data.healthyServices / data.totalServices) * 100
+              ).toFixed(1) + "%"
+            : "--",
+
+        errorRate:
+          (
+            (data.criticalAlerts / (data.activeIncidents + data.resolvedIncidents)) * 100
+          ).toFixed(1) + "%",
+
+        criticalIncidents:
+          data.criticalAlerts,
+
+        warningIncidents:
+          data.warningAlerts,
+
+        infoIncidents:
+          data.infoAlerts,
+      });
+    }
+
+    fetchAnalytics();
+
+    const interval = setInterval(fetchAnalytics,10000);
+    return () => clearInterval(interval);
+  }, []);
 
   async function generateExecutiveReport(force=false) {
   if (executiveReport && !force) return;
@@ -77,6 +115,20 @@ export default function AnalyticsPage(){
       setAnalyzingInsights(false);
     }
   }
+
+  const totalSeverity = metrics.criticalIncidents + metrics.warningIncidents + metrics.infoIncidents;
+
+  const criticalPercent = totalSeverity > 0
+      ? (metrics.criticalIncidents / totalSeverity) * 100
+      : 0;
+
+  const warningPercent = totalSeverity > 0
+      ? (metrics.warningIncidents / totalSeverity) * 100
+      : 0;
+
+  const infoPercent = totalSeverity > 0
+      ? (metrics.infoIncidents / totalSeverity) * 100
+      : 0;
   return(
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
 
@@ -92,77 +144,48 @@ export default function AnalyticsPage(){
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 
           transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-medium text-gray-900 dark:text-slate-400 dark:text-slate-400">Total Incidents</p>
-            <p className="text-3xl font-bold text-purple-500 mt-2">124</p>
+            <p className="text-3xl font-bold text-purple-500 mt-2">
+              {metrics.totalIncidents}
+            </p>
         </div>
 
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
           transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <p className="text-medium text-gray-900 dark:text-slate-400">MTTR</p>
-          <p className="text-3xl font-bold text-blue-700 mt-2">42 min</p>
+          <p className="text-3xl font-bold text-blue-700 mt-2">
+            {metrics.mttr}
+          </p>
         </div>
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
           transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <p className="text-medium text-gray-900 dark:text-slate-400">System Availability</p>
-          <p className="text-3xl font-bold text-green-600 mt-2">99.8%</p>
+          <p className="text-3xl font-bold text-green-600 mt-2">
+            {metrics.availability}
+          </p>
         </div>
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6
           transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
           <p className="text-medium text-gray-900 dark:text-slate-400">Error Rate</p>
-          <p className="text-3xl font-bold text-red-500 mt-2">1.4%</p>
+          <p className="text-3xl font-bold text-red-500 mt-2">
+            {metrics.errorRate}
+          </p>
         </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6 mt-6">
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 mt-6
           transition-all duration-300 hover:shadow-lg min-w-0">
-          <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">Incident Trend</h2>
+          <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-4">INCIDENT TREND</h2>
           <div className="h-80 bg-gray-50 rounded-xl p-6">
-          <div className="h-full flex items-end justify-between gap-3">
-
-            <div className="flex flex-col items-center">
-              <div className="bg-green-500 w-10 h-24 rounded-t-md"></div>
-              <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">Mon</p>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <div className="bg-green-500 w-10 h-32 rounded-t-md"></div>
-              <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">Tue</p>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <div className="bg-amber-500 w-10 h-20 rounded-t-md"></div>
-              <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">Wed</p>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <div className="bg-green-500 w-10 h-40 rounded-t-md"></div>
-              <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">Thu</p>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <div className="bg-red-500 w-10 h-56 rounded-t-md"></div>
-              <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">Fri</p>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <div className="bg-amber-500 w-10 h-36 rounded-t-md"></div>
-              <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">Sat</p>
-            </div>
-
-            <div className="flex flex-col items-center">
-              <div className="bg-green-500 w-10 h-28 rounded-t-md"></div>
-              <p className="text-sm text-gray-500 dark:text-slate-400 mt-2">Sun</p>
-            </div>
-
+            <AnalyticsTrendChart/>
           </div>
-        </div>
         </div>
 
 
         <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 mt-6
           transition-all duration-300 hover:shadow-lg min-w-0">
           <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
-            Severity Distribution
+            SEVERITY DISTRIBUTION
           </h2>
 
           <div className="space-y-6">
@@ -173,12 +196,14 @@ export default function AnalyticsPage(){
                   Critical
                 </span>
                 <span className="text-gray-700 dark:text-slate-400">
-                  12
+                  {metrics.criticalIncidents}
                 </span>
               </div>
 
               <div className="h-3 bg-gray-100 rounded-full">
-                <div className="h-3 w-[15%] bg-red-500 rounded-full"></div>
+                <div className="h-3 bg-red-500 rounded-full"
+                  style={{ width: `${criticalPercent}%` }}
+                ></div>
               </div>
             </div>
 
@@ -188,12 +213,14 @@ export default function AnalyticsPage(){
                   Warning
                 </span>
                 <span className="text-gray-700 dark:text-slate-400">
-                  45
+                  {metrics.warningIncidents}
                 </span>
               </div>
 
               <div className="h-3 bg-gray-100 rounded-full">
-                <div className="h-3 w-[55%] bg-amber-500 rounded-full"></div>
+                <div className="h-3 bg-amber-500 rounded-full"
+                  style={{ width: `${warningPercent}%` }}
+                ></div>
               </div>
             </div>
 
@@ -203,12 +230,14 @@ export default function AnalyticsPage(){
                   Info
                 </span>
                 <span className="text-gray-700 dark:text-slate-400">
-                  67
+                  {metrics.infoIncidents}
                 </span>
               </div>
 
               <div className="h-3 bg-gray-100 rounded-full">
-                <div className="h-3 w-[50%] bg-blue-500 rounded-full"></div>
+                <div className="h-3 bg-blue-500 rounded-full"
+                  style={{ width: `${infoPercent}%` }}
+                ></div>
               </div>
             </div>
 

@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { canManageServices } from "@/lib/rbac";
+import { canManageServices } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";

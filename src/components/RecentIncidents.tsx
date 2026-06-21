@@ -20,9 +20,16 @@ export default function RecentIncidents() {
         "/api/incidents"
       );
 
-      const data = await res.json();
-
-      setIncidents(data.slice(0, 5));
+      const data: Incident[] = await res.json();
+      setIncidents(
+        data
+          .sort(
+            (a: Incident, b: Incident) =>
+              new Date(b.createdAt).getTime() -
+              new Date(a.createdAt).getTime()
+          )
+          .slice(0, 5)
+      );
     }
 
     fetchIncidents();
@@ -38,7 +45,7 @@ export default function RecentIncidents() {
       transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
       
       <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
-        Recent Incidents
+        RECENT INCIDENTS
       </h2>
 
       <div className="flex flex-col gap-4">

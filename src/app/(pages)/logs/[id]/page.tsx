@@ -23,20 +23,35 @@ export default function LogDetailsPage() {
   const [log, setLog] = useState<Log | null>(null);
   const [logAnalysis, setLogAnalysis] = useState("");
   const [analyzingLog, setAnalyzingLog] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchLog() {
-      const res = await fetch(`/api/logs/${params.id}`);
+      try {
+        const res = await fetch(`/api/logs/${params.id}`);
+        const data = await res.json();
 
-      const data = await res.json();
+        setLog(data);
+      }
 
-      setLog(data);
+      finally {
+        setLoading(false);
+      }
     }
 
     fetchLog();
+
+    const interval = setInterval(
+      fetchLog,
+      10000
+    );
+
+    return () => clearInterval(interval);
+
   }, [params.id]);
 
   async function analyzeLog(force = false) {
+    if(!log) return;
     if (logAnalysis && !force) return;
 
     try {
@@ -64,10 +79,25 @@ export default function LogDetailsPage() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="
+        min-h-screen
+        flex
+        items-center
+        justify-center
+      ">
+        <div className="text-xl text-green-700">
+          Loading log...
+        </div>
+      </div>
+    );
+  }
+
   if (!log) {
     return (
-      <div className="p-8">
-        Loading...
+      <div className="p-10">
+        Log Not Found
       </div>
     );
   }
@@ -106,7 +136,9 @@ export default function LogDetailsPage() {
                   ? "bg-red-100 text-red-700"
                   : log.level === "WARNING"
                   ? "bg-amber-100 text-amber-700"
-                  : "bg-blue-100 text-blue-700"
+                  : log.level === "INFO" 
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-gray-100 text-gray-700"
               }
             `}
           >
