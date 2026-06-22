@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-const COLORS = [
-  "#ef4444",
-  "#f59e0b",
-  "#22c55e",
-];
+
+type Incident = {
+  status: string
+};
 
 export default function IncidentStatusChart() {
   const [stats, setStats] = useState({
@@ -21,48 +20,16 @@ export default function IncidentStatusChart() {
       const incidents = await res.json();
 
       setStats({
-        open: incidents.filter(
-          (i: any) => i.status === "OPEN"
-        ).length,
+        open: incidents.filter((i: Incident) => i.status === "OPEN").length,
 
-        investigating: incidents.filter(
-          (i: any) => i.status === "INVESTIGATING"
-        ).length,
+        investigating: incidents.filter((i: Incident) => i.status === "INVESTIGATING").length,
 
-        resolved: incidents.filter(
-          (i: any) => i.status === "RESOLVED"
-        ).length,
+        resolved: incidents.filter((i: Incident) => i.status === "RESOLVED").length,
       });
     }
 
     fetchIncidents();
-    const interval = setInterval(
-      fetchIncidents,
-      10000
-    );
-
-    return () => clearInterval(interval);
   }, []);
-
-  const data = [
-    {
-      name: "Open",
-      value: stats.open,
-    },
-    {
-      name: "Investigating",
-      value: stats.investigating,
-    },
-    {
-      name: "Resolved",
-      value: stats.resolved,
-    },
-  ];
-
-  const total =
-    stats.open +
-    stats.investigating +
-    stats.resolved;
 
   return (
     <div

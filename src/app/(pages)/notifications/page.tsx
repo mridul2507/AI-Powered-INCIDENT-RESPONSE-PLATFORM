@@ -11,7 +11,7 @@ type Notification = {
   createdAt: string;
 };
 
-export default function NotificationsPage() {
+export default async function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<
     "ALL" | "READ" | "UNREAD"

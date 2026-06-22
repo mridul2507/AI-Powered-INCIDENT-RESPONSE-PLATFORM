@@ -77,7 +77,7 @@ export default function IncidentsPage() {
           "Service",
           "Created"
         ]],
-        body: incidents.map((incident: any) => [
+        body: incidents.map((incident: Incident) => [
           incident.title,
           incident.severity,
           incident.status,
@@ -173,7 +173,7 @@ export default function IncidentsPage() {
                 "Service",
                 "Created At",
               ],
-              ...incidents.map((incident: any) => [
+              ...incidents.map((incident: Incident) => [
                 incident.title,
                 incident.severity,
                 incident.status,

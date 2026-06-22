@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function CreateServicePage() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function CreateServicePage() {
       router.push("/services");
       router.refresh();
     } else {
-      alert("Failed to create service");
+      toast.error("Failed to create service");
     }
   }
 

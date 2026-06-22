@@ -14,7 +14,6 @@ export async function createAuditLog(
       },
     });
 
-    console.log("AUDIT CREATED:", log);
   } catch (error) {
     console.error("AUDIT ERROR:", error);
   }

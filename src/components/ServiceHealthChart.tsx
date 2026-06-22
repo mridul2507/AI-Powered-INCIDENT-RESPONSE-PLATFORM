@@ -14,6 +14,10 @@ const COLORS = [
   "#ef4444",
 ];
 
+type Service = {
+    status: string
+};
+
 export default function ServiceHealthChart() {
     const [stats, setStats] = useState({
         healthy: 0,
@@ -28,19 +32,13 @@ export default function ServiceHealthChart() {
             const services = await res.json();
 
             setStats({
-                healthy: services.filter((s: any) => s.status === "HEALTHY").length,
-                warning: services.filter((s: any) => s.status === "WARNING").length,
-                critical: services.filter((s: any) => s.status === "CRITICAL").length,
+                healthy: services.filter((s: Service) => s.status === "HEALTHY").length,
+                warning: services.filter((s: Service) => s.status === "WARNING").length,
+                critical: services.filter((s: Service) => s.status === "CRITICAL").length,
             });
         }
 
         fetchServices();
-        const interval = setInterval(
-            fetchServices,
-            10000
-        );
-
-        return () => clearInterval(interval);
         }, []);
 
         const data = [

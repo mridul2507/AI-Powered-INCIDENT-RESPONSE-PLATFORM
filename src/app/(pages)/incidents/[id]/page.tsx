@@ -40,6 +40,11 @@ type Incident = {
   updatedAt: string;
 };
 
+type TimelineEvent={
+  type: string;
+  message: string;
+};
+
 export default function IncidentDetailsPage() {
   const { data: session } = useSession();
   const role = session?.user.role;
@@ -77,7 +82,7 @@ export default function IncidentDetailsPage() {
       const resolvedEvent = [...timelineData]
         .reverse()
         .find(
-          (e: any) =>
+          (e: TimelineEvent) =>
             e.type === "RESOLVED" ||
             (
               e.type === "STATUS_CHANGED" &&
@@ -405,7 +410,13 @@ export default function IncidentDetailsPage() {
   }
 
   if (loading) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className=" min-h-screen flex items-center justify-center">
+        <div className="text-xl text-green-700">
+          Loading incident...
+        </div>
+      </div>
+    );
   }
 
   if (!incident) {

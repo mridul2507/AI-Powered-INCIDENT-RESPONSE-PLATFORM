@@ -17,3 +17,26 @@ export function canManageServices(role?: string) {
 export function canManageIncidents(role?: string) {
   return isAdmin(role) || isEngineer(role);
 }
+
+export function canView(role?: string) {
+  return (
+    isAdmin(role) ||
+    isEngineer(role) ||
+    isViewer(role)
+  );
+}
+
+export function canUseAI(role?: string) {
+  return (
+    isAdmin(role) ||
+    isEngineer(role)
+  );
+}
+
+export function canViewAuditLogs(role?: string) {
+  return isAdmin(role);
+}
+
+export function canAccessSettings(role?: string) {
+  return isAdmin(role);
+}

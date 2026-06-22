@@ -96,7 +96,7 @@ export default function ServiceDetailsPage() {
           router.refresh();
       } 
       else {
-          alert("Failed to delete services");
+          toast.error("Failed to delete services");
       }
   }
 

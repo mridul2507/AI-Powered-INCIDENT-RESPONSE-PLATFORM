@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from "react";
 
+type Incident = {
+  service?: {
+    name: string;
+  };
+};
+
 export default function TopAffectedServices() {
   const [services, setServices] = useState<
     { name: string; count: number }[]
@@ -15,7 +21,7 @@ export default function TopAffectedServices() {
 
       const counts: Record<string, number> = {};
 
-      incidents.forEach((incident: any) => {
+      incidents.forEach((incident: Incident) => {
         if (!incident.service) return;
 
         counts[incident.service.name] =
@@ -33,12 +39,6 @@ export default function TopAffectedServices() {
     }
 
     fetchIncidents();
-    const interval = setInterval(
-      fetchIncidents,
-      10000
-    );
-
-    return () => clearInterval(interval);
   }, []);
 
   return (

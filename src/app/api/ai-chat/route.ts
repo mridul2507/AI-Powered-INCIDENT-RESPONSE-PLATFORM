@@ -1,8 +1,17 @@
 import { ai } from "@/lib/gemini";
 import { NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { canUseAI } from "@/lib/roles";
 
 export async function POST(req: Request) {
   try {
+    const session = await auth();  
+    if (!session?.user?.role ||!canUseAI(session.user.role)) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 403 }
+      );
+    }
 
     const body = await req.json();
 

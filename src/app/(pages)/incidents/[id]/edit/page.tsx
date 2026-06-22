@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import {toast} from "sonner";
 
 type Incident = {
   id: string;
@@ -80,12 +81,18 @@ export default function EditIncidentPage() {
 
       router.refresh();
     } else {
-      alert("Failed to update incident");
+      toast.error("Failed to update incident");
     }
   }
 
   if (loading) {
-    return <div className="p-8">Loading...</div>;
+    return (
+      <div className=" min-h-screen flex items-center justify-center">
+        <div className="text-xl text-green-700">
+          Loading incident...
+        </div>
+      </div>
+    );
   }
 
   return (

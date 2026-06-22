@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import AIInsightCard from "@/components/AIInsightCard";
 import { FileText, Brain } from "lucide-react";
 import AnalyticsTrendChart from "@/components/AnalyticsTrendChart";
+import { useSession } from "next-auth/react";
 
 export default function AnalyticsPage(){
   const [executiveReport, setExecutiveReport] = useState("");
@@ -20,6 +21,8 @@ export default function AnalyticsPage(){
     warningIncidents: 0,
     infoIncidents: 0,
   });
+  const { data: session } = useSession();
+  const role = session?.user.role;
 
   useEffect(() => {
     async function fetchAnalytics() {
@@ -246,30 +249,36 @@ export default function AnalyticsPage(){
       </div>
 
       <div className="grid grid-cols-2 gap-6">
-        <AIInsightCard
-          title="Executive Report"
-          icon={<FileText className="text-indigo-600" />}
-          content={executiveReport}
-          placeholder="Generate executive report."
-          loading={generatingReport}
-          buttonText="Generate Report"
-          loadingText="Generating..."
-          buttonColor="bg-indigo-600 hover:bg-indigo-700"
-          onClick={() => generateExecutiveReport()}
-          onRegenerate={() => generateExecutiveReport(true)}
-        />
-        <AIInsightCard
-          title="AI Analytics Insights"
-          icon={<Brain className="text-cyan-600"/>}
-          content={analyticsInsights}
-          placeholder="Analyze analytics trends."
-          loading={analyzingInsights}
-          buttonText="Analyze Analytics"
-          loadingText="Analyzing..."
-          buttonColor="bg-cyan-600 hover:bg-cyan-700"
-          onClick={()=>analyzeAnalytics()}
-          onRegenerate={()=>analyzeAnalytics(true)}
+
+        {role !== "VIEWER" && (
+          <AIInsightCard
+            title="Executive Report"
+            icon={<FileText className="text-indigo-600" />}
+            content={executiveReport}
+            placeholder="Generate executive report."
+            loading={generatingReport}
+            buttonText="Generate Report"
+            loadingText="Generating..."
+            buttonColor="bg-indigo-600 hover:bg-indigo-700"
+            onClick={() => generateExecutiveReport()}
+            onRegenerate={() => generateExecutiveReport(true)}
           />
+        )}
+
+        {role !== "VIEWER" && (
+          <AIInsightCard
+            title="AI Analytics Insights"
+            icon={<Brain className="text-cyan-600"/>}
+            content={analyticsInsights}
+            placeholder="Analyze analytics trends."
+            loading={analyzingInsights}
+            buttonText="Analyze Analytics"
+            loadingText="Analyzing..."
+            buttonColor="bg-cyan-600 hover:bg-cyan-700"
+            onClick={()=>analyzeAnalytics()}
+            onRegenerate={()=>analyzeAnalytics(true)}
+            />
+        )}
         </div>
     </div>
   

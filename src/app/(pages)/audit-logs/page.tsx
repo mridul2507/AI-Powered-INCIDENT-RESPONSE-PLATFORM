@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type AuditLog = {
   id: string;
@@ -16,6 +18,17 @@ export default function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [search, setSearch] = useState("");
   const [actionFilter,setActionFilter] = useState("ALL");
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (
+      session &&
+      session.user.role !== "ADMIN"
+    ) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
   
 
   useEffect(() => {

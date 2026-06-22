@@ -11,6 +11,10 @@ import {
   CartesianGrid,
 } from "recharts";
 
+type Incident = {
+  createdAt: string
+};
+
 export default function IncidentTrendChart() {
   const [data, setData] = useState<
     { day: string; incidents: number }[]
@@ -24,7 +28,7 @@ export default function IncidentTrendChart() {
 
       const counts: Record<string, number> = {};
 
-      incidents.forEach((incident: any) => {
+      incidents.forEach((incident: Incident) => {
         const day = new Date(
           incident.createdAt
         ).toLocaleDateString();
@@ -43,12 +47,6 @@ export default function IncidentTrendChart() {
     }
 
     fetchIncidents();
-    const interval = setInterval(
-      fetchIncidents,
-      10000
-    );
-
-    return () => clearInterval(interval);
   }, []);
 
   return (

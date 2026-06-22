@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function CreateIncidentPage() {
   const router = useRouter();
@@ -65,7 +66,7 @@ export default function CreateIncidentPage() {
       router.push("/incidents");
       router.refresh();
     } else {
-      alert("Failed to create incident");
+      toast.error("Failed to create incident");
     }
   }
 

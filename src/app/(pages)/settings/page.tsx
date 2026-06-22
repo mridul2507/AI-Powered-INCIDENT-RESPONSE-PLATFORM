@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 function Toggle({
   enabled,
@@ -66,6 +68,19 @@ export default function SettingsPage() {
   const [slackIntegration, setSlackIntegration] = useState(true);
   const [pagerDutyIntegration, setPagerDutyIntegration] = useState(false);
   const [jiraIntegration, setJiraIntegration] = useState(true);
+
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (
+      session &&
+      session.user.role !== "ADMIN"
+    ) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
   return (
     
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
