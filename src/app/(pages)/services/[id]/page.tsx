@@ -66,15 +66,10 @@ export default function ServiceDetailsPage() {
         ),
       });
 
-      setServiceInsights(
-        data.aiServiceInsights || ""
-      );
+      setServiceInsights(data.aiServiceInsights || "");
     }
 
     fetchService();
-
-    const interval = setInterval(fetchService,10000);
-    return () => clearInterval(interval);
   }, [params.id]);
 
   
@@ -126,9 +121,29 @@ export default function ServiceDetailsPage() {
         }
       );
 
-      const data = await res.json();
+      toast.success("Service Insights generation started");
 
-      setServiceInsights(data.insights);
+        let tries = 0;
+
+        const interval = setInterval(async () => {
+          const res = await fetch(`/api/services/${service?.id}`);
+          const updatedService = await res.json();
+
+          if (updatedService.aiServiceInsights) {
+            setServiceInsights(updatedService.aiServiceInsights);
+            clearInterval(interval);
+
+            toast.success("AI Service Insights ready");
+          }
+
+          tries++;
+
+          if (tries >= 15) {
+            clearInterval(interval);
+
+            toast.error("Timed out waiting for service insights");
+          }
+        }, 2000);
 
     }
 

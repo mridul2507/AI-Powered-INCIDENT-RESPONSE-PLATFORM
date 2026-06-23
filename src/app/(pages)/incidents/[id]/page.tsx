@@ -120,12 +120,6 @@ export default function IncidentDetailsPage() {
     }
 
     fetchIncident();
-    const interval = setInterval(
-      fetchIncident,
-      10000
-    );
-
-    return () => clearInterval(interval);
   }, [params.id]);
 
   async function analyzeIncident(force=false) {
@@ -157,10 +151,29 @@ export default function IncidentDetailsPage() {
           }
         );
 
-        const data = await res.json();
+        toast.success("Root Cause analysis started");
 
-        setAnalysis(data.summary);
-        toast.success("Root cause analysis complete");
+        let tries = 0;
+
+        const interval = setInterval(async () => {
+          const res = await fetch(`/api/incidents/${incident?.id}`);
+          const updatedIncident = await res.json();
+
+          if (updatedIncident.aiRootCauseAnalysis) {
+            setAnalysis(updatedIncident.aiRootCauseAnalysis);
+            clearInterval(interval);
+
+            toast.success("AI root cause analysis ready");
+          }
+
+          tries++;
+
+          if (tries >= 15) {
+            clearInterval(interval);
+
+            toast.error("Timed out waiting for root cause");
+          }
+        }, 2000);
       }
 
       catch {
@@ -201,10 +214,29 @@ export default function IncidentDetailsPage() {
           }
         );
 
-        const data = await res.json();
+        toast.success("Logs generation started");
 
-        setLogAnalysis(data.analysis);
-        toast.success("Logs Analyzed");
+        let tries = 0;
+
+        const interval = setInterval(async () => {
+          const res = await fetch(`/api/incidents/${incident?.id}`);
+          const updatedIncident = await res.json();
+
+          if (updatedIncident.aiLogAnalysis) {
+            setLogAnalysis(updatedIncident.aiLogAnalysis);
+            clearInterval(interval);
+
+            toast.success("AI Logs ready");
+          }
+
+          tries++;
+
+          if (tries >= 15) {
+            clearInterval(interval);
+
+            toast.error("Timed out waiting for logs");
+          }
+        }, 2000);
       }
       
       catch {
@@ -248,10 +280,29 @@ export default function IncidentDetailsPage() {
           }
         );
 
-        const data = await res.json();
+        toast.success("Summary generation started");
 
-        setSummary(data.summary);
-        toast.success("AI summary generated");
+        let tries = 0;
+
+        const interval = setInterval(async () => {
+          const res = await fetch(`/api/incidents/${incident?.id}`);
+          const updatedIncident = await res.json();
+
+          if (updatedIncident.aiIncidentSummary) {
+            setSummary(updatedIncident.aiIncidentSummary);
+            clearInterval(interval);
+
+            toast.success("AI summary ready");
+          }
+
+          tries++;
+
+          if (tries >= 15) {
+            clearInterval(interval);
+
+            toast.error("Timed out waiting for summary");
+          }
+        }, 2000);
       }
 
       catch {
@@ -292,10 +343,29 @@ export default function IncidentDetailsPage() {
           }
         );
 
-        const data = await res.json();
+        toast.success("Timeline Insights generation started");
 
-        setTimelineInsights(data.insights);
-        toast.success("Timeline Analyzed");
+        let tries = 0;
+
+        const interval = setInterval(async () => {
+          const res = await fetch(`/api/incidents/${incident?.id}`);
+          const updatedIncident = await res.json();
+
+          if (updatedIncident.aiTimelineInsights) {
+            setTimelineInsights(updatedIncident.aiTimelineInsights);
+            clearInterval(interval);
+
+            toast.success("AI Timline Insights ready");
+          }
+
+          tries++;
+
+          if (tries >= 15) {
+            clearInterval(interval);
+
+            toast.error("Timed out waiting for Timeline Insights");
+          }
+        }, 2000);
       }
 
       catch {
@@ -339,10 +409,29 @@ export default function IncidentDetailsPage() {
           }
         );
 
-        const data = await res.json();
+        toast.success("Dependency generation started");
 
-        setDependencyExplanation(data.explanation);
-        toast.success("Dependencies Analyzed");
+        let tries = 0;
+
+        const interval = setInterval(async () => {
+          const res = await fetch(`/api/incidents/${incident?.id}`);
+          const updatedIncident = await res.json();
+
+          if (updatedIncident.aiDependencyAnalysis) {
+            setDependencyExplanation(updatedIncident.aiDependencyAnalysis);
+            clearInterval(interval);
+
+            toast.success("AI Dependency Explanation ready");
+          }
+
+          tries++;
+
+          if (tries >= 15) {
+            clearInterval(interval);
+
+            toast.error("Timed out waiting for dependency");
+          }
+        }, 2000);
       }
 
       catch {

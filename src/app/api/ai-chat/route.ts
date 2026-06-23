@@ -1,4 +1,4 @@
-import { ai } from "@/lib/gemini";
+import { getAI } from "@/lib/gemini";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { canUseAI } from "@/lib/roles";
@@ -84,6 +84,7 @@ export async function POST(req: Request) {
 
     }
 
+    const ai = getAI();
     const response = await ai.models.generateContent({
 
         model: "gemini-2.5-flash",

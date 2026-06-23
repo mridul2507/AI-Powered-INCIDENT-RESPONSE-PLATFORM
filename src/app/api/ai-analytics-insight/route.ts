@@ -1,4 +1,4 @@
-import { ai } from "@/lib/gemini";
+import { getAI } from "@/lib/gemini";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { canUseAI } from "@/lib/roles";
@@ -16,6 +16,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
+    const ai = getAI();
 
     const response =
       await ai.models.generateContent({

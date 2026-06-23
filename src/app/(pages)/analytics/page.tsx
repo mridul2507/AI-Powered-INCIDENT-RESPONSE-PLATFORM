@@ -6,6 +6,7 @@ import AIInsightCard from "@/components/AIInsightCard";
 import { FileText, Brain } from "lucide-react";
 import AnalyticsTrendChart from "@/components/AnalyticsTrendChart";
 import { useSession } from "next-auth/react";
+import { toast } from "sonner";
 
 export default function AnalyticsPage(){
   const [executiveReport, setExecutiveReport] = useState("");
@@ -56,9 +57,6 @@ export default function AnalyticsPage(){
     }
 
     fetchAnalytics();
-
-    const interval = setInterval(fetchAnalytics,10000);
-    return () => clearInterval(interval);
   }, []);
 
   async function generateExecutiveReport(force=false) {
@@ -80,8 +78,30 @@ export default function AnalyticsPage(){
       }
     );
 
-    const data = await res.json();
-    setExecutiveReport(data.report);
+    toast.success("Executive report generation started");
+
+    let tries = 0;
+
+    const interval = setInterval(async () => {
+
+        const res = await fetch("/api/dashboard/stats");
+        const data = await res.json();
+
+        if(data.aiExecutiveReport){
+            setExecutiveReport(data.aiExecutiveReport);
+            clearInterval(interval);
+
+            toast.success("Executive report ready");
+        }
+
+        tries++;
+
+        if(tries >= 15){
+            clearInterval(interval);
+            toast.error("Timed out");
+        }
+
+    },2000);
 
   }
 
@@ -110,8 +130,30 @@ export default function AnalyticsPage(){
         }
       );
 
-      const data=await res.json();
-      setAnalyticsInsights(data.insights);
+      toast.success("EAnalytics analysis started");
+
+      let tries = 0;
+
+      const interval = setInterval(async () => {
+
+          const res = await fetch("/api/dashboard/stats");
+          const data = await res.json();
+
+          if(data.aiAnalyticsInsights){
+              setExecutiveReport(data.aiAnalyticsInsights);
+              clearInterval(interval);
+
+              toast.success("Analytics Insights ready");
+          }
+
+          tries++;
+
+          if(tries >= 15){
+              clearInterval(interval);
+              toast.error("Timed out");
+          }
+
+      },2000);
     }
 
     finally{

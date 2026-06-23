@@ -1,8 +1,7 @@
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { ai } from "@/lib/gemini";
 import { auth } from "@/auth";
 import { canUseAI } from "@/lib/roles";
+import { aiQueue } from "@/lib/queue";
 
 export async function POST(req: Request) {
   try {
@@ -17,50 +16,21 @@ export async function POST(req: Request) {
         { status: 403 }
       );
     }
+
     const body = await req.json();
 
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-
-      contents: `
-    Analyze this incident.
-
-    Title:
-    ${body.title}
-
-    Description:
-    ${body.description}
-
-    Return in markdown:
-
-    ## Root Cause:
-    ...
-
-    ## Impact:
-    ...
-
-    ## Recommendations:
-      ⦿ **Recommendation 1**
-      ⦿ **Recommendation 2**
-      ⦿ **Recommendation 3**
-    Keep response concise.
-    `,
-    });
-
-    const summary =
-      response.text || "No analysis generated.";
-
-    await prisma.incident.update({
-      where: {
+    await aiQueue.add(
+      "analyze-incident",
+      {
         id: body.id,
-      },
-      data: {
-        aiRootCauseAnalysis: summary,
-      },
-    });
+        title: body.title,
+        description: body.description,
+      }
+    );
 
     return NextResponse.json({
-      summary,
+      success: true,
+      message: "Analysis queued",
     });
   } catch (error) {
     console.error(error);

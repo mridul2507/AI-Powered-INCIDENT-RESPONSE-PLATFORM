@@ -8,6 +8,102 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Organization {
+  id        String     @id @default(cuid())
+  name      String
+  createdAt DateTime   @default(now())
+  incidents Incident[]
+  services  Service[]
+  users     User[]
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  name           String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organizationId String
+  role           UserRole     @default(VIEWER)
+  password       String
+  auditLogs      AuditLog[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Incident {
+  id                   String          @id @default(cuid())
+  title                String
+  description          String?
+  severity             Severity
+  status               IncidentStatus
+  organizationId       String
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  serviceId            String?
+  aiDependencyAnalysis String?
+  aiLogAnalysis        String?
+  aiTimelineInsights   String?
+  aiIncidentSummary    String?
+  aiRootCauseAnalysis  String?
+  organization         Organization    @relation(fields: [organizationId], references: [id])
+  service              Service?        @relation(fields: [serviceId], references: [id])
+  timelineEvents       TimelineEvent[]
+}
+
+model Service {
+  id                String        @id @default(cuid())
+  name              String
+  status            ServiceStatus
+  organizationId    String
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  availability      String?
+  description       String?
+  requestsPerMin    String?
+  responseTime      String?
+  aiServiceInsights String?
+  incidents         Incident[]
+  logs              Log[]
+  organization      Organization  @relation(fields: [organizationId], references: [id])
+}
+
+model Log {
+  id        String   @id @default(cuid())
+  timestamp DateTime @default(now())
+  level     String
+  message   String
+  serviceId String
+  createdAt DateTime @default(now())
+  service   Service  @relation(fields: [serviceId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  userId     String?
+  createdAt  DateTime @default(now())
+  entityId   String
+  entityType String
+  user       User?    @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model TimelineEvent {
+  id         String   @id @default(cuid())
+  type       String
+  message    String
+  incidentId String
+  createdAt  DateTime @default(now())
+  incident   Incident @relation(fields: [incidentId], references: [id])
+}
+
 enum UserRole {
   ADMIN
   ENGINEER
@@ -30,132 +126,4 @@ enum ServiceStatus {
   HEALTHY
   WARNING
   CRITICAL
-}
-
-model Organization {
-  id   String @id @default(cuid())
-  name String
-
-  users     User[]
-  incidents Incident[]
-  services  Service[]
-
-  createdAt DateTime @default(now())
-}
-
-model User {
-  id String @id @default(cuid())
-
-  email String @unique
-  name String?
-
-  password String
-
-  role UserRole @default(VIEWER)
-
-  organizationId String
-  organization Organization @relation(fields:[organizationId],references:[id])
-
-  auditLogs AuditLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Incident {
-  id String @id @default(cuid())
-
-  title       String
-  description String?
-
-  severity Severity
-  status   IncidentStatus
-
-  aiRootCauseAnalysis String?
-  aiIncidentSummary String?
-  aiLogAnalysis String?
-  aiTimelineInsights String?
-  aiDependencyAnalysis String?
-
-  serviceId String?
-  service   Service? @relation(fields: [serviceId], references: [id])
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  timelineEvents TimelineEvent[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Service {
-  id String @id @default(cuid())
-
-  name   String
-  status ServiceStatus
-
-  description    String?
-  responseTime   String?
-  availability   String?
-  requestsPerMin String?
-
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id])
-
-  incidents Incident[]
-  logs      Log[]
-
-  aiServiceInsights String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Log {
-  id        String   @id @default(cuid())
-  timestamp DateTime @default(now())
-
-  level   String
-  message String
-
-  serviceId String
-  service   Service @relation(fields: [serviceId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-
-model AuditLog {
-  id String @id @default(cuid())
-
-  action     String
-  entityType String
-  entityId   String
-
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-}
-model Notification {
-  id String @id @default(cuid())
-
-  title String
-  message String
-
-  isRead Boolean @default(false)
-
-  createdAt DateTime @default(now())
-}
-
-model TimelineEvent {
-  id String @id @default(cuid())
-
-  type String
-  message String
-
-  incidentId String
-  incident Incident @relation(fields: [incidentId], references: [id])
-
-  createdAt DateTime @default(now())
 }
