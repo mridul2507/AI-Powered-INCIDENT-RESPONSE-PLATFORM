@@ -3,6 +3,8 @@ import { canManageIncidents } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { sendCriticalIncidentEmail } from "@/lib/sendEmail";
+import { sendSlackAlert } from "@/lib/slack";
 
 export async function GET() {
   const incidents = await prisma.incident.findMany({
@@ -57,6 +59,19 @@ export async function POST(req: Request) {
         message: `${incident.title} has been created.`,
       },
     });
+
+    if (body.severity === "CRITICAL") {
+      sendCriticalIncidentEmail(
+        body.title,
+        body.description
+      ).catch(console.error);
+
+      sendSlackAlert(
+        body.title,
+        body.severity,
+        body.description
+      ).catch(console.error);
+    }
 
     await createAuditLog(
       "CREATE",

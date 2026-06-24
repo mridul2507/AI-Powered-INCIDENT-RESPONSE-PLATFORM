@@ -11,7 +11,7 @@ type Notification = {
   createdAt: string;
 };
 
-export default async function NotificationsPage() {
+export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<
     "ALL" | "READ" | "UNREAD"
@@ -90,15 +90,7 @@ export default async function NotificationsPage() {
 
         <button
           onClick={handleMarkAllRead}
-          className="
-            bg-green-700
-            hover:bg-green-800
-            text-white
-            px-5
-            py-3
-            rounded-xl
-          "
-        >
+          className=" bg-green-700 hover:bg-green-800 text-white px-5 py-3 rounded-xl">
           Mark All Read
         </button>
 
@@ -154,15 +146,7 @@ export default async function NotificationsPage() {
       {/* EMPTY STATE */}
       {filteredNotifications.length === 0 && (
         <div
-          className="
-            py-24
-            flex
-            flex-col
-            items-center
-            justify-center
-            text-center
-          "
-        >
+          className=" py-24 flex flex-col items-center justify-center text-center">
           <BellCheck
             size={60}
             className="text-gray-300 mb-6"
@@ -181,15 +165,8 @@ export default async function NotificationsPage() {
       {/* TABLE */}
       {filteredNotifications.length > 0 && (
         <div
-          className="
-            bg-white
-            dark:bg-emerald-950
-            border
-            border-gray-200
-            dark:border-slate-700
-            rounded-2xl
-            overflow-hidden
-          "
+          className=" bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700
+            rounded-2xl overflow-hidden "
         >
           <table className="w-full">
 

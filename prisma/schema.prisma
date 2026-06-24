@@ -45,6 +45,9 @@ model Incident {
   aiTimelineInsights   String?
   aiIncidentSummary    String?
   aiRootCauseAnalysis  String?
+
+  escalated Boolean @default(false)
+  
   organization         Organization    @relation(fields: [organizationId], references: [id])
   service              Service?        @relation(fields: [serviceId], references: [id])
   timelineEvents       TimelineEvent[]
