@@ -16,6 +16,7 @@ import {
   LogOut,
   Shield,
   History,
+  KeyRound,
 } from "lucide-react";
 import { isAdmin } from "@/lib/roles";
 
@@ -52,6 +53,12 @@ const systemItems = [
     title: "Audit Logs",
     icon: History,
     href: "/audit-logs",
+  },
+  {
+    title: "API Keys",
+    icon: KeyRound,
+    href: "/api-keys",
+    adminOnly: true,
   },
 ];
 
@@ -210,7 +217,15 @@ export default function Sidebar() {
 
           <div className="flex flex-col gap-2">
 
-            {systemItems.map((item) => {
+            {systemItems
+              .filter((item) => {
+                if (item.adminOnly) {
+                  return isAdmin(role);
+                }
+
+                return true;
+              })
+              .map((item) => {
               const Icon = item.icon;
 
               return (
