@@ -1,3 +1,5 @@
+import { sendCriticalIncidentEmail } from "@/lib/sendEmail";
+import { sendSlackAlert } from "@/lib/slack";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { validateApiKey } from "@/lib/apiKeys";
@@ -45,6 +47,10 @@ export async function POST(req: Request) {
       );
     }
 
+    console.log("SERVICE ORG:", service.organizationId);
+    console.log("KEY ORG:", validKey.organizationId);
+    console.log(validKey);
+
     if (
       service.organizationId !==
       validKey.organizationId
@@ -78,6 +84,26 @@ export async function POST(req: Request) {
         service: true,
       },
     });
+
+    await prisma.notification.create({
+      data: {
+        title: "External Incident",
+        message: `${incident.title} received via API.`,
+      },
+    });
+
+    if (incident.severity === "CRITICAL") {
+      sendCriticalIncidentEmail(
+        incident.title,
+        incident.description ?? ""
+      ).catch(console.error);
+
+      sendSlackAlert(
+        incident.title,
+        incident.severity,
+        incident.description ?? ""
+      ).catch(console.error);
+    }
 
     return NextResponse.json(
       {
