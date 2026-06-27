@@ -18,6 +18,7 @@ model Organization {
   users     User[]
 
   apiKeys ApiKey[]
+  metrics Metric[]
 }
 
 model User {
@@ -70,6 +71,7 @@ model Service {
   aiServiceInsights String?
   incidents         Incident[]
   logs              Log[]
+  metrics           Metric[]
   organization      Organization  @relation(fields: [organizationId], references: [id])
   @@unique([organizationId, name])
 }
@@ -82,6 +84,24 @@ model Log {
   serviceId String
   createdAt DateTime @default(now())
   service   Service  @relation(fields: [serviceId], references: [id])
+}
+
+model Metric {
+  id             String   @id @default(cuid())
+  serviceId      String
+  organizationId String
+
+  cpuUsage       Float?
+  memoryUsage    Float?
+  diskUsage      Float?
+  responseTime   Float?
+  requestsPerMin Int?
+  errorRate      Float?
+
+  createdAt      DateTime @default(now())
+
+  service        Service      @relation(fields: [serviceId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
 model AuditLog {

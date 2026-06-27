@@ -46,11 +46,7 @@ export async function POST(req: Request) {
         { status: 404 }
       );
     }
-
-    console.log("SERVICE ORG:", service.organizationId);
-    console.log("KEY ORG:", validKey.organizationId);
-    console.log(validKey);
-
+    
     if (
       service.organizationId !==
       validKey.organizationId
@@ -74,8 +70,7 @@ export async function POST(req: Request) {
         timelineEvents: {
           create: {
             type: "CREATED",
-            message:
-              "Incident created via API",
+            message: "Incident created via API",
           },
         },
       },
@@ -92,17 +87,33 @@ export async function POST(req: Request) {
       },
     });
 
-    if (incident.severity === "CRITICAL") {
-      sendCriticalIncidentEmail(
-        incident.title,
-        incident.description ?? ""
-      ).catch(console.error);
+    await prisma.auditLog.create({
+      data: {
+        action: "INCIDENT_CREATED",
+        entityType: "Incident",
+        entityId: incident.id,
+      },
+    });
 
-      sendSlackAlert(
-        incident.title,
-        incident.severity,
-        incident.description ?? ""
-      ).catch(console.error);
+    if (incident.severity === "CRITICAL") {
+      try {
+        await sendCriticalIncidentEmail(
+          incident.title,
+          incident.description ?? ""
+        );
+      } catch (error) {
+        console.error("Email failed:", error);
+      }
+
+      try {
+        await sendSlackAlert(
+          incident.title,
+          incident.severity,
+          incident.description ?? ""
+        );
+      } catch (error) {
+        console.error("Slack failed:", error);
+      }
     }
 
     return NextResponse.json(

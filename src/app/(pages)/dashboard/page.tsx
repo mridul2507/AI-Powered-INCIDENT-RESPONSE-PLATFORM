@@ -4,7 +4,7 @@ import {useEffect, useState} from "react"
 import DashboardCard from "@/components/DashboardCard";
 import {Server, ShieldCheck, AlertTriangle, Siren, Clock3} from "lucide-react";
 import Navbar from "@/components/Navbar";
-import Metrics from "@/components/MetricsChart";
+import IncidentSeverityChart from "@/components/IncidentSeverityChart";
 import ServiceHealthChart from "@/components/ServiceHealthChart";
 import RecentIncidents from "@/components/RecentIncidents"
 import LogsExplorer from "@/components/LogsExplorer";
@@ -165,7 +165,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-2 gap-6">
-        <Metrics />
+        <IncidentSeverityChart />
         <ServiceHealthChart />
       </div>
       

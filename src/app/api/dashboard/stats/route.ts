@@ -90,6 +90,12 @@ export async function GET() {
           : `${minutes}m`;
     }
 
+    const latestMetric = await prisma.metric.findFirst({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
     return NextResponse.json({
       totalServices,
       healthyServices,
@@ -102,6 +108,7 @@ export async function GET() {
       infoAlerts,
 
       averageMttr,
+      latestMetric,
     });
   } catch (error) {
     console.error(error);

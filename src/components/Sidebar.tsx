@@ -17,6 +17,7 @@ import {
   Shield,
   History,
   KeyRound,
+  Activity,
 } from "lucide-react";
 import { isAdmin } from "@/lib/roles";
 
@@ -45,6 +46,11 @@ const generalItems = [
     title: "Analytics",
     icon: BarChart3,
     href: "/analytics",
+  },
+  {
+    title: "Metrics",
+    icon: Activity,
+    href: "/metrics",
   },
 ];
 

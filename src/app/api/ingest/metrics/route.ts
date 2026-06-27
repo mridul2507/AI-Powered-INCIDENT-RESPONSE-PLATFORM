@@ -13,12 +13,8 @@ export async function POST(req: Request) {
       !authHeader.startsWith("Bearer ")
     ) {
       return NextResponse.json(
-        {
-          error: "Missing API Key",
-        },
-        {
-          status: 401,
-        }
+        { error: "Missing API Key" },
+        { status: 401 }
       );
     }
 
@@ -31,12 +27,8 @@ export async function POST(req: Request) {
 
     if (!validKey) {
       return NextResponse.json(
-        {
-          error: "Invalid API Key",
-        },
-        {
-          status: 401,
-        }
+        { error: "Invalid API Key" },
+        { status: 401 }
       );
     }
 
@@ -50,12 +42,8 @@ export async function POST(req: Request) {
 
     if (!service) {
       return NextResponse.json(
-        {
-          error: "Service not found",
-        },
-        {
-          status: 404,
-        }
+        { error: "Service not found" },
+        { status: 404 }
       );
     }
 
@@ -64,43 +52,58 @@ export async function POST(req: Request) {
       validKey.organizationId
     ) {
       return NextResponse.json(
-        {
-          error: "Forbidden",
-        },
-        {
-          status: 403,
-        }
+        { error: "Forbidden" },
+        { status: 403 }
       );
     }
 
-    const log = await prisma.log.create({
+    const metric = await prisma.metric.create({
       data: {
-        level: body.level,
-        message: body.message,
         serviceId: service.id,
-      },
-    });
+        organizationId: validKey.organizationId,
 
-    await prisma.notification.create({
-      data: {
-        title: `${log.level} Log`,
-        message: `${log.level}: ${log.message}`,
+        cpuUsage: body.cpuUsage,
+        memoryUsage: body.memoryUsage,
+        diskUsage: body.diskUsage,
+        responseTime: body.responseTime,
+        requestsPerMin: body.requestsPerMin,
+        errorRate: body.errorRate,
       },
     });
 
     await prisma.auditLog.create({
       data: {
-        action: "LOG_INGESTED",
-        entityType: "Log",
-        entityId: log.id,
+        action: "METRIC_INGESTED",
+        entityType: "Metric",
+        entityId: metric.id,
       },
     });
 
-    if (log.level === "ERROR") {
+    const unhealthy =
+      (metric.cpuUsage ?? 0) > 90 ||
+      (metric.memoryUsage ?? 0) > 95 ||
+      (metric.diskUsage ?? 0) > 95 ||
+      (metric.responseTime ?? 0) > 2000 ||
+      (metric.errorRate ?? 0) > 5;
+
+    if (unhealthy) {
+      await prisma.notification.create({
+        data: {
+          title: "Critical Metrics",
+          message: `${service.name} exceeded monitoring thresholds.`,
+        },
+      });
+
       try {
         await sendCriticalIncidentEmail(
-          `Error Log - ${service.name}`,
-          log.message
+          `Critical Metrics - ${service.name}`,
+          `
+          CPU: ${metric.cpuUsage}%
+          Memory: ${metric.memoryUsage}%
+          Disk: ${metric.diskUsage}%
+          Response Time: ${metric.responseTime}ms
+          Error Rate: ${metric.errorRate}%
+          `
         );
       } catch (error) {
         console.error("Email failed:", error);
@@ -108,9 +111,9 @@ export async function POST(req: Request) {
 
       try {
         await sendSlackAlert(
-          `Error Log - ${service.name}`,
-          "WARNING",
-          log.message
+          `Critical Metrics - ${service.name}`,
+          "CRITICAL",
+          `CPU ${metric.cpuUsage}% | Memory ${metric.memoryUsage}% | Disk ${metric.diskUsage}%`
         );
       } catch (error) {
         console.error("Slack failed:", error);
@@ -120,7 +123,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         success: true,
-        log,
+        metric,
       },
       {
         status: 201,
@@ -131,7 +134,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        error: "Failed to ingest log",
+        error: "Failed to ingest metric",
       },
       {
         status: 500,
