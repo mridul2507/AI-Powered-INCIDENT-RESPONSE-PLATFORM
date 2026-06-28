@@ -11,9 +11,10 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const incident = await prisma.incident.findUnique({
+    const incident = await prisma.incident.findFirst({
       where: {
         id,
+        deletedAt: null,
       },
       
       include: {
@@ -65,14 +66,17 @@ export async function PATCH(
     }
     const { id } = await params;
     const body = await req.json();
-    const oldIncident = await prisma.incident.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        service: true,
-      },
-    });
+    const oldIncident =
+      await prisma.incident.findFirst({
+        where: {
+          id,
+          deletedAt: null,
+        },
+
+        include: {
+          service: true,
+        },
+      });
 
     if (!oldIncident) {
       return NextResponse.json(
@@ -202,9 +206,13 @@ export async function DELETE(
     }
     const { id } = await params;
 
-    await prisma.incident.delete({
+    await prisma.incident.update({
       where: {
         id,
+      },
+
+      data: {
+        deletedAt: new Date(),
       },
     });
 

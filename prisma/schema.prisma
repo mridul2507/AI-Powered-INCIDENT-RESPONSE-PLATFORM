@@ -43,6 +43,7 @@ model Incident {
   organizationId       String
   createdAt            DateTime       @default(now())
   updatedAt            DateTime       @updatedAt
+  deletedAt            DateTime?
   serviceId            String?
   aiDependencyAnalysis String?
   aiLogAnalysis        String?

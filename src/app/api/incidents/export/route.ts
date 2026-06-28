@@ -4,6 +4,9 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const incidents = await prisma.incident.findMany({
+      where:{
+        deletedAt: null,
+      },
       include: {
         service: true,
       },

@@ -8,6 +8,25 @@ export async function GET(
   try {
     const { id } = await params;
 
+    const incident =
+      await prisma.incident.findFirst({
+        where: {
+          id,
+          deletedAt: null,
+        },
+      });
+
+    if (!incident) {
+      return NextResponse.json(
+        {
+          error: "Incident not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
     const events = await prisma.timelineEvent.findMany({
       where: {
         incidentId: id,

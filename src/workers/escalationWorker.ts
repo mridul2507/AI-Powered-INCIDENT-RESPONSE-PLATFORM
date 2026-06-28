@@ -21,6 +21,7 @@ async function checkEscalations() {
         createdAt: {
           lte: fifteenMinutesAgo,
         },
+        deletedAt:null,
       },
     });
 

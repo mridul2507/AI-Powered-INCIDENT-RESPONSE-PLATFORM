@@ -8,6 +8,9 @@ import { sendSlackAlert } from "@/lib/slack";
 
 export async function GET() {
   const incidents = await prisma.incident.findMany({
+    where: {
+      deletedAt: null,
+    },
     include: {
       service: true,
     },

@@ -16,6 +16,7 @@ export async function GET() {
     const activeIncidents =
       await prisma.incident.count({
         where: {
+          deletedAt: null,
           status: {
             in: ["OPEN", "INVESTIGATING"],
           },
@@ -25,6 +26,7 @@ export async function GET() {
     const criticalAlerts =
       await prisma.incident.count({
         where: {
+          deletedAt: null,
           severity: "CRITICAL",
         },
       });
@@ -32,6 +34,7 @@ export async function GET() {
     const warningAlerts =
       await prisma.incident.count({
         where: {
+          deletedAt: null,
           severity: "WARNING",
         },
       });
@@ -39,6 +42,7 @@ export async function GET() {
     const infoAlerts =
       await prisma.incident.count({
         where: {
+          deletedAt: null,
           severity: "INFO",
         },
       });
@@ -46,6 +50,7 @@ export async function GET() {
     const resolvedIncidents =
       await prisma.incident.count({
         where: {
+          deletedAt: null,
           status: "RESOLVED",
         },
       });

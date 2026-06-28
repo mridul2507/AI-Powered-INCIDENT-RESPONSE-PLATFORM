@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { validateApiKey } from "@/lib/apiKeys";
 import { sendCriticalIncidentEmail } from "@/lib/sendEmail";
 import { sendSlackAlert } from "@/lib/slack";
+import { evaluateAlertRules } from "@/lib/alertRules";
 
 export async function POST(req: Request) {
   try {
@@ -79,44 +80,142 @@ export async function POST(req: Request) {
       },
     });
 
-    const unhealthy =
-      (metric.cpuUsage ?? 0) > 90 ||
-      (metric.memoryUsage ?? 0) > 95 ||
-      (metric.diskUsage ?? 0) > 95 ||
-      (metric.responseTime ?? 0) > 2000 ||
-      (metric.errorRate ?? 0) > 5;
+    const alert = evaluateAlertRules({
+      cpuUsage: metric.cpuUsage ?? 0,
+      memoryUsage: metric.memoryUsage ?? 0,
+      diskUsage: metric.diskUsage ?? 0,
+      responseTime: metric.responseTime ?? 0,
+      errorRate: metric.errorRate ?? 0,
+    });
+    
+    if (!alert.triggered) {
+      const activeIncidents = await prisma.incident.findMany({
+          where: {
+            organizationId: validKey.organizationId,
+            deletedAt:null,
 
-    if (unhealthy) {
-      await prisma.notification.create({
-        data: {
-          title: "Critical Metrics",
-          message: `${service.name} exceeded monitoring thresholds.`,
-        },
-      });
+            serviceId: service.id,
 
-      try {
-        await sendCriticalIncidentEmail(
-          `Critical Metrics - ${service.name}`,
-          `
-          CPU: ${metric.cpuUsage}%
-          Memory: ${metric.memoryUsage}%
-          Disk: ${metric.diskUsage}%
-          Response Time: ${metric.responseTime}ms
-          Error Rate: ${metric.errorRate}%
-          `
-        );
-      } catch (error) {
-        console.error("Email failed:", error);
+            status: {
+              in: ["OPEN", "INVESTIGATING"],
+            },
+          },
+        });
+
+      for (const incident of activeIncidents) {
+        await prisma.incident.update({
+          where: {
+            id: incident.id,
+          },
+
+          data: {
+            status: "RESOLVED",
+
+            timelineEvents: {
+              create: {
+                type: "RESOLVED",
+                message:
+                  "Automatically resolved because metrics returned to healthy values.",
+              },
+            },
+          },
+        });
+
+        await prisma.notification.create({
+          data: {
+            title: "Incident Auto Resolved",
+            message: `${incident.title} has returned to a healthy state.`,
+          },
+        });
+
+        await prisma.auditLog.create({
+          data: {
+            action: "AUTO_INCIDENT_RESOLVED",
+            entityType: "Incident",
+            entityId: incident.id,
+          },
+        });
       }
+    }
 
-      try {
-        await sendSlackAlert(
-          `Critical Metrics - ${service.name}`,
-          "CRITICAL",
-          `CPU ${metric.cpuUsage}% | Memory ${metric.memoryUsage}% | Disk ${metric.diskUsage}%`
-        );
-      } catch (error) {
-        console.error("Slack failed:", error);
+    if(alert.triggered){
+      const existingIncident = await prisma.incident.findFirst({
+          where: {
+            organizationId: validKey.organizationId,
+            deletedAt:null,
+
+            serviceId: service.id,
+
+            title: alert.title!,
+
+            status: {
+              in: ["OPEN", "INVESTIGATING"],
+            },
+          },
+        });
+
+        if(!existingIncident){
+          const incident = await prisma.incident.create({
+          data: {
+            title: alert.title!,
+            description: alert.description!,
+            severity: alert.severity!,
+            status: "OPEN",
+
+            organizationId:
+              validKey.organizationId,
+
+            serviceId: service.id,
+
+            timelineEvents: {
+              create: {
+                type: "CREATED",
+                message:
+                  "Automatically created from alert rules.",
+              },
+            },
+          },
+        });
+
+        await prisma.auditLog.create({
+          data: {
+            action: "AUTO_INCIDENT_CREATED",
+            entityType: "Incident",
+            entityId: incident.id,
+          },
+        });
+
+        await prisma.notification.create({
+          data: {
+            title: `${alert.severity} Metrics`,
+            message: `${alert.title}: ${alert.description}`,
+          },
+        });
+
+        try {
+          await sendCriticalIncidentEmail(
+            `${alert.severity} Metrics - ${service.name}`,
+            `
+            CPU: ${metric.cpuUsage}%
+            Memory: ${metric.memoryUsage}%
+            Disk: ${metric.diskUsage}%
+            Response Time: ${metric.responseTime}ms
+            Error Rate: ${metric.errorRate}%
+            `
+          );
+        } catch (error) {
+          console.error("Email failed:", error);
+        }
+
+        try {
+          await sendSlackAlert(
+            `${alert.severity} Metrics - ${service.name}`,
+            alert.severity!,
+            `CPU ${metric.cpuUsage}% | Memory ${metric.memoryUsage}% | Disk ${metric.diskUsage}%`
+          );
+        } catch (error) {
+          console.error("Slack failed:", error);
+        }
       }
     }
 

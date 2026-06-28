@@ -5,6 +5,9 @@ export async function GET() {
 
   const incidents =
     await prisma.incident.findMany({
+      where:{
+        deletedAt:null,
+      },
       select: {
         createdAt: true,
       },

@@ -30,6 +30,12 @@ export default function Dashboard() {
   const [dashboardInsights, setDashboardInsights] = useState("");
   const [analyzingDashboard, setAnalyzingDashboard] = useState(false);
 
+  const [prometheus, setPrometheus] = useState({
+    cpu: "--",
+    memory: "--",
+    lastUpdated: "--",
+  });
+
   useEffect(() => {
     async function fetchStats() {
       try {
@@ -56,9 +62,39 @@ export default function Dashboard() {
       }
     }
 
-    fetchStats();
+    async function fetchPrometheus() {
+      try {
+        const res = await fetch("/api/prometheus/query");
 
-    const interval = setInterval(fetchStats, 10000);
+        if (!res.ok) {
+          throw new Error("Failed to fetch Prometheus metrics");
+        }
+
+        const data = await res.json();
+
+        setPrometheus({
+          cpu: Number(
+            data.cpu?.[0]?.value?.[1] ?? 0
+          ).toFixed(1),
+
+          memory: Number(
+            data.memory?.[0]?.value?.[1] ?? 0
+          ).toFixed(1),
+
+          lastUpdated: new Date().toLocaleTimeString(),
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    fetchStats();
+    fetchPrometheus();
+
+    const interval = setInterval(() => {
+      fetchStats();
+      fetchPrometheus();
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
@@ -159,6 +195,24 @@ export default function Dashboard() {
         <DashboardCard
           title="Average MTTR"
           value={stats.averageMttr}
+          icon={Clock3}
+        />
+
+        <DashboardCard
+          title="CPU Usage"
+          value={`${prometheus.cpu}%`}
+          icon={Server}
+        />
+
+        <DashboardCard
+          title="Memory Usage"
+          value={`${prometheus.memory}%`}
+          icon={Server}
+        />
+
+        <DashboardCard
+          title="Last Sync"
+          value={prometheus.lastUpdated}
           icon={Clock3}
         />
 
