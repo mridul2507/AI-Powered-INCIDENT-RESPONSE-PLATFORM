@@ -51,13 +51,6 @@ export default function IncidentsPage() {
     }
 
     fetchIncidents();
-
-    const interval = setInterval(
-      fetchIncidents,
-      10000
-    );
-
-    return () => clearInterval(interval);
   }, []);
 
   async function handleExportPdf() {

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { publish } from "@/lib/events";
 
 export async function GET() {
   try {
@@ -32,6 +33,11 @@ export async function POST(req: Request) {
           message: body.message,
         },
       });
+
+    publish({
+      type: "NOTIFICATION_CREATED",
+      notification,
+    });
 
     return NextResponse.json(notification, {
       status: 201,

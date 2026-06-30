@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useIncidentEventContext } from "@/context/IncidentEventsContext";
 
 type AuditLog = {
   id: string;
@@ -20,6 +21,13 @@ export default function AuditLogsPage() {
   const [actionFilter,setActionFilter] = useState("ALL");
   const { data: session } = useSession();
   const router = useRouter();
+  const { lastEvent } = useIncidentEventContext();
+
+  async function fetchLogs() {
+    const res = await fetch("/api/audit-logs");
+    const data = await res.json();
+    setLogs(data);
+  }
 
   useEffect(() => {
     if (
@@ -29,27 +37,31 @@ export default function AuditLogsPage() {
       router.push("/dashboard");
     }
   }, [session, router]);
-  
 
   useEffect(() => {
-    async function fetchLogs() {
-      const res = await fetch("/api/audit-logs");
-
-      const data = await res.json();
-
-      setLogs(data);
-    }
-
     fetchLogs();
-
-    const interval = setInterval(
-      fetchLogs,
-      10000
-    );
-
-    return () => clearInterval(interval);
-
   }, []);
+
+  useEffect(() => {
+    if (!lastEvent) return;
+
+    switch (lastEvent.type) {
+      case "INCIDENT_CREATED":
+        fetchLogs();
+        break;
+
+      case "INCIDENT_UPDATED":
+        fetchLogs();
+        break;
+
+      case "INCIDENT_DELETED":
+        fetchLogs();
+        break;
+
+      default:
+        break;
+    }
+  }, [lastEvent]);
 
   const filteredLogs = logs.filter(log => {
 

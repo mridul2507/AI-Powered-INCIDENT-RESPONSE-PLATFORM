@@ -3,6 +3,7 @@ import { canManageIncidents } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { publish } from "@/lib/events";
 
 export async function GET(
   req: Request,
@@ -179,6 +180,11 @@ export async function PATCH(
       "INCIDENT",
       incident.id
     );
+    
+    publish({
+      type: "INCIDENT_UPDATED",
+      incident,
+    });
 
     return NextResponse.json(incident);
   } catch (error) {
@@ -220,8 +226,12 @@ export async function DELETE(
       "DELETE",
       "INCIDENT",
       id
-      );
+    );
 
+    publish({
+      type: "INCIDENT_DELETED",
+      id,
+    });
     return NextResponse.json({
       success: true,
     });

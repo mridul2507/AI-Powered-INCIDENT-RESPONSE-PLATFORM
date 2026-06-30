@@ -10,6 +10,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import { useIncidentEventContext } from "@/context/IncidentEventsContext";
 
 type Incident = {
   createdAt: string
@@ -19,9 +20,9 @@ export default function IncidentTrendChart() {
   const [data, setData] = useState<
     { day: string; incidents: number }[]
   >([]);
+  const { lastEvent } = useIncidentEventContext();
 
-  useEffect(() => {
-    async function fetchIncidents() {
+  async function fetchIncidents() {
       const res = await fetch("/api/incidents");
 
       const incidents = await res.json();
@@ -44,10 +45,33 @@ export default function IncidentTrendChart() {
       );
 
       setData(trendData);
-    }
-
+  }
+ 
+  useEffect(() => {
     fetchIncidents();
   }, []);
+
+  useEffect(() => {
+    if (!lastEvent) return;
+
+    switch (lastEvent.type) {
+      case "INCIDENT_CREATED":
+        fetchIncidents();
+        break;
+
+      case "INCIDENT_UPDATED":
+        fetchIncidents();
+        break;
+
+      case "INCIDENT_DELETED":
+        fetchIncidents();
+        break;
+
+      default:
+        break;
+    }
+  }, [lastEvent]);
+
 
   return (
     <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-6

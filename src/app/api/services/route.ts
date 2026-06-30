@@ -3,6 +3,7 @@ import { canManageServices } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { publish } from "@/lib/events";
 
 export async function GET() {
   const services = await prisma.service.findMany({
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
       data: {
         name: body.name,
         status: body.status,
-        organizationId: body.organizationId,
+        organizationId: session.user.organizationId,
       },
     });
 
@@ -52,6 +53,11 @@ export async function POST(req: Request) {
       "SERVICE",
       service.id
     );
+
+    publish({
+      type: "SERVICE_CREATED",
+      service,
+    });
 
     return NextResponse.json(service);
   } catch (error) {

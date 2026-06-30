@@ -27,9 +27,6 @@ export default function CreateServicePage() {
       body: JSON.stringify({
         name,
         status,
-
-        organizationId:
-          "cmpzsbax30000uwaci6jrvs8y",
       }),
     });
 

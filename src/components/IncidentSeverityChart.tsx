@@ -10,6 +10,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { useEffect, useState } from "react";
+import { useIncidentEventContext } from "@/context/IncidentEventsContext";
 
 type ChartData = {
   severity: string;
@@ -33,9 +34,9 @@ const initialData: ChartData[] = [
 
 export default function MetricsChart() {
   const [data, setData] = useState<ChartData[]>(initialData);
+  const { lastEvent } = useIncidentEventContext();
 
-  useEffect(() => {
-    async function fetchStats() {
+  async function fetchStats() {
       const res = await fetch(
         "/api/dashboard/stats"
       );
@@ -56,8 +57,10 @@ export default function MetricsChart() {
           count: stats.infoAlerts,
         },
       ]);
-    }
+  }
 
+
+  useEffect(() => {
     fetchStats();
     const interval = setInterval(
     fetchStats,
@@ -66,6 +69,28 @@ export default function MetricsChart() {
 
   return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!lastEvent) return;
+
+    switch (lastEvent.type) {
+      case "INCIDENT_CREATED":
+        fetchStats();
+        break;
+
+      case "INCIDENT_UPDATED":
+        fetchStats();
+        break;
+
+      case "INCIDENT_DELETED":
+        fetchStats();
+        break;
+
+      default:
+        break;
+    }
+  }, [lastEvent]);
+
   return (
     <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-6
       transition-all duration-300 hover:shadow-lg hover:-translate-y-1">

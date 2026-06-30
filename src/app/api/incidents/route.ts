@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
 import { sendCriticalIncidentEmail } from "@/lib/sendEmail";
 import { sendSlackAlert } from "@/lib/slack";
+import { publish } from "@/lib/events";
 
 export async function GET() {
   const incidents = await prisma.incident.findMany({
@@ -26,6 +27,8 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const session = await auth();
+    console.log(session);
+    console.log(session?.user);
 
     if (
       !session?.user?.role ||
@@ -45,7 +48,7 @@ export async function POST(req: Request) {
         severity: body.severity,
         status: body.status,
         serviceId: body.serviceId || null,
-        organizationId: body.organizationId,
+        organizationId: session.user.organizationId,
 
         timelineEvents: {
           create: {
@@ -80,7 +83,12 @@ export async function POST(req: Request) {
       "CREATE",
       "INCIDENT",
       incident.id
-      );
+    );
+
+    publish({
+      type: "INCIDENT_CREATED",
+      incident,
+    });
       
     await prisma.notification.create({
       data: {

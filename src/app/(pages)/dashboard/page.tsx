@@ -12,6 +12,8 @@ import IncidentStatusChart from "@/components/IncidentStatusChart";
 import TopAffectedServices from "@/components/TopAffectedServices";
 import IncidentTrendChart from "@/components/IncidentTrendChart";
 import ReactMarkdown from "react-markdown";
+import { useIncidentEvents } from "@/hooks/useIncidentEvents";
+import { useIncidentEventContext } from "@/context/IncidentEventsContext";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -36,8 +38,9 @@ export default function Dashboard() {
     lastUpdated: "--",
   });
 
-  useEffect(() => {
-    async function fetchStats() {
+  const { lastEvent } = useIncidentEventContext();
+
+  async function fetchStats() {
       try {
         const res = await fetch("/api/dashboard/stats");
 
@@ -86,18 +89,36 @@ export default function Dashboard() {
       } catch (error) {
         console.error(error);
       }
-    }
+  }
+
+  useIncidentEvents();
+
+  useEffect(() => {
 
     fetchStats();
     fetchPrometheus();
 
     const interval = setInterval(() => {
-      fetchStats();
       fetchPrometheus();
     }, 5000);
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!lastEvent) return;
+
+    switch (lastEvent.type) {
+      case "INCIDENT_CREATED":
+      case "INCIDENT_UPDATED":
+      case "INCIDENT_DELETED":
+        fetchStats();
+        break;
+
+      default:
+        break;
+    }
+  }, [lastEvent]);
 
   async function generateDashboardInsights() {
     setAnalyzingDashboard(true);

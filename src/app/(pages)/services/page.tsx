@@ -35,11 +35,7 @@ export default function ServicesPage() {
       setServices(data);
     }
 
-    fetchServices();
-
-    const interval = setInterval(fetchServices,10000);
-    return () => clearInterval(interval);
-    
+    fetchServices();    
   }, []);
 
   const filteredServices = services.filter(

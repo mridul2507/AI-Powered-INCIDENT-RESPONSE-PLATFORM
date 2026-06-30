@@ -3,6 +3,7 @@ import { canManageServices } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
+import { publish } from "@/lib/events";
 
 export async function GET(
   req: Request,
@@ -60,6 +61,11 @@ export async function PATCH(
     service.id
   );
 
+  publish({
+    type: "SERVICE_UPDATED",
+    service,
+  });
+
   return NextResponse.json(service);
 }
 
@@ -84,7 +90,12 @@ export async function DELETE(
     "DELETE",
     "SERVICE",
     id
-    );
+  );
+
+  publish({
+    type: "SERVICE_DELETED",
+    id,
+  });
 
   await prisma.service.delete({
     where: { id },

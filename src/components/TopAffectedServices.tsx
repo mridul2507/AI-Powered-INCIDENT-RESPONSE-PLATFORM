@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useIncidentEventContext } from "@/context/IncidentEventsContext";
 
 type Incident = {
   service?: {
@@ -12,9 +13,9 @@ export default function TopAffectedServices() {
   const [services, setServices] = useState<
     { name: string; count: number }[]
   >([]);
+  const { lastEvent } = useIncidentEventContext();
 
-  useEffect(() => {
-    async function fetchIncidents() {
+  async function fetchIncidents() {
       const res = await fetch("/api/incidents");
 
       const incidents = await res.json();
@@ -36,10 +37,32 @@ export default function TopAffectedServices() {
         .sort((a, b) => b.count - a.count);
 
       setServices(sorted.slice(0,5));
-    }
+  }
 
+  useEffect(() => {
     fetchIncidents();
   }, []);
+
+  useEffect(() => {
+    if (!lastEvent) return;
+
+    switch (lastEvent.type) {
+      case "INCIDENT_CREATED":
+        fetchIncidents();
+        break;
+
+      case "INCIDENT_UPDATED":
+        fetchIncidents();
+        break;
+
+      case "INCIDENT_DELETED":
+        fetchIncidents();
+        break;
+
+      default:
+        break;
+    }
+  }, [lastEvent]);
 
   return (
     <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-6

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { publish } from "@/lib/events";
 
 export async function PATCH(
   req: Request,
@@ -16,6 +17,11 @@ export async function PATCH(
     data: {
       isRead: true,
     },
+  });
+
+  publish({
+    type: "NOTIFICATION_UPDATED",
+    notification,
   });
 
   return NextResponse.json(notification);
@@ -39,6 +45,11 @@ export async function DELETE(
     where: {
       id,
     },
+  });
+
+  publish({
+    type: "NOTIFICATION_DELETED",
+    id,
   });
 
   return NextResponse.json({

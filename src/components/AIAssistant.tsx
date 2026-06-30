@@ -62,6 +62,11 @@ export default function AIAssistant() {
         const res = await fetch(`/api/incidents/${id}`);
         const incident = await res.json();
 
+        if (!incident || incident.error) {
+          setPageContext("Incident not found.");
+          return;
+        }
+
         setPageContext(`
           Title:
           ${incident.title}
@@ -88,25 +93,28 @@ export default function AIAssistant() {
         const res =
           await fetch(`/api/services/${id}`);
 
-        const service =
-          await res.json();
+        const service = await res.json();
+        if (!service) {
+          setPageContext("No service found.");
+          return;
+        }
 
         setPageContext(`
-    Service:
-    ${service.name}
+          Service:
+          ${service.name}
 
-    Status:
-    ${service.status}
+          Status:
+          ${service.status}
 
-    Availability:
-    ${service.availability}
+          Availability:
+          ${service.availability}
 
-    Response Time:
-    ${service.responseTime}
+          Response Time:
+          ${service.responseTime}
 
-    Requests Per Min:
-    ${service.requestsPerMin}
-    `);
+          Requests Per Min:
+          ${service.requestsPerMin}
+          `);
       }
 
     else if (pathname.startsWith("/logs/")) {
@@ -114,20 +122,25 @@ export default function AIAssistant() {
       const res = await fetch(`/api/logs/${id}`);
       const log = await res.json();
 
+      if (!log || log.error) {
+        setPageContext("Log not found.");
+        return;
+      }
+
       setPageContext(`
-    Log Level:
-    ${log.level}
+      Log Level:
+      ${log.level}
 
-    Timestamp:
-    ${log.timestamp}
+      Timestamp:
+      ${log.timestamp}
 
-    Message:
-    ${log.message}
+      Message:
+      ${log.message}
 
-    Service:
-    ${log.service?.name}
-    `);
-    }
+      Service:
+      ${log.service?.name}
+      `);
+        }
 
     }
 

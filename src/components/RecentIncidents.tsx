@@ -3,6 +3,7 @@
 import {useState, useEffect} from "react";
 import SeverityBadge from "@/components/SeverityBadge";
 import Link from "next/link"
+import { useIncidentEventContext } from "@/context/IncidentEventsContext";
 
 type Incident = {
   id: string;
@@ -13,9 +14,9 @@ type Incident = {
 
 export default function RecentIncidents() {
   const [incidents, setIncidents] = useState<Incident[]>([]);
+  const { lastEvent } = useIncidentEventContext();
 
-  useEffect(() => {
-    async function fetchIncidents() {
+  async function fetchIncidents() {
       const res = await fetch(
         "/api/incidents"
       );
@@ -30,16 +31,41 @@ export default function RecentIncidents() {
           )
           .slice(0, 5)
       );
-    }
+  }
 
+  useEffect(() => {
     fetchIncidents();
+
     const interval = setInterval(
-      fetchIncidents,
-      10000
+        fetchIncidents,
+        10000
     );
 
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+      if (!lastEvent) return;
+
+      switch (lastEvent.type) {
+        case "INCIDENT_CREATED":
+          fetchIncidents();
+          break;
+
+        case "INCIDENT_UPDATED":
+          fetchIncidents();
+          break;
+
+        case "INCIDENT_DELETED":
+          fetchIncidents();
+          break;
+
+        default:
+          break;
+      }
+  }, [lastEvent]);
+
+
   return (
     <div className="bg-white dark:bg-emerald-950 border border-gray-300 rounded-2xl p-6 mt-6
       transition-all duration-300 hover:shadow-lg hover:-translate-y-1">

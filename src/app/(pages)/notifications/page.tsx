@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BellCheck, Trash2 } from "lucide-react";
+import { useIncidentEventContext } from "@/context/IncidentEventsContext";
 
 type Notification = {
   id: string;
@@ -16,24 +17,38 @@ export default function NotificationsPage() {
   const [filter, setFilter] = useState<
     "ALL" | "READ" | "UNREAD"
   >("ALL");
+  const { lastEvent } = useIncidentEventContext();
+
+  async function fetchNotifications() {
+    const res = await fetch("/api/notifications");
+    const data = await res.json();
+    setNotifications(data);
+  }
 
   useEffect(() => {
-    async function fetchNotifications() {
-      const res = await fetch("/api/notifications");
-      const data = await res.json();
-
-      setNotifications(data);
-    }
-
     fetchNotifications();
-
-    const interval = setInterval(
-      fetchNotifications,
-      10000
-    );
-
-    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (!lastEvent) return;
+
+    switch (lastEvent.type) {
+      case "INCIDENT_CREATED":
+        fetchNotifications();
+        break;
+
+      case "INCIDENT_UPDATED":
+        fetchNotifications();
+        break;
+
+      case "INCIDENT_DELETED":
+        fetchNotifications();
+        break;
+
+      default:
+        break;
+    }
+  }, [lastEvent]);
 
   const filteredNotifications = notifications.filter((n) => {
     if (filter === "READ") return n.isRead;

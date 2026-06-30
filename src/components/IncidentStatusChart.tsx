@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useIncidentEventContext } from "@/context/IncidentEventsContext";
 
 type Incident = {
   status: string
@@ -12,9 +13,9 @@ export default function IncidentStatusChart() {
     investigating: 0,
     resolved: 0,
   });
+  const { lastEvent } = useIncidentEventContext();
 
-  useEffect(() => {
-    async function fetchIncidents() {
+  async function fetchIncidents() {
       const res = await fetch("/api/incidents");
 
       const incidents = await res.json();
@@ -26,10 +27,32 @@ export default function IncidentStatusChart() {
 
         resolved: incidents.filter((i: Incident) => i.status === "RESOLVED").length,
       });
-    }
+  }
 
+  useEffect(() => {
     fetchIncidents();
   }, []);
+
+  useEffect(() => {
+  if (!lastEvent) return;
+
+  switch (lastEvent.type) {
+    case "INCIDENT_CREATED":
+      fetchIncidents();
+      break;
+
+    case "INCIDENT_UPDATED":
+      fetchIncidents();
+      break;
+
+    case "INCIDENT_DELETED":
+      fetchIncidents();
+      break;
+
+    default:
+      break;
+  }
+}, [lastEvent]);
 
   return (
     <div

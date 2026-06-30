@@ -64,11 +64,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.organizationId = user.organizationId;
       }
 
+      if (!token.organizationId && token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: {
+            email: token.email,
+          },
+          select: {
+            organizationId: true,
+          },
+        });
+
+        if (dbUser) token.organizationId = dbUser.organizationId;
+
+      }
+
       return token;
     },
 
     async session({ session, token }) {
-      session.user.role = token.role as string;
+      session.user.role =
+        token.role as string;
+
       session.user.organizationId =
         token.organizationId as string;
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Search, FileText } from "lucide-react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useIncidentEventContext } from "@/context/IncidentEventsContext";
 
 type Log = {
   id: string;
@@ -21,24 +22,29 @@ export default function LogsPage() {
   const [logs, setLogs] = useState<Log[]>([]);
   const [levelFilter, setLevelFilter] = useState("ALL");
   const [serviceFilter, setServiceFilter] = useState("ALL");
+  const { lastEvent } = useIncidentEventContext();
+
+  async function fetchLogs() {
+  const res = await fetch("/api/logs");
+  const data = await res.json();
+  setLogs(data);
+}
 
   useEffect(() => {
-  async function fetchLogs() {
-    const res = await fetch("/api/logs");
+    fetchLogs();
+  }, []);
 
-    const data = await res.json();
+  useEffect(() => {
+    if (!lastEvent) return;
 
-    setLogs(data);
-  }
-
-  fetchLogs();
-  const interval = setInterval(
-    fetchLogs,
-    10000
-  );
-
-  return () => clearInterval(interval);
-}, []);
+    switch (lastEvent.type) {
+      case "INCIDENT_CREATED":
+      case "INCIDENT_UPDATED":
+      case "INCIDENT_DELETED":
+        fetchLogs();
+        break;
+    }
+  }, [lastEvent]);
 
   const filteredLogs = logs.filter((log) => {
   const matchesSearch =

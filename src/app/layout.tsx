@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar"
-import PageTransition from "@/components/PageTransition";
 import ThemeProvider from "@/components/ThemeProvider";
 import Providers from "./providers";
 import {Toaster} from "sonner";
-import AIAssistant from "@/components/AIAssistant";
+import { IncidentEventsProvider } from "@/context/IncidentEventsContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,11 +33,13 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-screen">
-        <Providers>
-          <ThemeProvider>
-            {children}
-          </ThemeProvider>
-        </Providers>
+        <IncidentEventsProvider>
+          <Providers>
+            <ThemeProvider>
+              {children}
+            </ThemeProvider>
+          </Providers>
+        </IncidentEventsProvider>
         <Toaster
           richColors
           position="top-right"

@@ -130,7 +130,7 @@ export default function AnalyticsPage(){
         }
       );
 
-      toast.success("EAnalytics analysis started");
+      toast.success("Analytics analysis started");
 
       let tries = 0;
 
@@ -140,7 +140,7 @@ export default function AnalyticsPage(){
           const data = await res.json();
 
           if(data.aiAnalyticsInsights){
-              setExecutiveReport(data.aiAnalyticsInsights);
+              setAnalyticsInsights(data.aiAnalyticsInsights);
               clearInterval(interval);
 
               toast.success("Analytics Insights ready");

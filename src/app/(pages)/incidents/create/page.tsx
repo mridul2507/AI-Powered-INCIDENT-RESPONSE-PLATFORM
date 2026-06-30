@@ -54,9 +54,6 @@ export default function CreateIncidentPage() {
         severity,
         status,
         serviceId,
-
-        organizationId:
-          "cmpzsbax30000uwaci6jrvs8y",
       }),
     });
 

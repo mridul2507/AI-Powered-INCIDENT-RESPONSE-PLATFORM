@@ -1,6 +1,5 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-
 import Sidebar from "@/components/Sidebar";
 import PageTransition from "@/components/PageTransition";
 import AIAssistant from "@/components/AIAssistant";

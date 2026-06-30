@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { publish } from "@/lib/events";
 
 export async function GET() {
   const logs = await prisma.log.findMany({
@@ -24,6 +25,11 @@ export async function POST(req: Request) {
         message: body.message,
         serviceId: body.serviceId,
       },
+    });
+
+    publish({
+      type: "LOG_CREATED",
+      log,
     });
 
     return NextResponse.json(log);
