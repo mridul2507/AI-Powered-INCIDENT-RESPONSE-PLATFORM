@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   req: Request,
@@ -17,6 +18,10 @@ export async function GET(
       });
 
     if (!incident) {
+      logger.warn({
+        event: "TIMELINE_INCIDENT_NOT_FOUND",
+        incidentId: id,
+      });
       return NextResponse.json(
         {
           error: "Incident not found",
@@ -36,9 +41,17 @@ export async function GET(
       },
     });
 
+    logger.info({
+      event: "TIMELINE_FETCHED",
+      incidentId: id,
+      totalEvents: events.length,
+    });
     return NextResponse.json(events);
   } catch (error) {
-    console.error(error);
+    logger.error({
+      event: "TIMELINE_FETCH_FAILED",
+      error,
+    });
 
     return NextResponse.json(
       { error: "Failed to fetch timeline" },

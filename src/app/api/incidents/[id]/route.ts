@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
 import { publish } from "@/lib/events";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   req: Request,
@@ -32,15 +33,27 @@ export async function GET(
     });
 
     if (!incident) {
+      logger.warn({
+        event: "INCIDENT_NOT_FOUND",
+        incidentId: id,
+      });
       return NextResponse.json(
         { error: "Incident not found" },
         { status: 404 }
       );
     }
 
+    logger.info({
+      event: "INCIDENT_FETCHED",
+      incidentId: incident.id,
+    });
+
     return NextResponse.json(incident);
   } catch (error) {
-    console.error(error);
+    logger.error({
+      event: "INCIDENT_FETCH_FAILED",
+      error,
+    });
 
     return NextResponse.json(
       { error: "Failed to fetch incident" },
@@ -60,6 +73,10 @@ export async function PATCH(
       !session?.user?.role ||
       !canManageIncidents(session.user.role)
     ) {
+      logger.warn({
+        event: "INCIDENT_UPDATE_UNAUTHORIZED",
+        userId: session?.user?.id,
+      });
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 403 }
@@ -92,6 +109,13 @@ export async function PATCH(
           type: "STATUS_CHANGED",
           message: `Status changed from ${oldIncident.status} to ${body.status}`,
         },
+      });
+
+      logger.info({
+        event: "INCIDENT_STATUS_CHANGED",
+        incidentId: id,
+        from: oldIncident.status,
+        to: body.status,
       });
 
       await prisma.notification.create({
@@ -131,6 +155,13 @@ export async function PATCH(
         },
       });
 
+      logger.info({
+        event: "INCIDENT_SEVERITY_CHANGED",
+        incidentId: id,
+        from: oldIncident.severity,
+        to: body.severity,
+      });
+
       await prisma.notification.create({
         data: {
           title: "Severity Updated",
@@ -154,6 +185,14 @@ export async function PATCH(
       },
     });
 
+    logger.info({
+      event: "INCIDENT_UPDATED",
+      incidentId: incident.id,
+      title: incident.title,
+      severity: incident.severity,
+      status: incident.status,
+    });
+
     if (oldIncident.serviceId !== body.serviceId) {
       await prisma.timelineEvent.create({
         data: {
@@ -163,6 +202,12 @@ export async function PATCH(
             ? `Assigned to ${incident.service?.name}`
             : "Service unassigned",
         },
+      });
+
+      logger.info({
+        event: "INCIDENT_SERVICE_CHANGED",
+        incidentId: id,
+        serviceId: body.serviceId,
       });
 
       await prisma.notification.create({
@@ -188,7 +233,10 @@ export async function PATCH(
 
     return NextResponse.json(incident);
   } catch (error) {
-    console.error(error);
+    logger.error({
+      event: "INCIDENT_UPDATE_FAILED",
+      error,
+    });
 
     return NextResponse.json(
       { error: "Failed to update incident" },
@@ -205,6 +253,10 @@ export async function DELETE(
     const session = await auth();
 
     if (session?.user?.role !== "ADMIN") {
+      logger.warn({
+        event: "INCIDENT_DELETE_UNAUTHORIZED",
+        userId: session?.user?.id,
+      });
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 403 }
@@ -222,6 +274,12 @@ export async function DELETE(
       },
     });
 
+    logger.info({
+      event: "INCIDENT_DELETED",
+      incidentId: id,
+      deletedBy: session.user.id,
+    });
+
     await createAuditLog(
       "DELETE",
       "INCIDENT",
@@ -236,7 +294,10 @@ export async function DELETE(
       success: true,
     });
   } catch (error) {
-    console.error(error);
+    logger.error({
+      event: "INCIDENT_DELETE_FAILED",
+      error,
+    });
 
     return NextResponse.json(
       { error: "Failed to delete incident" },

@@ -1,19 +1,22 @@
 import fs from "fs";
 import path from "path";
+import pino from "pino";
 
-const logFile = path.join(process.cwd(), "logs", "app.log");
+const logDir = path.join(process.cwd(), "logs");
 
-export async function writeLog(
-  level: string,
-  message: string,
-  metadata?: unknown
-) {
-  const line = JSON.stringify({
-    timestamp: new Date().toISOString(),
-    level,
-    message,
-    metadata,
-  });
-
-  fs.appendFileSync(logFile, line + "\n");
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir, { recursive: true });
 }
+
+const destination = pino.destination({
+  dest: path.join(logDir, "app.log"),
+  sync: false,
+});
+
+export const logger = pino(
+  {
+    level: "info",
+    timestamp: pino.stdTimeFunctions.isoTime,
+  },
+  destination
+);

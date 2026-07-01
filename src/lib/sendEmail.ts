@@ -1,43 +1,68 @@
 import { prisma } from "@/lib/prisma";
 import { getResend } from "@/lib/email";
+import { logger } from "./logger";
 
 export async function sendCriticalIncidentEmail(
   title: string,
   description: string
 ) {
-  const resend = getResend();
 
-  const users = await prisma.user.findMany({
-    where: {
-      role: {
-        in: ["ADMIN", "ENGINEER"],
+  try{
+    const resend = getResend();
+
+    const users = await prisma.user.findMany({
+      where: {
+        role: {
+          in: ["ADMIN", "ENGINEER"],
+        },
       },
-    },
 
-    select: {
-      email: true,
-    },
-  });
+      select: {
+        email: true,
+      },
+    });
 
-  const emails = users.map((user) => user.email);
+    const emails = users.map((user) => user.email);
 
-  if (emails.length === 0) return;
+    if (emails.length === 0) {
+      logger.warn({
+        event: "EMAIL_SKIPPED",
+        reason: "NO_RECIPIENTS",
+      });
 
-  const response = await resend.emails.send({
-    from: "IR Assist <onboarding@resend.dev>",
+      return;
+    }
 
-    to: emails,
+    const response = await resend.emails.send({
+      from: "IR Assist <onboarding@resend.dev>",
 
-    subject: `🚨 Critical Incident: ${title}`,
+      to: emails,
 
-    html: `
-      <h2>Critical Incident Detected</h2>
+      subject: `🚨 Critical Incident: ${title}`,
 
-      <p><strong>Title:</strong> ${title}</p>
+      html: `
+        <h2>Critical Incident Detected</h2>
 
-      <p>${description}</p>
-    `,
-  });
+        <p><strong>Title:</strong> ${title}</p>
 
-  console.log(response);
+        <p>${description}</p>
+      `,
+    });
+
+    logger.info({
+      event: "EMAIL_SENT",
+      title,
+      recipients: emails.length,
+      emailId: response.data?.id,
+    });
+  }
+  catch(error){
+    logger.error({
+        event:"EMAIL_SEND_FAILED",
+        title,
+        error,
+    });
+
+    throw error;
+  }
 }

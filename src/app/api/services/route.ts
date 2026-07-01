@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
 import { publish } from "@/lib/events";
+import { logger } from "@/lib/logger";
 
 export async function GET() {
   const services = await prisma.service.findMany({
@@ -22,6 +23,11 @@ export async function GET() {
     },
   });
 
+  logger.info({
+    event: "SERVICES_FETCHED",
+    total: services.length,
+  });
+
   return NextResponse.json(services);
 }
 
@@ -33,6 +39,11 @@ export async function POST(req: Request) {
         !session?.user?.role ||
         !canManageServices(session.user.role)
       ) {
+        logger.warn({
+          event: "SERVICE_CREATE_UNAUTHORIZED",
+          userId: session?.user?.id,
+        });
+
         return NextResponse.json(
           { error: "Unauthorized" },
           { status: 403 }
@@ -48,6 +59,13 @@ export async function POST(req: Request) {
       },
     });
 
+    logger.info({
+      event: "SERVICE_CREATED",
+      serviceId: service.id,
+      name: service.name,
+      status: service.status,
+    });
+
     await createAuditLog(
       "CREATE",
       "SERVICE",
@@ -61,7 +79,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json(service);
   } catch (error) {
-    console.error(error);
+    logger.error({
+      event: "SERVICE_CREATE_FAILED",
+      error,
+    });
 
     return NextResponse.json(
       { error: "Failed to create service" },

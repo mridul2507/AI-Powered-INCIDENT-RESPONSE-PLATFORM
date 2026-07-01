@@ -6,6 +6,7 @@ import { createAuditLog } from "@/lib/audit";
 import { sendCriticalIncidentEmail } from "@/lib/sendEmail";
 import { sendSlackAlert } from "@/lib/slack";
 import { publish } from "@/lib/events";
+import { logger } from "@/lib/logger";
 
 export async function GET() {
   const incidents = await prisma.incident.findMany({
@@ -21,19 +22,28 @@ export async function GET() {
     },
   });
 
+  logger.info({
+    event: "INCIDENTS_FETCHED",
+    total: incidents.length,
+  });
+
   return NextResponse.json(incidents);
 }
 
 export async function POST(req: Request) {
   try {
     const session = await auth();
-    console.log(session);
-    console.log(session?.user);
 
     if (
       !session?.user?.role ||
       !canManageIncidents(session.user.role)
     ) {
+      logger.warn({
+        event: "INCIDENT_CREATE_UNAUTHORIZED",
+        userId: session?.user?.id,
+        role: session?.user?.role,
+      });
+
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 403 }
@@ -59,6 +69,16 @@ export async function POST(req: Request) {
       },
     });
 
+    logger.info({
+      event: "INCIDENT_CREATED",
+      incidentId: incident.id,
+      title: incident.title,
+      severity: incident.severity,
+      status: incident.status,
+      serviceId: incident.serviceId,
+      userId: session.user.id,
+    });
+
     await prisma.notification.create({
       data: {
         title: "New Incident",
@@ -70,13 +90,25 @@ export async function POST(req: Request) {
       sendCriticalIncidentEmail(
         body.title,
         body.description
-      ).catch(console.error);
+      ).catch((error) => {
+        logger.error({
+          event: "EMAIL_FAILED",
+          incidentTitle: body.title,
+          error,
+        });
+      });
 
       sendSlackAlert(
         body.title,
         body.severity,
         body.description
-      ).catch(console.error);
+      ).catch((error) => {
+        logger.error({
+          event: "SLACK_ALERT_FAILED",
+          incidentTitle: body.title,
+          error,
+        });
+      });
     }
 
     await createAuditLog(
@@ -99,7 +131,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json(incident, { status: 201 });
   } catch (error) {
-    console.error(error);
+    logger.error({
+      event: "INCIDENT_CREATE_FAILED",
+      error,
+    });
 
     return NextResponse.json(
       { error: "Failed to create incident" },
