@@ -39,9 +39,14 @@ otelcol.processor.batch "default" {
 }
 
 otelcol.receiver.otlp "default" {
-  grpc {}
 
-  http {}
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
 
   output {
     traces = [

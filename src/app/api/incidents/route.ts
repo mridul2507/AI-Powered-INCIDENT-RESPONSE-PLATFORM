@@ -7,6 +7,7 @@ import { sendCriticalIncidentEmail } from "@/lib/sendEmail";
 import { sendSlackAlert } from "@/lib/slack";
 import { publish } from "@/lib/events";
 import { logger } from "@/lib/logger";
+import { trace } from "@opentelemetry/api";
 
 export async function GET() {
   const incidents = await prisma.incident.findMany({
@@ -32,6 +33,13 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+
+    const tracer = trace.getTracer("incident-api");
+
+    const span = tracer.startSpan("POST /api/incidents");
+
+    span.setAttribute("endpoint", "/api/incidents");
+    span.setAttribute("method", "POST");
     const session = await auth();
 
     if (
@@ -129,8 +137,15 @@ export async function POST(req: Request) {
       },
     });
 
+    span.setAttribute("incident.id", incident.id);
+    span.setAttribute("severity", incident.severity);
+
+    span.end();
+
     return NextResponse.json(incident, { status: 201 });
-  } catch (error) {
+  } 
+  
+  catch (error) {
     logger.error({
       event: "INCIDENT_CREATE_FAILED",
       error,
