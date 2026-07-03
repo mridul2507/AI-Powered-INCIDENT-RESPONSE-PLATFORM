@@ -1,13 +1,11 @@
 import { registerOTel } from "@vercel/otel";
 
-console.log("instrumentation.ts LOADED");
-
 export function register() {
-  console.log("register() CALLED");
-
   registerOTel({
     serviceName: "ir-assist-backend",
+    attributes: {
+      "deployment.environment": "production",
+      "service.namespace": "my-application-group",
+    },
   });
-
-  console.log("registerOTel FINISHED");
 }
