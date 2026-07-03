@@ -17,8 +17,8 @@ loki.write "grafanacloud" {
     url = "https://logs-prod-ap-south-1.grafana.net/loki/api/v1/push"
 
     basic_auth {
-      username = "<1670096>"
-      password = "<API_TOKEN>"
+      username = "1670096"
+      password = sys.env("GRAFANA_CLOUD_API_TOKEN")
     }
   }
 }
@@ -29,9 +29,7 @@ otelcol.exporter.otlp "grafanacloud" {
     endpoint = "otlp-gateway-prod-ap-south-1.grafana.net:443"
 
     headers: {
-      "Authorization": "Basic <MTY2NDM5NzpnbGNfZXlKdklqb2lNVGd6TXpRME15SXNJbTRpT2lKMlpYSmpaV3d0YjNCbGJuUmxi
-        R1Z0WlhSeWVTMTBjbUZqWlhNdGRtVnlZMlZzTFdGd2NDMTBiMnRsYmlJc0ltc2lPaUk0VTB0VE56
-        aHRhVGs0ZUdRemVVVTVPVmt4Ym1aMmJUVWlMQ0p0SWpwN0luSWlPaUoxY3lKOWZRPT0=>"
+      "Authorization" = "Basic MTY2NDM5NzpnbGNfZXlKdklqb2lNVGd6TXpRME15SXNJbTRpT2lKMlpYSmpaV3d0YjNCbGJuUmxiR1Z0WlhSeWVTMTBjbUZqWlhNdGRtVnlZMlZzTFdGd2NDMTBiMnRsYmlJc0ltc2lPaUk0VTB0VE56aHRhVGs0ZUdRemVVVTVPVmt4Ym1aMmJUVWlMQ0p0SWpwN0luSWlPaUoxY3lKOWZRPT0="
     }
 
     tls {
