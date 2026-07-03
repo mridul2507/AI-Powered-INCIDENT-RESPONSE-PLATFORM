@@ -1,56 +1,59 @@
 local.file_match "ir_logs" {
   path_targets = [{
     __path__ = "/logs/*.log",
-    job = "ir-assist",
-    host = "windows",
+    job       = "ir-assist",
+    host      = "windows",
   }]
 }
 
 loki.source.file "logs" {
-  targets = local.file_match.ir_logs.targets
-
-  forward_to = [
-    loki.write.default.receiver,
-  ]
+  targets    = local.file_match.ir_logs.targets
+  forward_to = [loki.write.grafanacloud.receiver]
 }
 
-loki.write "default" {
+// Send logs to Grafana Cloud Loki
+loki.write "grafanacloud" {
   endpoint {
-    url = "http://loki:3100/loki/api/v1/push"
+    url = "https://logs-prod-ap-south-1.grafana.net/loki/api/v1/push"
+
+    basic_auth {
+      username = "<1670096>"
+      password = "<API_TOKEN>"
+    }
   }
 }
 
-otelcol.exporter.otlp "tempo" {
+// Send traces to Grafana Cloud Tempo via OTLP
+otelcol.exporter.otlp "grafanacloud" {
   client {
-    endpoint = "tempo:4317"
+    endpoint = "otlp-gateway-prod-ap-south-1.grafana.net:443"
+
+    headers: {
+      "Authorization": "Basic <MTY2NDM5NzpnbGNfZXlKdklqb2lNVGd6TXpRME15SXNJbTRpT2lKMlpYSmpaV3d0YjNCbGJuUmxi
+        R1Z0WlhSeWVTMTBjbUZqWlhNdGRtVnlZMlZzTFdGd2NDMTBiMnRsYmlJc0ltc2lPaUk0VTB0VE56
+        aHRhVGs0ZUdRemVVVTVPVmt4Ym1aMmJUVWlMQ0p0SWpwN0luSWlPaUoxY3lKOWZRPT0=>"
+    }
 
     tls {
-      insecure = true
+      insecure = false
     }
   }
 }
 
 otelcol.processor.batch "default" {
   output {
-    traces = [
-      otelcol.exporter.otlp.tempo.input,
-    ]
+    traces = [otelcol.exporter.otlp.grafanacloud.input]
   }
 }
 
 otelcol.receiver.otlp "default" {
-
   grpc {
     endpoint = "0.0.0.0:4317"
   }
-
   http {
     endpoint = "0.0.0.0:4318"
   }
-
   output {
-    traces = [
-      otelcol.processor.batch.default.input,
-    ]
+    traces = [otelcol.processor.batch.default.input]
   }
 }
