@@ -27,9 +27,9 @@ loki.write "grafanacloud" {
 otelcol.exporter.otlp "grafanacloud" {
   client {
     endpoint = "otlp-gateway-prod-ap-south-1.grafana.net:443"
-    
+
     headers = {
-      "Authorization"= "Basic MTY2NDM5NzpnbGNfZXlKdklqb2lNVGd6TXpRME15SXNJbTRpT2lKMlpYSmpaV3d0YjNCbGJuUmxiR1Z0WlhSeWVTMTBjbUZqWlhNdGRtVnlZMlZzTFdGd2NDMTBiMnRsYmlJc0ltc2lPaUk0VTB0VE56aHRhVGs0ZUdRemVVVTVPVmt4Ym1aMmJUVWlMQ0p0SWpwN0luSWlPaUoxY3lKOWZRPT0=",
+      "Authorization"= sys.env("GRAFANA_TEMPO_AUTHORIZATION"),
     }
 
     tls {
