@@ -18,29 +18,25 @@ loki.write "grafanacloud" {
 
     basic_auth {
       username = "1670096"
-      password = sys.env("GRAFANA_CLOUD_API_TOKEN")
+      password = env("GRAFANA_CLOUD_API_TOKEN")
     }
   }
 }
 
 // Send traces to Grafana Cloud Tempo via OTLP
-otelcol.exporter.otlp "grafanacloud" {
+otelcol.exporter.otlphttp "grafanacloud" {
   client {
-    endpoint = "otlp-gateway-prod-ap-south-1.grafana.net:443"
+    endpoint = "https://otlp-gateway-prod-ap-south-1.grafana.net/otlp"
 
     headers = {
-      "Authorization"= sys.env("GRAFANA_TEMPO_AUTHORIZATION"),
-    }
-
-    tls {
-      insecure = false
+      "Authorization" = env("GRAFANA_TEMPO_AUTHORIZATION"),
     }
   }
 }
 
 otelcol.processor.batch "default" {
   output {
-    traces = [otelcol.exporter.otlp.grafanacloud.input]
+    traces = [otelcol.exporter.otlphttp.grafanacloud.input]
   }
 }
 
