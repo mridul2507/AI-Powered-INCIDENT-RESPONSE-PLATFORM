@@ -14,7 +14,11 @@ export async function queryPrometheus(query: string) {
     },
   });
 
-  if (!res.ok) throw new Error("Failed to query Prometheus");
+  if (!res.ok) {
+    const body = await res.text();
+    console.error(`Prometheus error ${res.status}: ${body}`);
+    throw new Error(`Prometheus ${res.status}`);
+  }
 
   const data = await res.json();
   return data.data.result;
