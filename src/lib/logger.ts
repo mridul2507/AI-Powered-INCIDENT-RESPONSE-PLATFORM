@@ -1,23 +1,17 @@
-import pino from "pino";
-import { Writable } from "stream";
 import { waitUntil } from "@vercel/functions";
 
 const LOKI_URL = "https://logs-prod-ap-south-1.grafana.net/loki/api/v1/push";
 
-async function sendToLoki(line: string): Promise<void> {
-  if (!process.env.GRAFANA_CLOUD_API_TOKEN) return;
+async function pushToLoki(level: string, data: object): Promise<void> {
+  const token = process.env.GRAFANA_CLOUD_API_TOKEN;
+  if (!token) return;
 
-  const auth = Buffer.from(
-    `1670096:${process.env.GRAFANA_CLOUD_API_TOKEN}`
-  ).toString("base64");
-
-  let level = "info";
-  try {
-    const obj = JSON.parse(line);
-    if (obj.level >= 50) level = "error";
-    else if (obj.level >= 40) level = "warn";
-    else if (obj.level >= 20) level = "debug";
-  } catch {}
+  const auth = Buffer.from(`1670096:${token}`).toString("base64");
+  const logLine = JSON.stringify({
+    level,
+    time: new Date().toISOString(),
+    ...data,
+  });
 
   await fetch(LOKI_URL, {
     method: "POST",
@@ -29,28 +23,35 @@ async function sendToLoki(line: string): Promise<void> {
       streams: [
         {
           stream: { job: "ir-assist", env: "production", level },
-          values: [[String(Date.now() * 1_000_000), line]],
+          values: [[String(Date.now() * 1_000_000), logLine]],
         },
       ],
     }),
   });
 }
 
-const lokiStream = new Writable({
-  write(chunk, _, callback) {
-    const line = chunk.toString().trim();
-    process.stdout.write(chunk);
-    if (line) {
-      waitUntil(sendToLoki(line)); // Vercel keeps function alive until this resolves
-    }
-    callback();
-  },
-});
+function log(
+  level: "info" | "warn" | "error" | "debug",
+  data: object | string
+) {
+  const entry = typeof data === "string" ? { msg: data } : data;
 
-export const logger = pino(
-  {
-    level: process.env.NODE_ENV === "production" ? "info" : "debug",
-    timestamp: pino.stdTimeFunctions.isoTime,
-  },
-  lokiStream
-);
+  // Always write to stdout (visible in Vercel function logs)
+  console.log(JSON.stringify({ level, time: new Date().toISOString(), ...entry }));
+
+  // Push to Loki — waitUntil keeps the function alive until fetch completes
+  if (process.env.GRAFANA_CLOUD_API_TOKEN) {
+    try {
+      waitUntil(pushToLoki(level, entry));
+    } catch {
+      // local dev — waitUntil not available, ignore
+    }
+  }
+}
+
+export const logger = {
+  info:  (data: object | string) => log("info", data),
+  warn:  (data: object | string) => log("warn", data),
+  error: (data: object | string) => log("error", data),
+  debug: (data: object | string) => log("debug", data),
+};
