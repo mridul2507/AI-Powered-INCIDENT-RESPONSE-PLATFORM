@@ -4,11 +4,11 @@ import { queryPrometheus } from "@/lib/prometheus";
 export async function GET() {
   try {
     const cpu = await queryPrometheus(
-      '100 - (avg(rate(windows_cpu_time_total{mode="idle"}[5m])) * 100)'
+      'rate(process_cpu_seconds_total{job="ir-assist"}[5m]) * 100'
     );
 
     const memory = await queryPrometheus(
-      '100 * (1 - windows_memory_physical_free_bytes / windows_memory_physical_total_bytes)'
+      'process_resident_memory_bytes{job="ir-assist"} / 1024 / 1024'
     );
 
     const disk = await queryPrometheus(
