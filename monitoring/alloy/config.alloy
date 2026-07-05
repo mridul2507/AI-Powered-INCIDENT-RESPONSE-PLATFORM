@@ -42,7 +42,7 @@ prometheus.remote_write "grafana" {
 local.file_match "logs" {
   path_targets = [
     {
-      __path__ = "/logs/*.log",
+      __path__ = "/logs/app.log",
       job      = "ir-assist",
       host     = "windows",
     },
