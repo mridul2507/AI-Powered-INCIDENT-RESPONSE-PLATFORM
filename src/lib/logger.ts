@@ -1,6 +1,6 @@
 import { waitUntil } from "@vercel/functions";
 
-const LOKI_URL = "https://logs-prod-ap-south-1.grafana.net/loki/api/v1/push";
+const LOKI_URL = "https://logs-prod-028.grafana.net/loki/api/v1/push";
 
 async function pushToLoki(level: string, data: object): Promise<void> {
   const token = process.env.GRAFANA_CLOUD_API_TOKEN;

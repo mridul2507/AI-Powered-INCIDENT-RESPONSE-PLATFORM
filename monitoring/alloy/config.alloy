@@ -56,7 +56,7 @@ loki.source.file "logs" {
 
 loki.write "grafanacloud" {
   endpoint {
-    url = "https://logs-prod-ap-south-1.grafana.net/loki/api/v1/push"
+    url = "https://logs-prod-028.grafana.net/loki/api/v1/push"
 
     basic_auth {
       username = "1670096"
