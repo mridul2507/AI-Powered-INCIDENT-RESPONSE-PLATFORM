@@ -1,3 +1,28 @@
+local.file_match "logs" {
+  path_targets = [{
+    __path__ = "C:/Users/Mridul/Desktop/mission_project/logs/*.log",
+    job = "ir-assist"
+  }]
+}
+
+prometheus.exporter.windows "windows" {}
+
+prometheus.scrape "windows" {
+  targets    = prometheus.exporter.windows.windows.targets
+  forward_to = [prometheus.remote_write.grafana.receiver]
+}
+
+prometheus.remote_write "grafana" {
+  endpoint {
+    url = "https://prometheus-prod-43-prod-ap-south-1.grafana.net/api/prom/push"
+
+    basic_auth {
+      username = "3348842"
+      password = env("GRAFANA_PROMETHEUS_TOKEN")
+    }
+  }
+}
+
 local.file_match "ir_logs" {
   path_targets = [{
     __path__ = "/logs/*.log",
@@ -11,7 +36,6 @@ loki.source.file "logs" {
   forward_to = [loki.write.grafanacloud.receiver]
 }
 
-// Send logs to Grafana Cloud Loki
 loki.write "grafanacloud" {
   endpoint {
     url = "https://logs-prod-ap-south-1.grafana.net/loki/api/v1/push"
@@ -23,7 +47,6 @@ loki.write "grafanacloud" {
   }
 }
 
-// Send traces to Grafana Cloud Tempo via OTLP
 otelcol.exporter.otlphttp "grafanacloud" {
   client {
     endpoint = "https://otlp-gateway-prod-ap-south-1.grafana.net/otlp"
