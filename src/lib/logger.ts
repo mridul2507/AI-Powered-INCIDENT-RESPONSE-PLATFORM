@@ -1,9 +1,10 @@
 import pino from "pino";
 import { Writable } from "stream";
+import { waitUntil } from "@vercel/functions";
 
 const LOKI_URL = "https://logs-prod-ap-south-1.grafana.net/loki/api/v1/push";
 
-function sendToLoki(line: string) {
+async function sendToLoki(line: string): Promise<void> {
   if (!process.env.GRAFANA_CLOUD_API_TOKEN) return;
 
   const auth = Buffer.from(
@@ -18,7 +19,7 @@ function sendToLoki(line: string) {
     else if (obj.level >= 20) level = "debug";
   } catch {}
 
-  fetch(LOKI_URL, {
+  await fetch(LOKI_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -32,14 +33,16 @@ function sendToLoki(line: string) {
         },
       ],
     }),
-  }).catch(() => {}); // fire and forget
+  });
 }
 
 const lokiStream = new Writable({
   write(chunk, _, callback) {
     const line = chunk.toString().trim();
-    if (line) sendToLoki(line);
-    process.stdout.write(chunk); // keep Vercel console logs working
+    process.stdout.write(chunk);
+    if (line) {
+      waitUntil(sendToLoki(line)); // Vercel keeps function alive until this resolves
+    }
     callback();
   },
 });
