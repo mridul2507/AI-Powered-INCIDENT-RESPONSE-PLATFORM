@@ -1,5 +1,5 @@
 const GRAFANA_URL = "https://irassist07.grafana.net";
-const GRAFANA_DS_UID = "grafanacloud-irassist07-prom";
+const GRAFANA_DS_UID = "grafanacloud-prom";
 const GRAFANA_TOKEN = process.env.GRAFANA_SERVICE_TOKEN;
 
 export async function queryPrometheusValue(query: string): Promise<number> {
