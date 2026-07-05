@@ -3,7 +3,7 @@ import { Writable } from "stream";
 
 const LOKI_URL = "https://logs-prod-ap-south-1.grafana.net/loki/api/v1/push";
 
-async function sendToLoki(line: string): Promise<void> {
+function sendToLoki(line: string) {
   if (!process.env.GRAFANA_CLOUD_API_TOKEN) return;
 
   const auth = Buffer.from(
@@ -18,7 +18,7 @@ async function sendToLoki(line: string): Promise<void> {
     else if (obj.level >= 20) level = "debug";
   } catch {}
 
-  await fetch(LOKI_URL, {
+  fetch(LOKI_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -32,18 +32,15 @@ async function sendToLoki(line: string): Promise<void> {
         },
       ],
     }),
-  });
+  }).catch(() => {}); // fire and forget
 }
 
 const lokiStream = new Writable({
   write(chunk, _, callback) {
     const line = chunk.toString().trim();
-    process.stdout.write(chunk);
-    if (line) {
-      sendToLoki(line).finally(() => callback()); // wait for Loki before releasing
-    } else {
-      callback();
-    }
+    if (line) sendToLoki(line);
+    process.stdout.write(chunk); // keep Vercel console logs working
+    callback();
   },
 });
 
