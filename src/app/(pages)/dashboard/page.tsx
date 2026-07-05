@@ -76,14 +76,8 @@ export default function Dashboard() {
         const data = await res.json();
 
         setPrometheus({
-          cpu: Number(
-            data.cpu?.[0]?.value?.[1] ?? 0
-          ).toFixed(1),
-
-          memory: Number(
-            data.memory?.[0]?.value?.[1] ?? 0
-          ).toFixed(1),
-
+          cpu: Number(data.cpu ?? 0).toFixed(1),
+          memory: Number(data.memory ?? 0).toFixed(1),
           lastUpdated: new Date().toLocaleTimeString(),
         });
       } catch (error) {

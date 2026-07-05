@@ -1,25 +1,39 @@
-const PROMETHEUS_URL = "https://prometheus-prod-43-prod-ap-south-1.grafana.net/api/prom";
-const PROMETHEUS_USER = "3348842";
-const PROMETHEUS_TOKEN = process.env.GRAFANA_PROMETHEUS_TOKEN!;
+const GRAFANA_URL = "https://irassist07.grafana.net";
+const GRAFANA_DS_UID = "grafanacloud-irassist07-prom";
+const GRAFANA_TOKEN = process.env.GRAFANA_SERVICE_TOKEN;
 
-export async function queryPrometheus(query: string) {
-  const url = `${PROMETHEUS_URL}/api/v1/query?query=${encodeURIComponent(query)}`;
-
-  const auth = Buffer.from(`${PROMETHEUS_USER}:${PROMETHEUS_TOKEN}`).toString("base64");
-
-  const res = await fetch(url, {
-    cache: "no-store",
-    headers: {
-      Authorization: `Basic ${auth}`,
-    },
-  });
-
-  if (!res.ok) {
-    const body = await res.text();
-    console.error(`Prometheus error ${res.status}: ${body}`);
-    throw new Error(`Prometheus ${res.status}`);
+export async function queryPrometheusValue(query: string): Promise<number> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(`${GRAFANA_URL}/api/ds/query`, {
+      method: "POST",
+      signal: controller.signal,
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${GRAFANA_TOKEN}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        queries: [{
+          refId: "A",
+          datasource: { type: "prometheus", uid: GRAFANA_DS_UID },
+          expr: query,
+          instant: true,
+          intervalMs: 60000,
+          maxDataPoints: 1,
+        }],
+        from: "now-5m",
+        to: "now",
+      }),
+    });
+    clearTimeout(timeout);
+    if (!res.ok) throw new Error(`Grafana ${res.status}: ${await res.text()}`);
+    const data = await res.json();
+    const values = data.results?.A?.frames?.[0]?.data?.values;
+    return Number(values?.[1]?.[0] ?? 0);
+  } catch (err) {
+    clearTimeout(timeout);
+    throw err;
   }
-
-  const data = await res.json();
-  return data.data.result;
 }
