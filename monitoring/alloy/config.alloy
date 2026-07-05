@@ -1,19 +1,51 @@
-local.file_match "logs" {
-  path_targets = [{
-    __path__ = "C:/Users/Mridul/Desktop/mission_project/logs/*.log",
-    job = "ir-assist"
-  }]
-}
+############################
+# WINDOWS EXPORTER
+############################
 
 prometheus.exporter.windows "windows" {}
 
 prometheus.scrape "windows" {
-  targets    = prometheus.exporter.windows.windows.targets
-  forward_to = [prometheus.remote_write.grafana.receiver]
+  targets = prometheus.exporter.windows.windows.targets
+
+  forward_to = [
+    prometheus.remote_write.grafana.receiver,
+  ]
 }
 
+############################
+# NEXT.JS PROMETHEUS METRICS
+############################
+
+prometheus.scrape "ir_assist_app" {
+
+  targets = [
+    {
+      __address__ = "YOUR_VERCEL_DOMAIN"
+      job = "ir-assist"
+    }
+  ]
+
+  scheme = "https"
+
+  metrics_path = "/api/metrics/prometheus"
+
+  scrape_interval = "15s"
+
+  scrape_timeout = "10s"
+
+  forward_to = [
+    prometheus.remote_write.grafana.receiver,
+  ]
+}
+
+############################
+# REMOTE WRITE
+############################
+
 prometheus.remote_write "grafana" {
+
   endpoint {
+
     url = "https://prometheus-prod-43-prod-ap-south-1.grafana.net/api/prom/push"
 
     basic_auth {
@@ -23,21 +55,34 @@ prometheus.remote_write "grafana" {
   }
 }
 
-local.file_match "ir_logs" {
-  path_targets = [{
-    __path__ = "/logs/*.log",
-    job      = "ir-assist",
-    host     = "windows",
-  }]
+############################
+# LOGS
+############################
+
+local.file_match "logs" {
+
+  path_targets = [
+    {
+      __path__ = "C:/Users/Mridul/Desktop/mission_project/logs/*.log"
+      job = "ir-assist"
+      host = "windows"
+    }
+  ]
 }
 
 loki.source.file "logs" {
-  targets    = local.file_match.ir_logs.targets
-  forward_to = [loki.write.grafanacloud.receiver]
+
+  targets = local.file_match.logs.targets
+
+  forward_to = [
+    loki.write.grafanacloud.receiver,
+  ]
 }
 
 loki.write "grafanacloud" {
+
   endpoint {
+
     url = "https://logs-prod-ap-south-1.grafana.net/loki/api/v1/push"
 
     basic_auth {
@@ -47,30 +92,44 @@ loki.write "grafanacloud" {
   }
 }
 
+############################
+# OTLP TRACES
+############################
+
+otelcol.receiver.otlp "default" {
+
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    traces = [
+      otelcol.processor.batch.default.input,
+    ]
+  }
+}
+
+otelcol.processor.batch "default" {
+
+  output {
+    traces = [
+      otelcol.exporter.otlphttp.grafanacloud.input,
+    ]
+  }
+}
+
 otelcol.exporter.otlphttp "grafanacloud" {
+
   client {
+
     endpoint = "https://otlp-gateway-prod-ap-south-1.grafana.net/otlp"
 
     headers = {
       "Authorization" = env("GRAFANA_TEMPO_AUTHORIZATION"),
     }
-  }
-}
-
-otelcol.processor.batch "default" {
-  output {
-    traces = [otelcol.exporter.otlphttp.grafanacloud.input]
-  }
-}
-
-otelcol.receiver.otlp "default" {
-  grpc {
-    endpoint = "0.0.0.0:4317"
-  }
-  http {
-    endpoint = "0.0.0.0:4318"
-  }
-  output {
-    traces = [otelcol.processor.batch.default.input]
   }
 }

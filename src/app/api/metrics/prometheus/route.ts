@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 import {
@@ -12,6 +11,9 @@ import {
   resolvedIncidents,
 } from "@/lib/metrics";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   const [
     total,
@@ -23,11 +25,13 @@ export async function GET() {
     resolved,
   ] = await Promise.all([
     prisma.service.count(),
+
     prisma.service.count({
       where: {
         status: "HEALTHY",
       },
     }),
+
     prisma.incident.count({
       where: {
         deletedAt: null,
@@ -36,24 +40,28 @@ export async function GET() {
         },
       },
     }),
+
     prisma.incident.count({
       where: {
         deletedAt: null,
         severity: "CRITICAL",
       },
     }),
+
     prisma.incident.count({
       where: {
         deletedAt: null,
         severity: "WARNING",
       },
     }),
+
     prisma.incident.count({
       where: {
         deletedAt: null,
         severity: "INFO",
       },
     }),
+
     prisma.incident.count({
       where: {
         deletedAt: null,
@@ -70,9 +78,10 @@ export async function GET() {
   infoAlerts.set(info);
   resolvedIncidents.set(resolved);
 
-  return new NextResponse(await register.metrics(), {
+  return new Response(await register.metrics(), {
     headers: {
       "Content-Type": register.contentType,
+      "Cache-Control": "no-store",
     },
   });
 }
