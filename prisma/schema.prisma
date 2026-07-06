@@ -11,20 +11,22 @@ datasource db {
 model Organization {
   id        String   @id @default(cuid())
   name      String   @unique
+  slug      String   @unique @default("temp-slug")
   createdAt DateTime @default(now())
 
-  incidents Incident[]
-  services  Service[]
-  users     User[]
-
-  apiKeys ApiKey[]
-  metrics Metric[]
+  incidents     Incident[]
+  services      Service[]
+  users         User[]
+  apiKeys       ApiKey[]
+  metrics       Metric[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
 }
 
 model User {
   id             String       @id @default(cuid())
   email          String       @unique
-  name           String?      
+  name           String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
   organizationId String
@@ -74,6 +76,7 @@ model Service {
   logs              Log[]
   metrics           Metric[]
   organization      Organization  @relation(fields: [organizationId], references: [id])
+
   @@unique([organizationId, name])
 }
 
@@ -88,7 +91,7 @@ model Log {
 }
 
 model Metric {
-  id             String   @id @default(cuid())
+  id             String @id @default(cuid())
   serviceId      String
   organizationId String
 
@@ -99,28 +102,56 @@ model Metric {
   requestsPerMin Int?
   errorRate      Float?
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  service        Service      @relation(fields: [serviceId], references: [id])
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  service      Service      @relation(fields: [serviceId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
 }
 
 model AuditLog {
-  id         String   @id @default(cuid())
-  action     String
-  userId     String?
-  createdAt  DateTime @default(now())
-  entityId   String
+  id String @id @default(cuid())
+
+  action String
+
   entityType String
-  user       User?    @relation(fields: [userId], references: [id])
+
+  entityId String
+
+  metadata Json?
+
+  userId String?
+
+  organizationId String?
+
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  organization Organization? @relation(fields: [organizationId], references: [id])
+
+  @@index([createdAt])
+  @@index([userId])
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([action])
 }
 
 model Notification {
-  id        String   @id @default(cuid())
-  title     String
-  message   String
-  isRead    Boolean  @default(false)
+  id String @id @default(cuid())
+
+  title   String
+  message String
+
+  isRead Boolean @default(false)
+
+  organizationId String
+
   createdAt DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId])
 }
 
 model TimelineEvent {
@@ -135,7 +166,7 @@ model TimelineEvent {
 model ApiKey {
   id             String    @id @default(cuid())
   name           String
-  hashedKey            String    @unique
+  hashedKey      String    @unique
   organizationId String
   createdAt      DateTime  @default(now())
   lastUsedAt     DateTime?

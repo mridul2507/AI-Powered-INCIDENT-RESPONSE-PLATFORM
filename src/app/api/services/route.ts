@@ -7,55 +7,83 @@ import { publish } from "@/lib/events";
 import { logger } from "@/lib/logger";
 
 export async function GET() {
-  const services = await prisma.service.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-
-    include: {
-      incidents: {
-        orderBy: {
-          createdAt: "desc",
-        },
-
-        take: 1,
+  try {
+    const services = await prisma.service.findMany({
+      orderBy: {
+        createdAt: "desc",
       },
-    },
-  });
 
-  logger.info({
-    event: "SERVICES_FETCHED",
-    total: services.length,
-  });
+      include: {
+        incidents: {
+          orderBy: {
+            createdAt: "desc",
+          },
 
-  return NextResponse.json(services);
+          take: 1,
+        },
+      },
+    });
+
+    logger.info({
+      event: "SERVICES_FETCHED",
+      total: services.length,
+    });
+
+    return NextResponse.json(services);
+
+  } catch (error) {
+
+    logger.error({
+      event: "SERVICES_FETCH_FAILED",
+      error,
+    });
+
+    return NextResponse.json(
+      {
+        error: "Failed to fetch services",
+      },
+      {
+        status: 500,
+      }
+    );
+
+  }
 }
 
 export async function POST(req: Request) {
   try {
+
     const session = await auth();
 
-      if (
-        !session?.user?.role ||
-        !canManageServices(session.user.role)
-      ) {
-        logger.warn({
-          event: "SERVICE_CREATE_UNAUTHORIZED",
-          userId: session?.user?.id,
-        });
+    if (
+      !session?.user?.role ||
+      !canManageServices(session.user.role)
+    ) {
 
-        return NextResponse.json(
-          { error: "Unauthorized" },
-          { status: 403 }
-        );
-      }
+      logger.warn({
+        event: "SERVICE_CREATE_UNAUTHORIZED",
+        userId: session?.user?.id,
+      });
+
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 403,
+        }
+      );
+
+    }
+
     const body = await req.json();
 
     const service = await prisma.service.create({
       data: {
         name: body.name,
         status: body.status,
-        organizationId: session.user.organizationId,
+        organizationId:
+          session.user.organizationId,
       },
     });
 
@@ -66,11 +94,23 @@ export async function POST(req: Request) {
       status: service.status,
     });
 
-    await createAuditLog(
-      "CREATE",
-      "SERVICE",
-      service.id
-    );
+    await createAuditLog({
+      action: "CREATE",
+
+      entityType: "SERVICE",
+
+      entityId: service.id,
+
+      userId: session.user.id,
+
+      organizationId:
+        session.user.organizationId,
+
+      metadata: {
+        name: service.name,
+        status: service.status,
+      },
+    });
 
     publish({
       type: "SERVICE_CREATED",
@@ -78,15 +118,22 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(service);
+
   } catch (error) {
+
     logger.error({
       event: "SERVICE_CREATE_FAILED",
       error,
     });
 
     return NextResponse.json(
-      { error: "Failed to create service" },
-      { status: 500 }
+      {
+        error: "Failed to create service",
+      },
+      {
+        status: 500,
+      }
     );
+
   }
 }

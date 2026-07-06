@@ -119,11 +119,22 @@ export async function POST(req: Request) {
       });
     }
 
-    await createAuditLog(
-      "CREATE",
-      "INCIDENT",
-      incident.id
-    );
+    await createAuditLog({
+      action: "CREATE",
+      entityType: "INCIDENT",
+      entityId: incident.id,
+
+      userId: session.user.id,
+
+      organizationId:
+        session.user.organizationId,
+
+      metadata: {
+        title: incident.title,
+        severity: incident.severity,
+        status: incident.status,
+      },
+    });
 
     publish({
       type: "INCIDENT_CREATED",

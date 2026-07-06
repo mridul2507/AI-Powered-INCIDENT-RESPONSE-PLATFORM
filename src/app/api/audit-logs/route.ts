@@ -2,31 +2,149 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
     const session = await auth();
 
-    if (session?.user.role !== "ADMIN") {
+    if (
+      !session ||
+      session.user.role !== "ADMIN"
+    ) {
       return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 403 }
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 403,
+        }
       );
     }
 
-    const logs = await prisma.auditLog.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
+    const { searchParams } = new URL(req.url);
+
+    const page = Number(
+      searchParams.get("page") ?? "1"
+    );
+
+    const limit = Number(
+      searchParams.get("limit") ?? "20"
+    );
+
+    const search =
+      searchParams.get("search") ?? "";
+
+    const action =
+      searchParams.get("action") ?? "ALL";
+
+    const from =
+      searchParams.get("from");
+
+    const to =
+      searchParams.get("to");
+
+    const skip =
+      (page - 1) * limit;
+
+    const where: any = {
+      organizationId:
+        session.user.organizationId,
+    };
+
+    if (action !== "ALL") {
+      where.action = action;
+    }
+
+    if (search) {
+      where.OR = [
+        {
+          entityType: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+        {
+          entityId: {
+            contains: search,
+            mode: "insensitive",
+          },
+        },
+      ];
+    }
+
+    if (from || to) {
+
+      where.createdAt = {};
+
+      if (from) {
+        where.createdAt.gte =
+          new Date(from);
+      }
+
+      if (to) {
+        where.createdAt.lte =
+          new Date(to);
+      }
+
+    }
+
+    const [logs, total] =
+      await Promise.all([
+
+        prisma.auditLog.findMany({
+
+          where,
+
+          include: {
+
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+              },
+            },
+
+          },
+
+          orderBy: {
+            createdAt: "desc",
+          },
+
+          skip,
+
+          take: limit,
+
+        }),
+
+        prisma.auditLog.count({
+          where,
+        }),
+
+      ]);
+
+    return NextResponse.json({
+      logs,
+      total,
+      page,
+      pages: Math.ceil(
+        total / limit
+      ),
     });
 
-    return NextResponse.json(logs);
-
   } catch (error) {
+
     console.error(error);
 
     return NextResponse.json(
-      { error: "Failed to fetch audit logs" },
-      { status: 500 }
+      {
+        error:
+          "Failed to fetch audit logs",
+      },
+      {
+        status: 500,
+      }
     );
+
   }
 }

@@ -1,17 +1,31 @@
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { publish } from "@/lib/events";
+import { getCurrentUser } from "@/lib/currentUser";
 
 export async function GET() {
   try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const notifications =
       await prisma.notification.findMany({
+        where: {
+          organizationId: currentUser.organizationId,
+        },
         orderBy: {
           createdAt: "desc",
         },
       });
 
     return NextResponse.json(notifications);
+
   } catch (error) {
     console.error(error);
 
@@ -24,6 +38,15 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
 
     const notification =
@@ -31,6 +54,7 @@ export async function POST(req: Request) {
         data: {
           title: body.title,
           message: body.message,
+          organizationId: currentUser.organizationId,
         },
       });
 
@@ -39,9 +63,13 @@ export async function POST(req: Request) {
       notification,
     });
 
-    return NextResponse.json(notification, {
-      status: 201,
-    });
+    return NextResponse.json(
+      notification,
+      {
+        status: 201,
+      }
+    );
+
   } catch (error) {
     console.error(error);
 

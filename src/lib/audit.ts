@@ -1,20 +1,40 @@
 import { prisma } from "@/lib/prisma";
 
-export async function createAuditLog(
-  action: string,
-  entityType: string,
-  entityId: string
-) {
-  try {
-    const log = await prisma.auditLog.create({
-      data: {
-        action,
-        entityType,
-        entityId,
-      },
-    });
+export type AuditAction =
+  | "CREATE"
+  | "UPDATE"
+  | "DELETE"
+  | "LOGIN"
+  | "LOGOUT"
+  | "STATUS_CHANGE";
 
-  } catch (error) {
-    console.error("AUDIT ERROR:", error);
-  }
+type CreateAuditLogParams = {
+  action: AuditAction;
+  entityType: string;
+  entityId: string;
+
+  userId?: string;
+  organizationId?: string;
+
+  metadata?: Record<string, unknown>;
+};
+
+export async function createAuditLog({
+  action,
+  entityType,
+  entityId,
+  userId,
+  organizationId,
+  metadata,
+}: CreateAuditLogParams) {
+  return prisma.auditLog.create({
+    data: {
+      action,
+      entityType,
+      entityId,
+      userId,
+      organizationId,
+      metadata,
+    },
+  });
 }

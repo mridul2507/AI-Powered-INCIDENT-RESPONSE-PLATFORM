@@ -8,9 +8,14 @@ export async function getCurrentUser() {
     return null;
   }
 
-  return prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       email: session.user.email,
     },
+    include: {
+      organization: true,
+    },
   });
+
+  return user;
 }

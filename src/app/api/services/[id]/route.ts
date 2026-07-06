@@ -10,74 +10,131 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
+  try {
+    const { id } = await params;
 
-  const service = await prisma.service.findUnique({
-    where: {
-      id,
-    },
+    const service = await prisma.service.findUnique({
+      where: {
+        id,
+      },
 
-    include: {
-      incidents: true,
-      logs: true,
-    },
-  });
+      include: {
+        incidents: true,
+        logs: true,
+      },
+    });
 
-  if (!service) {
-    logger.warn({
-      event: "SERVICE_NOT_FOUND",
-      serviceId: id,
+    if (!service) {
+      logger.warn({
+        event: "SERVICE_NOT_FOUND",
+        serviceId: id,
+      });
+
+      return NextResponse.json(
+        {
+          error: "Service not found",
+        },
+        {
+          status: 404,
+        }
+      );
+    }
+
+    logger.info({
+      event: "SERVICE_FETCHED",
+      serviceId: service.id,
+      name: service.name,
+    });
+
+    return NextResponse.json(service);
+
+  } catch (error) {
+
+    logger.error({
+      event: "SERVICE_FETCH_FAILED",
+      error,
     });
 
     return NextResponse.json(
-      { error: "Service not found" },
-      { status: 404 }
+      {
+        error: "Failed to fetch service",
+      },
+      {
+        status: 500,
+      }
     );
+
   }
-
-  logger.info({
-    event: "SERVICE_FETCHED",
-    serviceId: service.id,
-    name: service.name,
-  });
-
-  return NextResponse.json(service);
 }
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  try{
+  try {
+
+    const session = await auth();
+
     if (
       !session?.user?.role ||
       !canManageServices(session.user.role)
     ) {
+
       logger.warn({
         event: "SERVICE_UPDATE_UNAUTHORIZED",
         userId: session?.user?.id,
       });
 
       return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 403 }
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 403,
+        }
       );
+
     }
+
     const { id } = await params;
 
     const body = await req.json();
 
-    const service = await prisma.service.update({
-      where: { id },
-      data: {
-        name: body.name,
-        status: body.status,
-        description: body.description,
-        responseTime: body.responseTime,
-        availability: body.availability,
-        requestsPerMin: body.requestsPerMin,
-      },
-    });
+    const oldService =
+      await prisma.service.findUnique({
+        where: {
+          id,
+        },
+      });
+
+    if (!oldService) {
+
+      return NextResponse.json(
+        {
+          error: "Service not found",
+        },
+        {
+          status: 404,
+        }
+      );
+
+    }
+
+    const service =
+      await prisma.service.update({
+        where: {
+          id,
+        },
+
+        data: {
+          name: body.name,
+          status: body.status,
+          description: body.description,
+          responseTime: body.responseTime,
+          availability: body.availability,
+          requestsPerMin: body.requestsPerMin,
+        },
+      });
 
     logger.info({
       event: "SERVICE_UPDATED",
@@ -86,11 +143,26 @@ export async function PATCH(
       status: service.status,
     });
 
-    await createAuditLog(
-      "UPDATE",
-      "SERVICE",
-      service.id
-    );
+    await createAuditLog({
+      action: "UPDATE",
+
+      entityType: "SERVICE",
+
+      entityId: service.id,
+
+      userId: session.user.id,
+
+      organizationId:
+        session.user.organizationId,
+
+      metadata: {
+        previousName: oldService.name,
+        newName: service.name,
+
+        previousStatus: oldService.status,
+        newStatus: service.status,
+      },
+    });
 
     publish({
       type: "SERVICE_UPDATED",
@@ -98,17 +170,23 @@ export async function PATCH(
     });
 
     return NextResponse.json(service);
-  }
-  catch (error) {
+
+  } catch (error) {
+
     logger.error({
       event: "SERVICE_UPDATE_FAILED",
       error,
     });
 
     return NextResponse.json(
-      { error: "Failed to update service" },
-      { status: 500 }
+      {
+        error: "Failed to update service",
+      },
+      {
+        status: 500,
+      }
     );
+
   }
 }
 
@@ -116,59 +194,107 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
+  try {
 
-  try{
+    const session = await auth();
+
     if (
       !session?.user?.role ||
       !canManageServices(session.user.role)
     ) {
+
       logger.warn({
         event: "SERVICE_DELETE_UNAUTHORIZED",
         userId: session?.user?.id,
       });
 
       return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 403 }
+        {
+          error: "Unauthorized",
+        },
+        {
+          status: 403,
+        }
       );
+
     }
+
     const { id } = await params;
 
-    await createAuditLog(
-      "DELETE",
-      "SERVICE",
-      id
-    );
+    const service =
+      await prisma.service.findUnique({
+        where: {
+          id,
+        },
+      });
 
-    publish({
-      type: "SERVICE_DELETED",
-      id,
+    if (!service) {
+
+      return NextResponse.json(
+        {
+          error: "Service not found",
+        },
+        {
+          status: 404,
+        }
+      );
+
+    }
+
+    await prisma.service.delete({
+      where: {
+        id,
+      },
     });
 
     logger.info({
       event: "SERVICE_DELETED",
-      serviceId: id,
+      serviceId: service.id,
+      name: service.name,
     });
 
-    await prisma.service.delete({
-      where: { id },
+    await createAuditLog({
+      action: "DELETE",
+
+      entityType: "SERVICE",
+
+      entityId: service.id,
+
+      userId: session.user.id,
+
+      organizationId:
+        session.user.organizationId,
+
+      metadata: {
+        name: service.name,
+        status: service.status,
+      },
+    });
+
+    publish({
+      type: "SERVICE_DELETED",
+      id: service.id,
     });
 
     return NextResponse.json({
       success: true,
     });
-  }
 
-  catch (error) {
+  } catch (error) {
+
     logger.error({
       event: "SERVICE_DELETE_FAILED",
       error,
     });
 
     return NextResponse.json(
-      { error: "Failed to delete service" },
-      { status: 500 }
+      {
+        error: "Failed to delete service",
+      },
+      {
+        status: 500,
+      }
     );
+
   }
 }

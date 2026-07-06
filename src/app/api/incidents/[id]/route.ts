@@ -220,11 +220,24 @@ export async function PATCH(
       });
     }
 
-    await createAuditLog(
-      "UPDATE",
-      "INCIDENT",
-      incident.id
-    );
+    await createAuditLog({
+      action: "UPDATE",
+
+      entityType: "INCIDENT",
+
+      entityId: incident.id,
+
+      userId: session.user.id,
+
+      organizationId:
+        session.user.organizationId,
+
+      metadata: {
+        title: incident.title,
+        severity: incident.severity,
+        status: incident.status,
+      },
+    });
     
     publish({
       type: "INCIDENT_UPDATED",
@@ -257,18 +270,33 @@ export async function DELETE(
         event: "INCIDENT_DELETE_UNAUTHORIZED",
         userId: session?.user?.id,
       });
+
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 403 }
       );
     }
+
     const { id } = await params;
+
+    const incident = await prisma.incident.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
+    });
+
+    if (!incident) {
+      return NextResponse.json(
+        { error: "Incident not found" },
+        { status: 404 }
+      );
+    }
 
     await prisma.incident.update({
       where: {
         id,
       },
-
       data: {
         deletedAt: new Date(),
       },
@@ -276,24 +304,39 @@ export async function DELETE(
 
     logger.info({
       event: "INCIDENT_DELETED",
-      incidentId: id,
+      incidentId: incident.id,
       deletedBy: session.user.id,
     });
 
-    await createAuditLog(
-      "DELETE",
-      "INCIDENT",
-      id
-    );
+    await createAuditLog({
+      action: "DELETE",
+
+      entityType: "INCIDENT",
+
+      entityId: incident.id,
+
+      userId: session.user.id,
+
+      organizationId: session.user.organizationId,
+
+      metadata: {
+        title: incident.title,
+        severity: incident.severity,
+        status: incident.status,
+      },
+    });
 
     publish({
       type: "INCIDENT_DELETED",
-      id,
+      id: incident.id,
     });
+
     return NextResponse.json({
       success: true,
     });
+
   } catch (error) {
+
     logger.error({
       event: "INCIDENT_DELETE_FAILED",
       error,
@@ -303,5 +346,6 @@ export async function DELETE(
       { error: "Failed to delete incident" },
       { status: 500 }
     );
+
   }
 }

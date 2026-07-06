@@ -1,9 +1,10 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
-import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
-import { logger } from "./lib/logger";
+import bcrypt from "bcryptjs";
+
+import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -20,18 +21,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
 
       async authorize(credentials) {
+
         if (!credentials.email || !credentials.password) {
           logger.warn({
             event: "LOGIN_FAILED",
             reason: "MISSING_CREDENTIALS",
-          }); 
+          });
 
           return null;
         }
 
-        const user =await prisma.user.findUnique({
+        const user = await prisma.user.findUnique({
           where: {
             email: credentials.email as string,
+          },
+          include: {
+            organization: true,
           },
         });
 
@@ -45,11 +50,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
-        const validPassword =
-          await bcrypt.compare(
-            credentials.password as string,
-            user.password
-          );
+        const validPassword = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        );
 
         if (!validPassword) {
           logger.warn({
@@ -74,9 +78,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           email: user.email,
           role: user.role,
-          organizationId: user.organizationId
+          organizationId: user.organizationId,
+          organization: {
+            id: user.organization.id,
+            name: user.organization.name,
+            slug: user.organization.slug,
+          },
         };
-      }
+      },
     }),
   ],
 
@@ -89,37 +98,71 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
 
   callbacks: {
+
     async jwt({ token, user }) {
+
       if (user) {
+
         token.role = user.role;
+
         token.organizationId = user.organizationId;
+
+        token.organization = user.organization;
+
       }
 
-      if (!token.organizationId && token.email) {
+      if (token.email) {
+
         const dbUser = await prisma.user.findUnique({
           where: {
             email: token.email,
           },
-          select: {
-            organizationId: true,
+          include: {
+            organization: true,
           },
         });
 
-        if (dbUser) token.organizationId = dbUser.organizationId;
+        if (dbUser) {
+
+          token.role = dbUser.role;
+
+          token.organizationId = dbUser.organizationId;
+
+          token.organization = {
+            id: dbUser.organization.id,
+            name: dbUser.organization.name,
+            slug: dbUser.organization.slug,
+          };
+
+        }
 
       }
 
       return token;
+
     },
 
     async session({ session, token }) {
+
+      session.user.id = token.sub!;
+
       session.user.role =
         token.role as string;
 
       session.user.organizationId =
         token.organizationId as string;
 
+      session.user.organization =
+        token.organization as {
+          id: string;
+          name: string;
+          slug: string;
+        };
+
       return session;
+
     },
+
   },
+
 });
