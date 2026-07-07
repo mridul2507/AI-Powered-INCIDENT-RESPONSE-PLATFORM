@@ -91,6 +91,7 @@ export async function POST(req: Request) {
       data: {
         title: "New Incident",
         message: `${incident.title} has been created.`,
+        organizationId: incident.organizationId,
       },
     });
 
@@ -145,6 +146,7 @@ export async function POST(req: Request) {
       data: {
         title: "New Incident Created",
         message: incident.title,
+        organizationId: incident.organizationId,
       },
     });
 

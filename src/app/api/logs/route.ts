@@ -1,16 +1,31 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { publish } from "@/lib/events";
+import { getCurrentUser } from "@/lib/currentUser";
 
 export async function GET() {
-  const logs = await prisma.log.findMany({
-    include: {
-      service: true,
-    },
-    orderBy: {
-      timestamp: "desc",
-    },
-  });
+  const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
+    const logs = await prisma.log.findMany({
+      where: {
+        service: {
+          organizationId: currentUser.organizationId,
+        },
+      },
+      include: {
+        service: true,
+      },
+      orderBy: {
+        timestamp: "desc",
+      },
+    });
 
   return NextResponse.json(logs);
 }
@@ -18,6 +33,19 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
+    const service = await prisma.service.findUnique({
+      where: {
+        id: body.serviceId,
+      },
+    });
+
+    if (!service) {
+      return NextResponse.json(
+        { error: "Service not found" },
+        { status: 404 }
+      );
+    }
 
     const log = await prisma.log.create({
       data: {

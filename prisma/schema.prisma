@@ -9,18 +9,17 @@ datasource db {
 }
 
 model Organization {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  slug      String   @unique @default("temp-slug")
-  createdAt DateTime @default(now())
-
+  id            String         @id @default(cuid())
+  name          String         @unique
+  createdAt     DateTime       @default(now())
+  slug          String         @unique @default("temp-slug")
+  apiKeys       ApiKey[]
+  auditLogs     AuditLog[]
   incidents     Incident[]
+  metrics       Metric[]
+  notifications Notification[]
   services      Service[]
   users         User[]
-  apiKeys       ApiKey[]
-  metrics       Metric[]
-  auditLogs     AuditLog[]
-  notifications Notification[]
 }
 
 model User {
@@ -37,27 +36,25 @@ model User {
 }
 
 model Incident {
-  id                   String         @id @default(cuid())
+  id                   String          @id @default(cuid())
   title                String
   description          String?
   severity             Severity
   status               IncidentStatus
   organizationId       String
-  createdAt            DateTime       @default(now())
-  updatedAt            DateTime       @updatedAt
-  deletedAt            DateTime?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
   serviceId            String?
   aiDependencyAnalysis String?
-  aiLogAnalysis        String?
-  aiTimelineInsights   String?
   aiIncidentSummary    String?
+  aiLogAnalysis        String?
   aiRootCauseAnalysis  String?
-
-  escalated Boolean @default(false)
-
-  organization   Organization    @relation(fields: [organizationId], references: [id])
-  service        Service?        @relation(fields: [serviceId], references: [id])
-  timelineEvents TimelineEvent[]
+  aiTimelineInsights   String?
+  escalated            Boolean         @default(false)
+  deletedAt            DateTime?
+  organization         Organization    @relation(fields: [organizationId], references: [id])
+  service              Service?        @relation(fields: [serviceId], references: [id])
+  timelineEvents       TimelineEvent[]
 }
 
 model Service {
@@ -91,43 +88,31 @@ model Log {
 }
 
 model Metric {
-  id             String @id @default(cuid())
+  id             String       @id @default(cuid())
   serviceId      String
   organizationId String
-
   cpuUsage       Float?
   memoryUsage    Float?
   diskUsage      Float?
   responseTime   Float?
   requestsPerMin Int?
   errorRate      Float?
-
-  createdAt DateTime @default(now())
-
-  service      Service      @relation(fields: [serviceId], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  service        Service      @relation(fields: [serviceId], references: [id])
 }
 
 model AuditLog {
-  id String @id @default(cuid())
-
-  action String
-
-  entityType String
-
-  entityId String
-
-  metadata Json?
-
-  userId String?
-
+  id             String        @id @default(cuid())
+  action         String
+  userId         String?
+  createdAt      DateTime      @default(now())
+  entityId       String
+  entityType     String
+  metadata       Json?
   organizationId String?
-
-  createdAt DateTime @default(now())
-
-  user User? @relation(fields: [userId], references: [id])
-
-  organization Organization? @relation(fields: [organizationId], references: [id])
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  user           User?         @relation(fields: [userId], references: [id])
 
   @@index([createdAt])
   @@index([userId])
@@ -138,18 +123,13 @@ model AuditLog {
 }
 
 model Notification {
-  id String @id @default(cuid())
-
-  title   String
-  message String
-
-  isRead Boolean @default(false)
-
+  id             String       @id @default(cuid())
+  title          String
+  message        String
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
   organizationId String
-
-  createdAt DateTime @default(now())
-
-  organization Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
 
   @@index([organizationId])
 }
@@ -164,14 +144,13 @@ model TimelineEvent {
 }
 
 model ApiKey {
-  id             String    @id @default(cuid())
+  id             String       @id @default(cuid())
   name           String
-  hashedKey      String    @unique
+  hashedKey      String       @unique
   organizationId String
-  createdAt      DateTime  @default(now())
+  createdAt      DateTime     @default(now())
   lastUsedAt     DateTime?
-
-  organization Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
 }
 
 enum UserRole {

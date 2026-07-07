@@ -96,3 +96,45 @@ export async function GET(req: Request) {
     );
   }
 }
+
+export async function POST(req: Request) {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
+  const body = await req.json();
+
+  const service = await prisma.service.findUnique({
+    where: {
+      id: body.serviceId,
+    },
+  });
+
+  if (!service) {
+    return NextResponse.json(
+      { error: "Service not found" },
+      { status: 404 }
+    );
+  }
+
+  const metric = await prisma.metric.create({
+    data: {
+      serviceId: service.id,
+      organizationId: service.organizationId,
+
+      cpuUsage: body.cpuUsage,
+      memoryUsage: body.memoryUsage,
+      diskUsage: body.diskUsage,
+      responseTime: body.responseTime,
+      requestsPerMin: body.requestsPerMin,
+      errorRate: body.errorRate,
+    },
+  });
+
+  return NextResponse.json(metric);
+}

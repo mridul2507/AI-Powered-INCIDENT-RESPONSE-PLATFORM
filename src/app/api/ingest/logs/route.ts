@@ -85,6 +85,7 @@ export async function POST(req: Request) {
       data: {
         title: `${log.level} Log`,
         message: `${log.level}: ${log.message}`,
+        organizationId: validKey.organizationId,
       },
     });
 
@@ -93,6 +94,7 @@ export async function POST(req: Request) {
         action: "LOG_INGESTED",
         entityType: "Log",
         entityId: log.id,
+        organizationId: validKey.organizationId,
       },
     });
 

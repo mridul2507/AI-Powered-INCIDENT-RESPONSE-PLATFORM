@@ -11,7 +11,9 @@ export default auth((req: NextRequest & { auth: any }) => {
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/signup") ||
-    pathname.startsWith("/api/auth")
+    pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/signup") ||
+    pathname.startsWith("/api/ingest")
   ) {
     return NextResponse.next();
   }

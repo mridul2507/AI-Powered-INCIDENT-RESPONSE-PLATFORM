@@ -77,6 +77,7 @@ export async function POST(req: Request) {
         action: "METRIC_INGESTED",
         entityType: "Metric",
         entityId: metric.id,
+        organizationId: validKey.organizationId,
       },
     });
 
@@ -125,6 +126,7 @@ export async function POST(req: Request) {
           data: {
             title: "Incident Auto Resolved",
             message: `${incident.title} has returned to a healthy state.`,
+            organizationId: validKey.organizationId,
           },
         });
 
@@ -133,6 +135,7 @@ export async function POST(req: Request) {
             action: "AUTO_INCIDENT_RESOLVED",
             entityType: "Incident",
             entityId: incident.id,
+            organizationId: validKey.organizationId,
           },
         });
       }
@@ -182,6 +185,7 @@ export async function POST(req: Request) {
             action: "AUTO_INCIDENT_CREATED",
             entityType: "Incident",
             entityId: incident.id,
+            organizationId: validKey.organizationId,
           },
         });
 
@@ -189,6 +193,7 @@ export async function POST(req: Request) {
           data: {
             title: `${alert.severity} Metrics`,
             message: `${alert.title}: ${alert.description}`,
+            organizationId: validKey.organizationId,
           },
         });
 

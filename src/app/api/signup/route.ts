@@ -59,18 +59,21 @@ export async function POST(req: Request) {
       success: true,
     });
 
-  } catch (error) {
+  } catch (error: any) {
 
-    console.error(error);
+  console.error("SIGNUP ERROR");
+  console.error(error);
 
-    return NextResponse.json(
-      {
-        error: "Signup failed",
-      },
-      {
-        status: 500,
-      }
-    );
+  return NextResponse.json(
+    {
+      error:
+        error?.message ??
+        String(error),
+    },
+    {
+      status: 500,
+    }
+  );
 
-  }
+}
 }

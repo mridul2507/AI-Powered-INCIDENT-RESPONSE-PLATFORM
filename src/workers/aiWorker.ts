@@ -56,10 +56,24 @@ Keep response concise.
       },
     });
 
+    const incident = await prisma.incident.findUnique({
+      where: {
+        id,
+      },
+      select: {
+        organizationId: true,
+      },
+    });
+
+    if (!incident) {
+      throw new Error("Incident not found");
+    }
+
     await prisma.notification.create({
       data: {
         title: "AI Root Cause Ready",
         message: `${title} analysis completed.`,
+        organizationId: incident.organizationId,
       },
     });
   },

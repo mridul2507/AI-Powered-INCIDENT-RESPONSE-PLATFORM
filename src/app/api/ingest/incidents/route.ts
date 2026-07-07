@@ -84,6 +84,7 @@ export async function POST(req: Request) {
       data: {
         title: "External Incident",
         message: `${incident.title} received via API.`,
+        organizationId: validKey.organizationId,
       },
     });
 
@@ -92,6 +93,7 @@ export async function POST(req: Request) {
         action: "INCIDENT_CREATED",
         entityType: "Incident",
         entityId: incident.id,
+        organizationId: validKey.organizationId,
       },
     });
 
