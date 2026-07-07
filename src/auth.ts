@@ -3,10 +3,15 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 
+import authConfig from "./auth.config";
+
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+
+  ...authConfig,
+
   providers: [
 
     Google({
@@ -15,6 +20,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
 
     Credentials({
+
       credentials: {
         email: {},
         password: {},
@@ -22,7 +28,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       async authorize(credentials) {
 
-        if (!credentials.email || !credentials.password) {
+        if (!credentials?.email || !credentials?.password) {
+
           logger.warn({
             event: "LOGIN_FAILED",
             reason: "MISSING_CREDENTIALS",
@@ -32,15 +39,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const user = await prisma.user.findUnique({
+
           where: {
             email: credentials.email as string,
           },
+
           include: {
             organization: true,
           },
+
         });
 
         if (!user) {
+
           logger.warn({
             event: "LOGIN_FAILED",
             reason: "USER_NOT_FOUND",
@@ -51,11 +62,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const validPassword = await bcrypt.compare(
+
           credentials.password as string,
-          user.password
+
+          user.password,
+
         );
 
         if (!validPassword) {
+
           logger.warn({
             event: "LOGIN_FAILED",
             reason: "INVALID_PASSWORD",
@@ -74,28 +89,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         });
 
         return {
+
           id: user.id,
           name: user.name,
           email: user.email,
+
           role: user.role,
+
           organizationId: user.organizationId,
+
           organization: {
+
             id: user.organization.id,
+
             name: user.organization.name,
+
             slug: user.organization.slug,
+
           },
+
         };
+
       },
+
     }),
+
   ],
-
-  pages: {
-    signIn: "/login",
-  },
-
-  session: {
-    strategy: "jwt",
-  },
 
   callbacks: {
 
@@ -103,11 +122,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (user) {
 
-        token.role = user.role;
+        token.role = (user as any).role;
 
-        token.organizationId = user.organizationId;
+        token.organizationId = (user as any).organizationId;
 
-        token.organization = user.organization;
+        token.organization = (user as any).organization;
 
       }
 
@@ -119,8 +138,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       session.user.id = token.sub!;
 
-      session.user.role =
-        token.role as string;
+      session.user.role = token.role as string;
 
       session.user.organizationId =
         token.organizationId as string;
