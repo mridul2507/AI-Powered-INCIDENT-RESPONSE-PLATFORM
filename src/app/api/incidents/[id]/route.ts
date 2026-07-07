@@ -89,6 +89,7 @@ export async function PATCH(
         where: {
           id,
           deletedAt: null,
+          organizationId: session!.user.organizationId,
         },
 
         include: {
@@ -122,6 +123,7 @@ export async function PATCH(
         data: {
           title: "Status Changed",
           message: `${oldIncident.title}: ${oldIncident.status} → ${body.status}`,
+          organizationId: session.user.organizationId,
         },
       });
     }
@@ -142,6 +144,7 @@ export async function PATCH(
         data: {
           title: "Incident Resolved",
           message: `${oldIncident.title} has been resolved.`,
+          organizationId: session.user.organizationId,
         },
       });
     }
@@ -166,6 +169,7 @@ export async function PATCH(
         data: {
           title: "Severity Updated",
           message: `${oldIncident.title}: ${oldIncident.severity} → ${body.severity}`,
+          organizationId: session.user.organizationId,
         },
       });
     }
@@ -216,6 +220,7 @@ export async function PATCH(
           message: body.serviceId
             ? `Assigned to ${incident.service?.name}`
             : "Service unassigned",
+          organizationId: session.user.organizationId,
         },
       });
     }

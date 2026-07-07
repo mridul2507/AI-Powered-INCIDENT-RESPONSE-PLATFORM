@@ -30,6 +30,7 @@ async function checkEscalations() {
         data: {
           title: "ESCALATED INCIDENT",
           message: incident.title,
+          organizationId: incident.organizationId,
         },
       });
 
