@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import {canViewAuditLogs,} from "@/lib/roles";
 
 export async function GET(req: Request) {
   try {
@@ -8,7 +9,7 @@ export async function GET(req: Request) {
 
     if (
       !session ||
-      session.user.role !== "ADMIN"
+      !canViewAuditLogs(session.user.role)
     ) {
       return NextResponse.json(
         {

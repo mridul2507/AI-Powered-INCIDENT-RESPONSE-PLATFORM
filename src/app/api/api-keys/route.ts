@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/currentUser";
 import { prisma } from "@/lib/prisma";
-import { isAdmin } from "@/lib/roles";
-import {
-  generateApiKey,
-  hashApiKey,
-} from "@/lib/apiKeys";
+import {canManageApiKeys,} from "@/lib/roles";
+import {generateApiKey,  hashApiKey,} from "@/lib/apiKeys";
 
 export async function POST(req:Request) {
   try {
@@ -13,7 +10,7 @@ export async function POST(req:Request) {
 
     if (
       !currentUser ||
-      !isAdmin(currentUser.role)
+      !canManageApiKeys(currentUser.role)
     ) {
       return NextResponse.json(
         { error: "Unauthorized" },

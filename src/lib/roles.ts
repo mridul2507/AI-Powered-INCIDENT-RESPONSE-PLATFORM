@@ -40,3 +40,19 @@ export function canViewAuditLogs(role?: string) {
 export function canAccessSettings(role?: string) {
   return isAdmin(role);
 }
+
+export function canDeleteServices(role?: string) {
+  return isAdmin(role);
+}
+
+export function canDeleteIncidents(role?: string) {
+  return isAdmin(role);
+}
+
+export function canManageApiKeys(role?: string) {
+  return isAdmin(role);
+}
+
+export function canExport(role?: string) {
+  return isAdmin(role) || isEngineer(role);
+}

@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { canManageServices } from "@/lib/roles";
+import { canManageServices, canDeleteServices } from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
@@ -11,11 +11,20 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
     const { id } = await params;
 
-    const service = await prisma.service.findUnique({
+    const service = await prisma.service.findFirst({
       where: {
         id,
+        organizationId: session.user.organizationId,
       },
 
       include: {
@@ -101,9 +110,10 @@ export async function PATCH(
     const body = await req.json();
 
     const oldService =
-      await prisma.service.findUnique({
+      await prisma.service.findFirst({
         where: {
           id,
+          organizationId: session.user.organizationId,
         },
       });
 
@@ -198,11 +208,7 @@ export async function DELETE(
 
     const session = await auth();
 
-    if (
-      !session?.user?.role ||
-      !canManageServices(session.user.role)
-    ) {
-
+    if (!session?.user?.role ||  !canDeleteServices(session.user.role)) {
       logger.warn({
         event: "SERVICE_DELETE_UNAUTHORIZED",
         userId: session?.user?.id,
@@ -222,9 +228,10 @@ export async function DELETE(
     const { id } = await params;
 
     const service =
-      await prisma.service.findUnique({
+      await prisma.service.findFirst({
         where: {
           id,
+          organizationId: session.user.organizationId,
         },
       });
 

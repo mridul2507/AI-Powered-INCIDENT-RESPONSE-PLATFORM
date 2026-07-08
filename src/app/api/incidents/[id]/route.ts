@@ -1,5 +1,5 @@
 import { auth } from "@/auth";
-import { canManageIncidents } from "@/lib/roles";
+import {canManageIncidents,  canDeleteIncidents} from "@/lib/roles";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { createAuditLog } from "@/lib/audit";
@@ -11,12 +11,21 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const session = await auth();
+
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
     const { id } = await params;
 
     const incident = await prisma.incident.findFirst({
       where: {
         id,
         deletedAt: null,
+        organizationId: session.user.organizationId,
       },
       
       include: {
@@ -270,7 +279,7 @@ export async function DELETE(
   try {
     const session = await auth();
 
-    if (session?.user?.role !== "ADMIN") {
+    if (!session?.user?.role ||  !canDeleteIncidents(session.user.role)) {
       logger.warn({
         event: "INCIDENT_DELETE_UNAUTHORIZED",
         userId: session?.user?.id,
@@ -288,6 +297,7 @@ export async function DELETE(
       where: {
         id,
         deletedAt: null,
+        organizationId: session.user.organizationId,
       },
     });
 

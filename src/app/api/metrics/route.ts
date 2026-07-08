@@ -122,6 +122,13 @@ export async function POST(req: Request) {
     );
   }
 
+  if (service.organizationId !==  currentUser.organizationId) {
+    return NextResponse.json(
+      { error: "Forbidden" },
+      { status: 403 }
+    );
+  }
+
   const metric = await prisma.metric.create({
     data: {
       serviceId: service.id,

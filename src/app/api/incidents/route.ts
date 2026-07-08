@@ -10,8 +10,18 @@ import { logger } from "@/lib/logger";
 import { trace } from "@opentelemetry/api";
 
 export async function GET() {
+  const session = await auth();
+
+  if (!session) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+
   const incidents = await prisma.incident.findMany({
     where: {
+      organizationId: session.user.organizationId,
       deletedAt: null,
     },
     include: {

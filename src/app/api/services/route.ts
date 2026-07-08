@@ -8,7 +8,21 @@ import { logger } from "@/lib/logger";
 
 export async function GET() {
   try {
+    const session = await auth();
+
+    if (!session) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+
     const services = await prisma.service.findMany({
+      where: {
+        organizationId:
+          session.user.organizationId,
+      },
+      
       orderBy: {
         createdAt: "desc",
       },

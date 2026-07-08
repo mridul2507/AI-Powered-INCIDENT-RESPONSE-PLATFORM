@@ -32,6 +32,14 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const currentUser = await getCurrentUser();
+
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
     const body = await req.json();
 
     const service = await prisma.service.findUnique({
@@ -44,6 +52,13 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Service not found" },
         { status: 404 }
+      );
+    }
+
+    if (service.organizationId !==  currentUser.organizationId) {
+      return NextResponse.json(
+        { error: "Forbidden" },
+        { status: 403 }
       );
     }
 

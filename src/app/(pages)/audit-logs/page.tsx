@@ -164,7 +164,7 @@ export default function AuditLogsPage() {
               >
                 <div>
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold inline-block text-center w-24 ${
+                    className={`px-3 py-1 rounded-full text-xs font-semibold inline-block text-center w-fit ${
                       log.action === "CREATE"
                         ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
                         : log.action === "UPDATE"

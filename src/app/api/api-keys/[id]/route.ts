@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/currentUser";
 import { prisma } from "@/lib/prisma";
-import { isAdmin } from "@/lib/roles";
+import { canManageApiKeys } from "@/lib/roles";
 
 export async function DELETE(
   req: Request,
@@ -12,7 +12,7 @@ export async function DELETE(
 
     if (
       !currentUser ||
-      !isAdmin(currentUser.role)
+      !canManageApiKeys(currentUser.role)
     ) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -22,9 +22,10 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const apiKey = await prisma.apiKey.findUnique({
+    const apiKey = await prisma.apiKey.findFirst({
       where: {
         id,
+        organizationId: currentUser.organizationId,
       },
     });
 
@@ -35,20 +36,6 @@ export async function DELETE(
         },
         {
           status: 404,
-        }
-      );
-    }
-
-    if (
-      apiKey.organizationId !==
-      currentUser.organizationId
-    ) {
-      return NextResponse.json(
-        {
-          error: "Forbidden",
-        },
-        {
-          status: 403,
         }
       );
     }
