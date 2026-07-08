@@ -1,15 +1,22 @@
-import { NextResponse } from "next/server";
-import { queryPrometheusValue } from "@/lib/prometheus";
+import { auth } from "@/auth"
+import { prisma } from "@/lib/prisma"
+import { NextResponse } from "next/server"
 
 export async function GET() {
   try {
-    const [cpu, memory] = await Promise.all([
-      queryPrometheusValue('rate(process_cpu_seconds_total{job="ir-assist"}[5m]) * 100'),
-      queryPrometheusValue('process_resident_memory_bytes{job="ir-assist"} / 1024 / 1024'),
-    ]);
-    return NextResponse.json({ cpu, memory });
+    const session = await auth()
+    if (!session) return NextResponse.json({ cpu: 0, memory: 0 })
+
+    const latest = await prisma.metric.findFirst({
+      where: { organizationId: session.user.organizationId },
+      orderBy: { createdAt: "desc" },
+    })
+
+    return NextResponse.json({
+      cpu: latest?.cpuUsage ?? 0,
+      memory: latest?.memoryUsage ?? 0,
+    })
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ cpu: 0, memory: 0 })
   }
 }
