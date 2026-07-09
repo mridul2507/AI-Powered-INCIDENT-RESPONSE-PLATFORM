@@ -18,6 +18,8 @@ import {
   History,
   KeyRound,
   Activity,
+  Cpu,
+  Gauge,
 } from "lucide-react";
 import { isAdmin } from "@/lib/roles";
 
@@ -55,6 +57,11 @@ const generalItems = [
 ];
 
 const systemItems = [
+  {
+    title: "Monitoring",
+    icon: Gauge,
+    href: "/monitoring",
+  },
   {
     title: "Audit Logs",
     icon: History,
