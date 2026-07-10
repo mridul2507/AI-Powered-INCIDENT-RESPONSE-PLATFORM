@@ -16,7 +16,7 @@ export async function GET() {
       cpu: latest?.cpuUsage ?? 0,
       memory: latest?.memoryUsage ?? 0,
     })
-  } catch (error) {
+  } catch{
     return NextResponse.json({ cpu: 0, memory: 0 })
   }
 }

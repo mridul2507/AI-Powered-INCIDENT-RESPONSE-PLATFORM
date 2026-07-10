@@ -9,6 +9,7 @@ import MetricsFilters from "@/components/MetricsFilters";
 
 import PerformanceTimelineChart from "@/components/PerformanceTimelineChart";
 import TrafficHealthChart from "@/components/TrafficHealthChart";
+import { useCallback } from "react";
 
 type Metric = {
   id: string;
@@ -43,11 +44,7 @@ export default function MetricsPage() {
 
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchMetrics();
-  }, [selectedService, selectedRange]);
-
-  async function fetchMetrics() {
+  const fetchMetrics = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -60,18 +57,25 @@ export default function MetricsPage() {
         `/api/metrics?${params}`
       );
 
-      const data = await res.json();
+      const data: {
+        metrics: Metric[];
+        services: Service[];
+      } = await res.json();
 
-      setMetrics(data.metrics);
+      setMetrics(data.metrics ?? []);
 
-      setServices(data.services);
+      setServices(data.services ?? []);
 
     } catch (error) {
       console.error(error);
     } finally {
       setLoading(false);
     }
-  }
+  }, [selectedService, selectedRange]);
+
+  useEffect(() => {
+    fetchMetrics();
+  }, [fetchMetrics]);
 
   const latestMetric =
     metrics.length > 0

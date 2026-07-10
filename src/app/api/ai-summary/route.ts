@@ -72,7 +72,7 @@ Keep everything concise.
       summary,
     });
 
-  } catch (error) {
+  } catch {
 
     return NextResponse.json(
       {

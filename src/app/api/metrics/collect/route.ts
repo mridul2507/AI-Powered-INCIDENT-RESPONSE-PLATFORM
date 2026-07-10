@@ -5,7 +5,7 @@ export async function GET() {
   try {
     await collectAndStoreMetrics()
     return NextResponse.json({ success: true })
-  } catch (error) {
+  } catch{
     return NextResponse.json({ error: 'Failed to collect metrics' }, { status: 500 })
   }
 }

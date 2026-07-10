@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import {canViewAuditLogs,} from "@/lib/roles";
+import { Prisma } from "@prisma/client";
 
 export async function GET(req: Request) {
   try {
@@ -22,31 +23,14 @@ export async function GET(req: Request) {
     }
 
     const { searchParams } = new URL(req.url);
-
-    const page = Number(
-      searchParams.get("page") ?? "1"
-    );
-
-    const limit = Number(
-      searchParams.get("limit") ?? "20"
-    );
-
-    const search =
-      searchParams.get("search") ?? "";
-
-    const action =
-      searchParams.get("action") ?? "ALL";
-
-    const from =
-      searchParams.get("from");
-
-    const to =
-      searchParams.get("to");
-
-    const skip =
-      (page - 1) * limit;
-
-    const where: any = {
+    const page = Number(searchParams.get("page") ?? "1");
+    const limit = Number(searchParams.get("limit") ?? "20");
+    const search = searchParams.get("search") ?? "";
+    const action = searchParams.get("action") ?? "ALL";
+    const from = searchParams.get("from");
+    const to = searchParams.get("to");
+    const skip = (page - 1) * limit;
+    const where: Prisma.AuditLogWhereInput = {
       organizationId:
         session.user.organizationId,
     };
@@ -135,7 +119,11 @@ export async function GET(req: Request) {
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      error instanceof Error
+        ? error.message
+        : error
+    );
 
     return NextResponse.json(
       {

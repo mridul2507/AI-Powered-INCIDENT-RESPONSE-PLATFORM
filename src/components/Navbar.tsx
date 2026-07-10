@@ -8,10 +8,18 @@ import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
 
+type Notification = {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+};
+
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -45,7 +53,7 @@ export default function Navbar() {
 
     async function fetchNotifications() {
       const res = await fetch("/api/notifications");
-      const data = await res.json();
+      const data: Notification[] = await res.json();
       setNotifications(data);
     }
 

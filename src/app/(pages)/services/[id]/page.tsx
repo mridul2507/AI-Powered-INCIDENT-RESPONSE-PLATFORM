@@ -105,7 +105,7 @@ export default function ServiceDetailsPage() {
     try {
       setAnalyzingServices(true);
 
-      const res = await fetch(
+      await fetch(
         "/api/ai-service-health",
         {
           method: "POST",

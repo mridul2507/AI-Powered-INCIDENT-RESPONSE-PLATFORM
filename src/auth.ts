@@ -8,6 +8,16 @@ import authConfig from "./auth.config";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
 
+type SessionUser = {
+  role: string;
+  organizationId: string;
+  organization: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+};
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
 
   ...authConfig,
@@ -122,11 +132,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       if (user) {
 
-        token.role = (user as any).role;
+        token.role = (user as SessionUser).role;
 
-        token.organizationId = (user as any).organizationId;
+        token.organizationId = (user as SessionUser).organizationId;
 
-        token.organization = (user as any).organization;
+        token.organization = (user as SessionUser).organization;
 
       }
 

@@ -4,11 +4,18 @@ import { useState, useEffect } from "react";
 import { KeyRound, Copy, Check } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 
+type ApiKey = {
+  id: string;
+  name: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+};
+
 export default function ApiKeysPage() {
   const [apiKey, setApiKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [keys, setKeys] = useState<any[]>([]);
+  const [keys, setKeys] = useState<ApiKey[]>([]);
   const [keyName, setKeyName] = useState("");
   
   useEffect(() => {

@@ -18,7 +18,6 @@ import {
   History,
   KeyRound,
   Activity,
-  Cpu,
   Gauge,
 } from "lucide-react";
 import { isAdmin } from "@/lib/roles";

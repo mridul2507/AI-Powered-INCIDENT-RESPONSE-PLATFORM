@@ -13,6 +13,11 @@ type Incident = {
   serviceId: string | null;
 };
 
+type Service = {
+  id: string;
+  name: string;
+};
+
 export default function EditIncidentPage() {
   const params = useParams();
   const router = useRouter();
@@ -25,7 +30,7 @@ export default function EditIncidentPage() {
   const [severity, setSeverity] = useState<Incident["severity"]>("INFO");
   const [status, setStatus] = useState<Incident["status"]>("OPEN");
   const [serviceId, setServiceId] = useState("");
-  const [services, setServices] = useState<any[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
 
   useEffect(() => {
     async function fetchIncident() {
@@ -33,7 +38,7 @@ export default function EditIncidentPage() {
         `/api/incidents/${params.id}`
       );
 
-      const data = await res.json();
+      const data: Incident = await res.json();
 
       setTitle(data.title);
       setDescription(data.description || "");
@@ -42,7 +47,7 @@ export default function EditIncidentPage() {
       setServiceId(data.serviceId || "");
       
       const servicesRes = await fetch("/api/services");
-      const servicesData = await servicesRes.json();
+      const servicesData: Service[] = await servicesRes.json();
 
       setServices(servicesData);
       setLoading(false);

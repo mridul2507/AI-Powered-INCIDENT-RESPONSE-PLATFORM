@@ -7,14 +7,20 @@ import {
   ReactNode,
 } from "react";
 
+type IncidentPayload = {
+  id: string;
+  title?: string;
+  serviceId?: string;
+};  
+
 type IncidentEvent =
   | {
       type: "INCIDENT_CREATED";
-      incident: any;
+      incident: IncidentPayload;
     }
   | {
       type: "INCIDENT_UPDATED";
-      incident: any;
+      incident: IncidentPayload;
     }
   | {
       type: "INCIDENT_DELETED";

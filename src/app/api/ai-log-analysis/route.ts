@@ -62,7 +62,7 @@ Keep the response concise.
       analysis,
     });
 
-  } catch (error) {
+  } catch{
 
     return NextResponse.json(
       {

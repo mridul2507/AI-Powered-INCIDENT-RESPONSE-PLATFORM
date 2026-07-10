@@ -7,21 +7,57 @@ type Health = {
   status: string;
 };
 
+type Metrics = {
+  services: number;
+  incidents: number;
+  logs: number;
+  notifications: number;
+  latency: number;
+  uptime: {
+    days: number;
+    hours: number;
+    minutes: number;
+  };
+};
+
+type Latency = {
+  latency: number;
+};
+
+type WorkerMetrics = {
+  active: number;
+  waiting: number;
+  completed: number;
+  failed: number;
+  delayed: number;
+};
+
+type QueueStatus = {
+  status: string;
+  queue: WorkerMetrics;
+};
+
+type Alerts = {
+  healthy: boolean;
+  alerts: string[];
+};
+
 export default function MonitoringPage() {
   const [database, setDatabase] = useState<Health>();
   const [redis, setRedis] = useState<Health>();
-  const [worker, setWorker] = useState<any>();
+  const [worker, setWorker] = useState<QueueStatus>();
   const [ai, setAi] = useState<Health>();
-  const [metrics, setMetrics] = useState<any>();
-  const [databaseLatency, setDatabaseLatency] = useState<any>();
-  const [redisLatency, setRedisLatency] = useState<any>();
-  const [workerMetrics, setWorkerMetrics] = useState<any>();
-  const [alerts, setAlerts] = useState<any>();
+  const [metrics, setMetrics] = useState<Metrics>();
+  const [databaseLatency, setDatabaseLatency] = useState<Latency>();
+  const [redisLatency, setRedisLatency] = useState<Latency>();
+  const [workerMetrics, setWorkerMetrics] = useState<WorkerMetrics>();
+  const [alerts, setAlerts] = useState<Alerts>();
   const [lastRefresh, setLastRefresh] = useState("");
 
   async function load() {
     try {
         const [healthDb,healthRedis,healthWorker,healthAi,monitoring,dbLatency,redisLatency,workerStats,alertData,
+        ]: [Health,Health,QueueStatus,Health,Metrics,Latency,Latency,WorkerMetrics,Alerts
         ] = await Promise.all([
         fetch("/api/health").then((r) => r.json()),
         fetch("/api/health/redis").then((r) => r.json()),

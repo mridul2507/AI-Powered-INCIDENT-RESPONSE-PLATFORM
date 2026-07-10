@@ -6,6 +6,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useIncidentEventContext } from "@/context/IncidentEventsContext";
+import { useCallback } from "react";
 
 type AuditLog = {
   id: string;
@@ -13,7 +14,7 @@ type AuditLog = {
   entityType: string;
   entityId: string;
   createdAt: string;
-  metadata: any;
+  metadata: Record<string, unknown> | null;
   user?: {
     id: string;
     name: string | null;
@@ -35,7 +36,7 @@ export default function AuditLogsPage() {
   const router = useRouter();
   const { lastEvent } = useIncidentEventContext();
 
-  async function fetchLogs() {
+  const fetchLogs = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams({
       page: String(page),
@@ -47,12 +48,16 @@ export default function AuditLogsPage() {
     });
 
     const res = await fetch(`/api/audit-logs?${params}`);
-    const data = await res.json();
+
+    const data: {
+      logs: AuditLog[];
+      pages: number;
+    } = await res.json();
 
     setLogs(data.logs);
     setPages(data.pages);
     setLoading(false);
-  }
+  }, [page, search, actionFilter, from, to]);
 
   useEffect(() => {
     if (session && session.user.role !== "ADMIN") {
@@ -65,8 +70,8 @@ export default function AuditLogsPage() {
   }, [search, actionFilter, from, to]);
 
   useEffect(() => {
-    fetchLogs();
-  }, [page, search, actionFilter, from, to]);
+    void fetchLogs();
+  }, [fetchLogs]);
 
   useEffect(() => {
     if (!lastEvent) return;
@@ -80,7 +85,7 @@ export default function AuditLogsPage() {
       default:
         break;
     }
-  }, [lastEvent]);
+  }, [lastEvent,fetchLogs]);
 
   return (
     <div className="bg-white dark:bg-emerald-950 min-h-screen p-8 w-full mx-auto">

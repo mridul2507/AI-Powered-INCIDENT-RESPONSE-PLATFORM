@@ -32,7 +32,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Create organization
     const organization =
       await prisma.organization.create({
         data: {
@@ -40,11 +39,8 @@ export async function POST(req: Request) {
         },
       });
 
-    // Hash password
-    const hashedPassword =
-      await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create first admin user
     await prisma.user.create({
       data: {
         name,
@@ -59,7 +55,7 @@ export async function POST(req: Request) {
       success: true,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
 
   console.error("SIGNUP ERROR");
   console.error(error);
@@ -67,8 +63,9 @@ export async function POST(req: Request) {
   return NextResponse.json(
     {
       error:
-        error?.message ??
-        String(error),
+        error instanceof Error
+          ? error.message
+          : String(error),
     },
     {
       status: 500,

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/currentUser";
+import { Prisma } from "@prisma/client";
 
 export async function GET(req: Request) {
   try {
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
     const serviceId = searchParams.get("serviceId");
     const range = searchParams.get("range");
 
-    const where: any = {
+    const where: Prisma.MetricWhereInput = {
       organizationId: currentUser.organizationId,
     };
 
@@ -84,7 +85,11 @@ export async function GET(req: Request) {
     });
 
   } catch (error) {
-    console.error(error);
+    console.error(
+      error instanceof Error
+        ? error.message
+        : error
+    );
 
     return NextResponse.json(
       {

@@ -40,9 +40,11 @@ type Incident = {
   updatedAt: string;
 };
 
-type TimelineEvent={
+type TimelineEvent = {
+  id: string;
   type: string;
   message: string;
+  createdAt: string;
 };
 
 export default function IncidentDetailsPage() {
@@ -53,7 +55,7 @@ export default function IncidentDetailsPage() {
 
   const [incident, setIncident] = useState<Incident | null>(null);
   const [loading, setLoading] = useState(true);
-  const [timeline, setTimeline] = useState<any[]>([]);
+  const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [mttr, setMttr] = useState<string | null>(null);
 
   const [analysis, setAnalysis] = useState("");
@@ -134,7 +136,7 @@ export default function IncidentDetailsPage() {
       }
       if(!incident) return
       setAnalyzing(true);
-        const res = await fetch("/api/ai-analysis",
+        await fetch("/api/ai-analysis",
           {
             method: "POST",
 
@@ -197,7 +199,7 @@ export default function IncidentDetailsPage() {
       }
         setAnalyzingLogs(true);
 
-        const res = await fetch(
+        await fetch(
           "/api/ai-log-analysis",
           {
             method: "POST",
@@ -260,7 +262,7 @@ export default function IncidentDetailsPage() {
         }
         setSummarizing(true);
 
-        const res = await fetch(
+        await fetch(
           "/api/ai-summary",
           {
             method: "POST",
@@ -326,7 +328,7 @@ export default function IncidentDetailsPage() {
         }
         setAnalyzingTimeline(true);
 
-        const res = await fetch(
+        await fetch(
           "/api/ai-timeline",
           {
             method: "POST",
@@ -391,7 +393,7 @@ export default function IncidentDetailsPage() {
 
         setAnalyzingDependencies(true);
 
-        const res = await fetch(
+        await fetch(
           "/api/ai-service-dependency",
           {
             method: "POST",

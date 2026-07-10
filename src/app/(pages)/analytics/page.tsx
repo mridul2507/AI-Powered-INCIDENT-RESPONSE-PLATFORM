@@ -63,7 +63,7 @@ export default function AnalyticsPage(){
   if (executiveReport && !force) return;
   try {
     setGeneratingReport(true);
-    const res = await fetch(
+    await fetch(
       "/api/ai-executive-report",
       {
         method: "POST",
@@ -115,7 +115,7 @@ export default function AnalyticsPage(){
 
     try{
       setAnalyzingInsights(true);
-      const res=await fetch(
+      await fetch(
         "/api/ai-analytics-insights",
         {
           method:"POST",
