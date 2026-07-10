@@ -1,0 +1,60 @@
+name: IR Assist CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Type Check
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: "postgresql://neondb_owner:npg_AFKkh5a6Btps@ep-ancient-mode-aohxd9mw-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+          AUTH_SECRET: "cbf0dae2b3869eef365e2cea217569663f2c531286e02ada3f6d9235b0597539"
+          AUTH_URL: http://localhost:3000
+          GOOGLE_CLIENT_ID: test
+          GOOGLE_CLIENT_SECRET: test
+          GEMINI_API_KEY: test
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          REDIS_PASSWORD: test
+          RESEND_API_KEY: test
+          SLACK_WEBHOOK_URL: https://example.com
+          PROMETHEUS_URL: http://localhost:9090
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
+          OTEL_EXPORTER_OTLP_HEADERS: test
+          GRAFANA_CLOUD_API_TOKEN: test
+          GRAFANA_TEMPO_AUTHORIZATION: test
+          GRAFANA_PROMETHEUS_TOKEN: test
+          GRAFANA_SERVICE_TOKEN: test
