@@ -18,87 +18,96 @@ export async function GET() {
     const organizationId =
       session.user.organizationId;
 
-    const totalServices =
-      await prisma.service.count({
+    const [totalServices,healthyServices,activeIncidents,criticalAlerts,warningAlerts,infoAlerts,resolvedIncidents,
+    ] = await Promise.all([
+      prisma.service.count({
         where: {
           organizationId,
         },
-      });
+      }),
 
-    const healthyServices =
-      await prisma.service.count({
+      prisma.service.count({
         where: {
           organizationId,
           status: "HEALTHY",
         },
-      });
+      }),
 
-    const activeIncidents =
-      await prisma.incident.count({
+      prisma.incident.count({
         where: {
           organizationId,
           deletedAt: null,
           status: {
-            in: [
-              "OPEN",
-              "INVESTIGATING",
-            ],
+            in: ["OPEN", "INVESTIGATING"],
           },
         },
-      });
+      }),
 
-    const criticalAlerts =
-      await prisma.incident.count({
+      prisma.incident.count({
         where: {
           organizationId,
           deletedAt: null,
           severity: "CRITICAL",
         },
-      });
+      }),
 
-    const warningAlerts =
-      await prisma.incident.count({
+      prisma.incident.count({
         where: {
           organizationId,
           deletedAt: null,
           severity: "WARNING",
         },
-      });
+      }),
 
-    const infoAlerts =
-      await prisma.incident.count({
+      prisma.incident.count({
         where: {
           organizationId,
           deletedAt: null,
           severity: "INFO",
         },
-      });
+      }),
 
-    const resolvedIncidents =
-      await prisma.incident.count({
+      prisma.incident.count({
         where: {
           organizationId,
           deletedAt: null,
           status: "RESOLVED",
         },
-      });
+      }),
+    ]);
 
-    const resolvedEvents =
-      await prisma.timelineEvent.findMany({
+    const [resolvedEvents, latestMetric] =
+      await Promise.all([
 
-        where: {
-          type: "RESOLVED",
+        prisma.timelineEvent.findMany({
 
-          incident: {
+          where: {
+            type: "RESOLVED",
+
+            incident: {
+              organizationId,
+            },
+          },
+
+          include: {
+            incident: true,
+          },
+
+        }),
+
+        prisma.metric.findFirst({
+
+          where: {
             organizationId,
           },
-        },
 
-        include: {
-          incident: true,
-        },
+          orderBy: {
+            createdAt: "desc",
+          },
 
-      });
+        }),
+
+      ]);
 
     let averageMttr = "--";
 
@@ -144,19 +153,6 @@ export async function GET() {
           : `${minutes}m`;
 
     }
-
-    const latestMetric =
-      await prisma.metric.findFirst({
-
-        where: {
-          organizationId,
-        },
-
-        orderBy: {
-          createdAt: "desc",
-        },
-
-      });
 
     return NextResponse.json({
 

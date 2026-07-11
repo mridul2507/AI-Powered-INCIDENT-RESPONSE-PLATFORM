@@ -24,8 +24,22 @@ export async function GET() {
       organizationId: session.user.organizationId,
       deletedAt: null,
     },
-    include: {
-      service: true,
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      severity: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+
+      service: {
+        select: {
+          id: true,
+          name: true,
+          status: true,
+        },
+      },
     },
 
     orderBy: {

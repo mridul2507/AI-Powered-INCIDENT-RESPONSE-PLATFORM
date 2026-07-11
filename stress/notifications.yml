@@ -1,0 +1,11 @@
+config:
+  target: "{{ $processEnvironment.BASE_URL }}"
+  phases:
+    - duration: 60
+      arrivalRate: 15
+
+scenarios:
+  - name: Notifications
+    flow:
+      - get:
+          url: "/api/notifications"

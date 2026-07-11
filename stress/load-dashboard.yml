@@ -1,0 +1,27 @@
+config:
+  target: "{{ $processEnvironment.BASE_URL }}"
+
+  phases:
+    - duration: 120
+      arrivalRate: 5
+      rampTo: 30
+      name: Normal Dashboard Load
+
+scenarios:
+  - name: Dashboard User
+
+    flow:
+      - get:
+          url: "/dashboard"
+
+      - get:
+          url: "/api/dashboard/stats"
+
+      - get:
+          url: "/api/services"
+
+      - get:
+          url: "/api/incidents"
+
+      - get:
+          url: "/api/notifications"

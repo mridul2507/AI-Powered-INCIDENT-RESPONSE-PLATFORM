@@ -1,0 +1,21 @@
+config:
+  target: "{{ $processEnvironment.BASE_URL }}"
+
+  phases:
+    - duration: 120
+      arrivalRate: 10
+      rampTo: 50
+      name: Services
+
+scenarios:
+  - name: Service Flow
+
+    flow:
+      - get:
+          url: "/services"
+
+      - get:
+          url: "/api/services"
+
+      - get:
+          url: "/api/dashboard/stats"

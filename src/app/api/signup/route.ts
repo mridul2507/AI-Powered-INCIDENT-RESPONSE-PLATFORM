@@ -13,7 +13,6 @@ export async function POST(req: Request) {
       password,
     } = body;
 
-    // Check existing user
     const existingUser =
       await prisma.user.findUnique({
         where: {

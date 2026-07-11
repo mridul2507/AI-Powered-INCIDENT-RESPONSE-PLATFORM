@@ -27,13 +27,28 @@ export async function GET() {
         createdAt: "desc",
       },
 
-      include: {
+      select: {
+        id: true,
+        name: true,
+        status: true,
+        availability: true,
+        responseTime: true,
+        requestsPerMin: true,
+        createdAt: true,
+
         incidents: {
+          take: 1,
+
           orderBy: {
             createdAt: "desc",
           },
 
-          take: 1,
+          select: {
+            id: true,
+            severity: true,
+            status: true,
+            createdAt: true,
+          },
         },
       },
     });

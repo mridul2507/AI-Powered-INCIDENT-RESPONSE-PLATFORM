@@ -1,0 +1,45 @@
+config:
+  target: "{{ $processEnvironment.BASE_URL }}"
+
+  phases:
+    - duration: 180
+      arrivalRate: 10
+      rampTo: 50
+      name: Full IR Assist Load
+
+scenarios:
+  - name: Complete User Journey
+
+    flow:
+      - get:
+          url: "/dashboard"
+
+      - get:
+          url: "/api/dashboard/stats"
+
+      - get:
+          url: "/api/services"
+
+      - get:
+          url: "/api/incidents"
+
+      - get:
+          url: "/api/logs"
+
+      - get:
+          url: "/api/notifications"
+
+      - get:
+          url: "/api/metrics"
+
+      - get:
+          url: "/api/health"
+
+      - get:
+          url: "/api/health/worker"
+
+      - get:
+          url: "/api/health/redis"
+
+      - get:
+          url: "/api/health/ai"

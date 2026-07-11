@@ -19,8 +19,19 @@ export async function GET() {
           organizationId: currentUser.organizationId,
         },
       },
-      include: {
-        service: true,
+      select: {
+        id: true,
+        timestamp: true,
+        level: true,
+        message: true,
+
+        service: {
+          select: {
+            id: true,
+            name: true,
+            status: true,
+          },
+        },
       },
       orderBy: {
         timestamp: "desc",

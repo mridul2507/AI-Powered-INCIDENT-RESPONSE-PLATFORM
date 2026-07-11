@@ -1,0 +1,24 @@
+config:
+  target: "{{ $processEnvironment.BASE_URL }}"
+
+  phases:
+    - duration: 120
+      arrivalRate: 2
+      rampTo: 10
+      name: AI Users
+
+scenarios:
+  - name: AI
+
+    flow:
+      - get:
+          url: "/api/health/ai"
+
+      - get:
+          url: "/api/ai-dashboard"
+
+      - get:
+          url: "/api/ai-summary"
+
+      - get:
+          url: "/api/ai-service-health"

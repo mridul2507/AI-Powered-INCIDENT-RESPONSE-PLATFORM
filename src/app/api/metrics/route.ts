@@ -57,8 +57,23 @@ export async function GET(req: Request) {
     const [metrics, services] = await Promise.all([
       prisma.metric.findMany({
         where,
-        include: {
-          service: true,
+        select: {
+          id: true,
+          cpuUsage: true,
+          memoryUsage: true,
+          diskUsage: true,
+          responseTime: true,
+          requestsPerMin: true,
+          errorRate: true,
+          createdAt: true,
+
+          service: {
+            select: {
+              id: true,
+              name: true,
+              status: true,
+            },
+          },
         },
         orderBy: {
           createdAt: "desc",

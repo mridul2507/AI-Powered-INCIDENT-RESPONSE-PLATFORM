@@ -36,15 +36,12 @@ function log(
 ) {
   const entry = typeof data === "string" ? { msg: data } : data;
 
-  // Always write to stdout (visible in Vercel function logs)
   console.log(JSON.stringify({ level, time: new Date().toISOString(), ...entry }));
 
-  // Push to Loki — waitUntil keeps the function alive until fetch completes
   if (process.env.GRAFANA_CLOUD_API_TOKEN) {
     try {
       waitUntil(pushToLoki(level, entry));
     } catch {
-      // local dev — waitUntil not available, ignore
     }
   }
 }
