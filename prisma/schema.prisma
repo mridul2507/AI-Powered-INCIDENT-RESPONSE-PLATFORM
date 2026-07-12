@@ -20,6 +20,26 @@ model Organization {
   notifications Notification[]
   services      Service[]
   users         User[]
+
+  timezone String @default("UTC")
+  language String @default("English")
+  emailAlerts Boolean @default(true)
+  slackAlerts Boolean @default(true)
+  smsAlerts Boolean @default(false)
+  criticalAlerts Boolean @default(true)
+  warningAlerts Boolean @default(true)
+  infoAlerts Boolean @default(false)
+  rootCauseAnalysis Boolean @default(true)
+  anomalyDetection Boolean @default(true)
+  autoAssign Boolean @default(true)
+  autoEscalation Boolean @default(true)
+  autoResolution Boolean @default(false)
+  slackIntegration Boolean @default(false)
+  pagerDutyIntegration Boolean @default(false)
+  jiraIntegration Boolean @default(false)
+  twoFactor Boolean @default(false)
+  sessionTimeout Boolean @default(true)
+  auditRetention String @default("90 Days")
 }
 
 model User {
@@ -194,3 +214,4 @@ enum ServiceStatus {
   WARNING
   CRITICAL
 }
+ 

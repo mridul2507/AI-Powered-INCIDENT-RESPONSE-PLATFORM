@@ -92,7 +92,7 @@ export default function EditIncidentPage() {
 
   if (loading) {
     return (
-      <div className=" min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl text-green-700">
           Loading incident...
         </div>

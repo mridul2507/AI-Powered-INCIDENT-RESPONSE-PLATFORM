@@ -1,51 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
-function Toggle({
-  enabled,
-  onToggle,
-}: {
-  enabled: boolean;
-  onToggle: () => void;
-}) {
-  return (
-
-    <button
-      onClick={onToggle}
-      className={`
-        relative
-        w-12
-        h-6
-        rounded-full
-        transition-all
-        duration-300
-        ${enabled ? "bg-green-500" : "bg-gray-300"}
-      `}
-    >
-      <div
-        className={`
-          absolute
-          top-1
-          w-4
-          h-4
-          bg-white dark:bg-emerald-950
-          rounded-full
-          shadow-sm
-          transition-all
-          duration-300
-          ${enabled ? "left-7" : "left-1"}
-        `}
-      />
-    </button>
-  );
-}
+import SettingsHeader from "@/components/settings/SettingsHeader";
+import SettingsSidebar from "@/components/settings/SettingsSidebar";
+import Toggle from "@/components/settings/Toggle";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("notifications");
+  const [activeTab, setActiveTab] = useState("general");
+  const [orgName, setOrgName] = useState("IR Assist");
+  const [orgSlug, setOrgSlug] = useState("ir-assist");
+
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (session?.user) {
+      setFullName(session.user.name ?? "");
+      setEmail(session.user.email ?? "");
+    }
+  }, [session]);
+
+  const [timezone, setTimezone] = useState("UTC");
+  const [language, setLanguage] = useState("English");
+
+  const [auditRetention, setAuditRetention] = useState("90 Days");
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [slackAlerts, setSlackAlerts] = useState(true);
   const [smsAlerts, setSmsAlerts] = useState(false);
@@ -61,105 +45,291 @@ export default function SettingsPage() {
   const [autoEscalation, setAutoEscalation] = useState(true);
   const [autoResolution, setAutoResolution] = useState(false);
     
-  const { theme, setTheme } = useTheme();
-  const [compactLayout, setCompactLayout] = useState(false);
-  const [animations, setAnimations] = useState(true);
 
   const [slackIntegration, setSlackIntegration] = useState(true);
-  const [pagerDutyIntegration, setPagerDutyIntegration] = useState(false);
-  const [jiraIntegration, setJiraIntegration] = useState(true);
 
-  const { data: session } = useSession();
-  const router = useRouter();
+  const [loading,setLoading]=useState(true);
 
   useEffect(() => {
-    if (
-      session &&
-      session.user.role !== "ADMIN"
-    ) {
+    if (status === "loading") return;
+
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+
+    if (session.user.role !== "ADMIN") {
       router.push("/dashboard");
     }
-  }, [session, router]);
+  }, [session, status, router]);
+
+  useEffect(() => {
+
+    async function loadSettings(){
+
+    const res=await fetch("/api/settings");
+
+    const data=await res.json();
+
+    setOrgName(data.name);
+
+    setOrgSlug(data.slug);
+
+    setLanguage(data.language);
+
+    setTimezone(data.timezone);
+
+    setEmailAlerts(data.emailAlerts);
+
+    setSlackAlerts(data.slackAlerts);
+
+    setSmsAlerts(data.smsAlerts);
+
+    setCriticalRules(data.criticalAlerts);
+
+    setWarningRules(data.warningAlerts);
+
+    setInfoRules(data.infoAlerts);
+
+    setRootCauseAnalysis(data.rootCauseAnalysis);
+
+    setAnomalyDetection(data.anomalyDetection);
+
+    setAutoAssign(data.autoAssign);
+
+    setAutoEscalation(data.autoEscalation);
+
+    setAutoResolution(data.autoResolution);
+
+    setSlackIntegration(data.slackIntegration);
+
+    setLoading(false);
+
+    }
+
+    loadSettings();
+
+    },[]);
+
+  if (status === "loading") {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      Loading...
+    </div>
+  );
+}
+
+    async function saveSettings(){
+
+      const res=await fetch("/api/settings",{
+
+      method:"PUT",
+
+      headers:{
+      "Content-Type":"application/json"
+      },
+
+      body:JSON.stringify({
+
+      name:orgName,
+
+      slug:orgSlug,
+
+      language,
+
+      timezone,
+
+      emailAlerts,
+
+      slackAlerts,
+
+      smsAlerts,
+
+      criticalAlerts:criticalRules,
+
+      warningAlerts:warningRules,
+
+      infoAlerts:infoRules,
+
+      rootCauseAnalysis,
+
+      anomalyDetection,
+
+      autoAssign,
+
+      autoEscalation,
+
+      autoResolution,
+
+      slackIntegration,
+
+      })
+
+      });
+
+      if(res.ok){
+
+      toast.success("Settings saved");
+
+      }else{
+
+      toast.error("Failed to save");
+
+      }
+
+      }
 
   return (
     
-    <div className="bg-white dark:bg-emerald-950 min-h-screen p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-8">
+      
 
-      <h1 className="text-3xl font-bold text-green-900 dark:text-green-400 mb-8">
-        Settings
-      </h1>
-
-      <div className="grid grid-cols-[250px_1fr] gap-8">
+      <SettingsHeader />
+       
+      <div className="grid grid-cols-[280px_1fr] gap-8">
 
         {/* Sidebar */}
 
-        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-4 h-fit">
+        <SettingsSidebar
+          active={activeTab}
+          setActive={setActiveTab}
+        />
 
-          <div className="space-y-2">
+        {/* GENERAL */}
 
-            <button
-              onClick={() => setActiveTab("notifications")}
-              className={`w-full text-left px-4 py-3 rounded-xl transition-all
-                ${
-                  activeTab === "notifications"
-                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
-                }`}
-            >
-              Notifications
-            </button>
+        {activeTab === "general" && (
 
-            <button
-              onClick={() => setActiveTab("ai")}
-              className={`w-full text-left px-4 py-3 rounded-xl transition-all
-                ${
-                  activeTab === "ai"
-                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
-                }`}
-            >
-              AI Analysis
-            </button>
+        <div className="space-y-6 w-full">
 
-            <button
-              onClick={() => setActiveTab("automation")}
-              className={`w-full text-left px-4 py-3 rounded-xl transition-all
-                ${
-                  activeTab === "automation"
-                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
-                }`}
-            >
-              Automation
-            </button>
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
 
-            <button
-              onClick={() => setActiveTab("appearance")}
-              className={`w-full text-left px-4 py-3 rounded-xl transition-all
-                ${
-                  activeTab === "appearance"
-                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
-                }`}
-            >
-              Appearance
-            </button>
+        <h2 className="text-2xl font-bold mb-6">
+        General Settings
+        </h2>
 
-            <button
-              onClick={() => setActiveTab("integrations")}
-              className={`w-full text-left px-4 py-3 rounded-xl transition-all
-                ${
-                  activeTab === "integrations"
-                    ? "bg-green-100 text-green-900 dark:text-green-400 font-semibold"
-                    : "hover:bg-gray-50 text-gray-700 dark:text-slate-400"
-                }`}
-            >
-              Integrations
-            </button> 
+        <div className="grid grid-cols-2 gap-6">
 
-          </div>
+        <div>
+
+        <label className="text-sm font-medium">
+        Full Name
+        </label>
+
+        <input
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        value={fullName}
+        onChange={(e)=>setFullName(e.target.value)}
+        />
 
         </div>
+
+        <div>
+
+        <label className="text-sm font-medium">
+        Email
+        </label>
+
+        <input
+        disabled
+        className="mt-2 w-full rounded-xl border p-3 bg-gray-100"
+        value={email}
+        />
+
+        </div>
+
+        <div>
+
+        <label className="text-sm font-medium">
+        Language
+        </label>
+
+        <select
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        value={language}
+        onChange={(e)=>setLanguage(e.target.value)}
+        >
+
+        <option>English</option>
+        <option>German</option>
+        <option>French</option>
+
+        </select>
+
+        </div>
+
+        <div>
+
+        <label className="text-sm font-medium">
+        Timezone
+        </label>
+
+        <select
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        value={timezone}
+        onChange={(e)=>setTimezone(e.target.value)}
+        >
+
+        <option>UTC</option>
+        <option>Asia/Kolkata</option>
+        <option>Europe/London</option>
+
+        </select>
+
+        </div>
+
+        </div>
+
+        </div>
+
+        </div>
+
+        )}
+
+        {/* ORGANIZATION */}
+
+        {activeTab==="organization" && (
+
+        <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+
+        <h2 className="text-2xl font-bold mb-6">
+        Organization
+        </h2>
+
+        <div className="space-y-5">
+
+        <div>
+
+        <label className="text-sm font-medium">
+        Organization Name
+        </label>
+
+        <input
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        value={orgName}
+        onChange={(e)=>setOrgName(e.target.value)}
+        />
+
+        </div>
+
+        <div>
+
+        <label className="text-sm font-medium">
+        Slug
+        </label>
+
+        <input
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        value={orgSlug}
+        onChange={(e)=>setOrgSlug(e.target.value)}
+        />
+
+        </div>
+
+        </div>
+
+        </div>
+
+        )}
 
         {/* NOTIFICATIONS */}
 
@@ -288,6 +458,89 @@ export default function SettingsPage() {
             </>
           )}
 
+          {activeTab === "alerts" && (
+
+            <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
+
+            <h2 className="text-2xl font-bold mb-6">
+            Alert Policies
+            </h2>
+
+            <p className="text-gray-500 mb-6">
+            Configure which incidents trigger notifications.
+            </p>
+
+            <div className="space-y-6">
+
+            <div className="flex items-center justify-between">
+
+            <div>
+
+            <h3 className="font-semibold">
+            Critical Alerts
+            </h3>
+
+            <p className="text-sm text-gray-500">
+            Notify immediately for production failures.
+            </p>
+
+            </div>
+
+            <Toggle
+            enabled={criticalRules}
+            onToggle={() => setCriticalRules(!criticalRules)}
+            />
+
+            </div>
+
+            <div className="flex items-center justify-between">
+
+            <div>
+
+            <h3 className="font-semibold">
+            Warning Alerts
+            </h3>
+
+            <p className="text-sm text-gray-500">
+            Notify engineering team.
+            </p>
+
+            </div>
+
+            <Toggle
+            enabled={warningRules}
+            onToggle={() => setWarningRules(!warningRules)}
+            />
+
+            </div>
+
+            <div className="flex items-center justify-between">
+
+            <div>
+
+            <h3 className="font-semibold">
+            Information Alerts
+            </h3>
+
+            <p className="text-sm text-gray-500">
+            Record informational events only.
+            </p>
+
+            </div>
+
+            <Toggle
+            enabled={infoRules}
+            onToggle={() =>setInfoRules(!infoRules)}
+            />
+
+            </div>
+
+            </div>
+
+            </div>
+
+            )}
+
           {/*AI ANALYSIS*/}
           {activeTab === "ai" && (
             <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
@@ -383,46 +636,7 @@ export default function SettingsPage() {
           </div>
         )}
 
-        {/*APPEARANCE SECTION*/}
-        {activeTab === "appearance" && (
-          <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
-            <h2 className="text-xl font-semibold text-green-900 dark:text-green-400 mb-6">
-              Appearance
-            </h2>
-
-            <div className="space-y-5">
-
-              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
-                <span>Dark Mode</span>
-                <Toggle
-                  enabled={theme === "dark"}
-                  onToggle={() =>
-                    setTheme(theme === "dark" ? "light" : "dark")
-                  }
-                />
-
-              </div>
-
-              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
-                <span>Compact Layout</span>
-                <Toggle
-                  enabled={compactLayout}
-                  onToggle={() => setCompactLayout(!compactLayout)}
-                />
-              </div>
-
-              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
-                <span>Animations</span>
-                <Toggle
-                  enabled={animations}
-                  onToggle={() => setAnimations(!animations)}
-                />
-              </div>
-
-            </div>
-          </div>
-        )}
-
+        
         {/*INTEGRATIONS SECTION*/}
         {activeTab === "integrations" && (
           <div className="bg-white dark:bg-emerald-950 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-sm p-6">
@@ -439,26 +653,23 @@ export default function SettingsPage() {
                   onToggle={() => setSlackIntegration(!slackIntegration)}
                 />
               </div>
-
-              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
-                <span>PagerDuty</span>
-                <Toggle
-                  enabled={pagerDutyIntegration}
-                  onToggle={() => setPagerDutyIntegration(!pagerDutyIntegration)}
-                />
-              </div>
-
-              <div className="text-gray-700 dark:text-slate-400 flex justify-between">
-                <span>Jira</span>
-                <Toggle
-                  enabled={jiraIntegration}
-                  onToggle={() => setJiraIntegration(!jiraIntegration)}
-                />
-              </div>
-
             </div>
           </div>
         )}
+
+        <div className="flex justify-end mt-8">
+
+          <button
+            type="button"
+            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 transition text-white px-6 py-3 font-semibold shadow"
+            onClick={saveSettings}
+            >
+
+          Save Changes
+
+          </button>
+
+          </div>
 
         </div>
 
