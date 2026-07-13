@@ -31,10 +31,14 @@ export async function POST(req: Request) {
       );
     }
 
+    const baseSlug = organizationName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const uniqueSlug = `${baseSlug}-${Date.now()}`;
+
     const organization =
       await prisma.organization.create({
         data: {
           name: organizationName,
+          slug: uniqueSlug,
         },
       });
 

@@ -1,17 +1,30 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, signOut } from "next-auth/react"; 
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  async function handleLogin(
-    e: React.FormEvent
-  ) {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    
+    if (error === "NoUserFound") {
+      setErrorMsg("No user with this email id");
+
+      signOut({ redirect: false }); 
+      
+    } else if (error === "CredentialsSignin") {
+      setErrorMsg("Invalid email or password");
+    }
+  }, []);
+
+  async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
 
     await signIn("credentials", {
@@ -32,6 +45,12 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold mb-6 text-green-900">
           IR Assist Login
         </h1>
+
+        {errorMsg && (
+          <div className="bg-red-100 text-red-700 px-4 py-3 rounded-xl mb-4 text-center text-sm font-medium">
+            {errorMsg}
+          </div>
+        )}
 
         <button
           type="button"

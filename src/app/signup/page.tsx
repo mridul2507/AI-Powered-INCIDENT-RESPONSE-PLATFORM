@@ -92,13 +92,9 @@ export default function SignupPage() {
         <button
           type="button"
           onClick={() =>
-            signIn(
-              "google",
-              {
-                callbackUrl:
-                  "/dashboard",
-              }
-            )
+            signIn("google", {
+              callbackUrl: "/register-google",
+            })
           }
           className="w-full border p-3 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 dark:hover:bg-slate-800 mb-6"
         >

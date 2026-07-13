@@ -20,6 +20,7 @@ model Organization {
   notifications Notification[]
   services      Service[]
   users         User[]
+  invitations Invitation[]
 
   timezone String @default("UTC")
   language String @default("English")
@@ -213,5 +214,21 @@ enum ServiceStatus {
   HEALTHY
   WARNING
   CRITICAL
+}
+
+model Invitation {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  role           UserRole
+  token          String       @unique
+  accepted       Boolean      @default(false)
+  expiresAt      DateTime
+  organizationId String
+  createdAt      DateTime     @default(now())
+
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([email])
+  @@index([token])
 }
  

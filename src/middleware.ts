@@ -12,45 +12,47 @@ export default auth(
       auth: Session | null;
     }
   ) => {
+    const session = req.auth;
+    const pathname = req.nextUrl.pathname;
 
-  const session = req.auth;
+    // 1. PUBLIC ROUTES (Notice /register-google is removed from here)
+    if (
+      pathname.startsWith("/login") ||
+      pathname.startsWith("/signup") ||
+      pathname.startsWith("/api/auth") ||
+      pathname.startsWith("/api/signup") ||
+      pathname.startsWith("/api/ingest")
+    ) {
+      return NextResponse.next();
+    }
 
-  const pathname = req.nextUrl.pathname;
+    // 2. REQUIRE SESSION
+    if (!session) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
 
-  if (
+    // 3. HANDLE INCOMPLETE USERS (No Organization ID)
+    if (!session.user.organizationId) {
+      // If they came from the Signup page, let them access registration
+      if (pathname.startsWith("/register-google")) {
+        return NextResponse.next();
+      }
+      
+      // If they came from the Login page (trying to reach /dashboard) or the root URL (/), 
+      // reject them. They don't exist in the database yet.
+      return NextResponse.redirect(new URL("/login?error=NoUserFound", req.url));
+    }
 
-    pathname.startsWith("/login") ||
-
-    pathname.startsWith("/signup") ||
-
-    pathname.startsWith("/api/auth") ||
-
-    pathname.startsWith("/api/signup") ||
-
-    pathname.startsWith("/api/ingest")
-
-  ) {
+    // 4. FULLY REGISTERED USERS
+    // Prevent fully onboarded users from ever seeing the registration page again
+    if (pathname.startsWith("/register-google")) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
 
     return NextResponse.next();
-
   }
-
-  if (!session) {
-
-    return NextResponse.redirect(
-      new URL("/login", req.url)
-    );
-
-  }
-
-  return NextResponse.next();
-
-});
+);
 
 export const config = {
-
-  matcher: [
-    "/((?!_next|favicon.ico).*)",
-  ],
-
+  matcher: ["/((?!_next|favicon.ico).*)"],
 };

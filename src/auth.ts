@@ -19,18 +19,13 @@ type SessionUser = {
 };
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-
   ...authConfig,
-
+  session: {
+    strategy: "jwt",
+  },
   providers: [
-
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-
+    ...authConfig.providers, 
     Credentials({
-
       credentials: {
         email: {},
         password: {},
@@ -127,43 +122,51 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 
   callbacks: {
+    // 1. Inherit the session callback we just moved to auth.config.ts
+    ...authConfig.callbacks,
 
-    async jwt({ token, user }) {
+    // 2. Keep the signIn callback
+    async signIn({ account }) {
+      return true;
+    },
+    
+    // 3. Keep your existing jwt callback with the Prisma logic
+    async jwt({ token, user, account }) {
+      if (user?.email) {
+        token.email = user.email;
+        token.name = user.name;
+      }
 
-      if (user) {
+      const email = token.email as string;
 
-        token.role = (user as SessionUser).role;
+      if (!email) {
+        return token;
+      }
 
-        token.organizationId = (user as SessionUser).organizationId;
+      const dbUser = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+        include: {
+          organization: true,
+        },
+      });
 
-        token.organization = (user as SessionUser).organization;
-
+      if (dbUser) {
+        token.role = dbUser.role;
+        token.organizationId = dbUser.organizationId;
+        token.organization = {
+          id: dbUser.organization.id,
+          name: dbUser.organization.name,
+          slug: dbUser.organization.slug,
+        };
       }
 
       return token;
-
     },
-
-    async session({ session, token }) {
-
-      session.user.id = token.sub!;
-
-      session.user.role = token.role as string;
-
-      session.user.organizationId =
-        token.organizationId as string;
-
-      session.user.organization =
-        token.organization as {
-          id: string;
-          name: string;
-          slug: string;
-        };
-
-      return session;
-
-    },
-
+    
+    // NOTE: Delete the async session() block from here, 
+    // as it is now safely inherited from authConfig.callbacks!
   },
 
 });
