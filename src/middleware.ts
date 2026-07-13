@@ -15,36 +15,29 @@ export default auth(
     const session = req.auth;
     const pathname = req.nextUrl.pathname;
 
-    // 1. PUBLIC ROUTES (Notice /register-google is removed from here)
     if (
       pathname.startsWith("/login") ||
       pathname.startsWith("/signup") ||
       pathname.startsWith("/api/auth") ||
       pathname.startsWith("/api/signup") ||
-      pathname.startsWith("/api/ingest")
+      pathname.startsWith("/api/ingest") ||
+      pathname.startsWith("/not-invited")
     ) {
       return NextResponse.next();
     }
 
-    // 2. REQUIRE SESSION
     if (!session) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
 
-    // 3. HANDLE INCOMPLETE USERS (No Organization ID)
     if (!session.user.organizationId) {
-      // If they came from the Signup page, let them access registration
       if (pathname.startsWith("/register-google")) {
         return NextResponse.next();
       }
       
-      // If they came from the Login page (trying to reach /dashboard) or the root URL (/), 
-      // reject them. They don't exist in the database yet.
-      return NextResponse.redirect(new URL("/login?error=NoUserFound", req.url));
+      return NextResponse.redirect(new URL("/not-invited", req.url));
     }
 
-    // 4. FULLY REGISTERED USERS
-    // Prevent fully onboarded users from ever seeing the registration page again
     if (pathname.startsWith("/register-google")) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }

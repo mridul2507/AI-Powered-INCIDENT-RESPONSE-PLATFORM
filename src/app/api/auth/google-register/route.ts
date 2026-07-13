@@ -35,11 +35,11 @@ export async function POST(req: Request) {
   try {
     const hashedPassword = await bcrypt.hash(body.password, 10);
 
-    // Generate a unique slug to prevent Prisma @unique constraint errors
+    
     const baseSlug = body.organization.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const uniqueSlug = `${baseSlug}-${Date.now()}`;
 
-    // Create the organization with the unique slug
+    
     const organization = await prisma.organization.create({
       data: {
         name: body.organization,
@@ -47,7 +47,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // Create the user and tie them to the newly created organization
     await prisma.user.create({
       data: {
         email: session.user.email!,

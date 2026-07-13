@@ -80,89 +80,72 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  try {
+    try {
+      const session = await auth();
+  
+      if (!session?.user?.role || !canManageServices(session.user.role)) {
+        logger.warn({
+          event: "SERVICE_CREATE_UNAUTHORIZED",
+          userId: session?.user?.id,
+        });
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
+  
+      const body = await req.json();
 
-    const session = await auth();
-
-    if (
-      !session?.user?.role ||
-      !canManageServices(session.user.role)
-    ) {
-
-      logger.warn({
-        event: "SERVICE_CREATE_UNAUTHORIZED",
-        userId: session?.user?.id,
+      const existingService = await prisma.service.findFirst({
+        where: {
+          name: body.name,
+          organizationId: session.user.organizationId,
+        },
       });
 
-      return NextResponse.json(
-        {
-          error: "Unauthorized",
+      if (existingService) {
+        return NextResponse.json(
+          { error: "A service with this name already exists in your organization." },
+          { status: 400 }
+        );
+      }
+  
+      const service = await prisma.service.create({
+        data: {
+          name: body.name,
+          status: body.status,
+          organizationId: session.user.organizationId,
         },
-        {
-          status: 403,
-        }
-      );
-
-    }
-
-    const body = await req.json();
-
-    const service = await prisma.service.create({
-      data: {
-        name: body.name,
-        status: body.status,
-        organizationId:
-          session.user.organizationId,
-      },
-    });
-
-    logger.info({
-      event: "SERVICE_CREATED",
-      serviceId: service.id,
-      name: service.name,
-      status: service.status,
-    });
-
-    await createAuditLog({
-      action: "CREATE",
-
-      entityType: "SERVICE",
-
-      entityId: service.id,
-
-      userId: session.user.id,
-
-      organizationId:
-        session.user.organizationId,
-
-      metadata: {
+      });
+  
+      logger.info({
+        event: "SERVICE_CREATED",
+        serviceId: service.id,
         name: service.name,
         status: service.status,
-      },
-    });
-
-    publish({
-      type: "SERVICE_CREATED",
-      service,
-    });
-
-    return NextResponse.json(service);
-
-  } catch (error) {
-
-    logger.error({
-      event: "SERVICE_CREATE_FAILED",
-      error,
-    });
-
-    return NextResponse.json(
-      {
-        error: "Failed to create service",
-      },
-      {
-        status: 500,
-      }
-    );
-
+      });
+  
+      await createAuditLog({
+        action: "CREATE",
+        entityType: "SERVICE",
+        entityId: service.id,
+        userId: session.user.id, 
+        organizationId: session.user.organizationId,
+        metadata: {
+          name: service.name,
+          status: service.status,
+        },
+      });
+  
+      publish({
+        type: "SERVICE_CREATED",
+        service,
+      });
+  
+      return NextResponse.json(service);
+  
+    } catch (error) {
+      logger.error({ event: "SERVICE_CREATE_FAILED", error });
+      return NextResponse.json(
+        { error: "Failed to create service" },
+        { status: 500 }
+      );
+    }
   }
-}

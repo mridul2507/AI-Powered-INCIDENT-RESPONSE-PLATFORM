@@ -72,7 +72,8 @@ export default function EditServicePage() {
             setName(e.target.value)
           }
           placeholder="Service Name"
-          className="w-full border p-3 rounded-xl"
+          className="w-full border p-3 rounded-xl dark:bg-white
+            dark:text-black"
         />
 
         <textarea
@@ -81,7 +82,8 @@ export default function EditServicePage() {
             setDescription(e.target.value)
           }
           placeholder="Description"
-          className="w-full border p-3 rounded-xl"
+          className="w-full border p-3 rounded-xl dark:bg-white
+            dark:text-black"
         />
 
         <select
@@ -89,7 +91,8 @@ export default function EditServicePage() {
           onChange={(e) =>
             setStatus(e.target.value)
           }
-          className="w-full border p-3 rounded-xl"
+          className="w-full border p-3 rounded-xl dark:bg-white
+            dark:text-black"
         >
           <option value="HEALTHY">
             HEALTHY
@@ -110,7 +113,8 @@ export default function EditServicePage() {
             setResponseTime(e.target.value)
             }
             placeholder="Response Time"
-            className="w-full border p-3 rounded-xl"
+            className="w-full border p-3 rounded-xl dark:bg-white
+            dark:text-black"
             />
 
             <input
@@ -119,7 +123,8 @@ export default function EditServicePage() {
             setAvailability(e.target.value)
             }
             placeholder="Availability"
-            className="w-full border p-3 rounded-xl"
+            className="w-full border p-3 rounded-xl dark:bg-white
+            dark:text-black"
             />
 
             <input
@@ -128,7 +133,8 @@ export default function EditServicePage() {
             setRequestsPerMin(e.target.value)
             }
             placeholder="Requests Per Minute"
-            className="w-full border p-3 rounded-xl"
+            className="w-full border p-3 rounded-xl dark:bg-white
+            dark:text-black"
             />
 
         <button

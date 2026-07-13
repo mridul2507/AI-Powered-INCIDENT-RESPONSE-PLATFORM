@@ -13,20 +13,17 @@ export default {
       },
     }),
   ],
-
   pages: {
     signIn: "/login",
   },
-
   trustHost: true,
-
   callbacks: {
     session({ session, token }) {
       if (session.user && token) {
         session.user.id = (token.sub as string) || "";
         session.user.role = (token.role as string) || "VIEWER";
         session.user.organizationId = (token.organizationId as string) || "";
-        session.user.organization = token.organization as any;
+        session.user.organization = token.organization as { id: string; name: string; slug: string };
       }
       return session;
     },

@@ -190,7 +190,7 @@ export default function AnalyticsPage(){
           transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
             <p className="text-medium text-gray-900 dark:text-slate-400 dark:text-slate-400">Total Incidents</p>
             <p className="text-3xl font-bold text-purple-500 mt-2">
-              {metrics.totalIncidents}
+              {(metrics.totalIncidents ?? 0).toString()}
             </p>
         </div>
 

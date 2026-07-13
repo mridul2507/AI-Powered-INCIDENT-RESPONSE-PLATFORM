@@ -19,6 +19,7 @@ import {
   KeyRound,
   Activity,
   Gauge,
+  Users,
 } from "lucide-react";
 import { isAdmin } from "@/lib/roles";
 
@@ -60,6 +61,12 @@ const systemItems = [
     title: "Monitoring",
     icon: Gauge,
     href: "/monitoring",
+  },
+  {
+    title: "Team",
+    icon: Users,
+    href: "/dashboard/team",
+    adminOnly: true,
   },
   {
     title: "Audit Logs",
@@ -323,7 +330,7 @@ export default function Sidebar() {
           <div>
             {!isCollapsed && (
             <p className="font-semibold">
-              UserName
+              {session?.user?.name}
             </p>
             )}
 

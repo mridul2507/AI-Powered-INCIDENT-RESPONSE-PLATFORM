@@ -6,7 +6,7 @@ export const options = {
   duration: "1m",
 };
 
-export default function () {
+export default function runStressTest() {
   const res = http.get(
     "http://localhost:3000/api/health"
   );

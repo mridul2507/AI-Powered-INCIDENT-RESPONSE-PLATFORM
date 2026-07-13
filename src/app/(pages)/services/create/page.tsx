@@ -62,7 +62,8 @@ export default function CreateServicePage() {
               p-4
               border
               rounded-xl
-              dark:bg-slate-900
+              dark:bg-white
+            dark:text-black
             "
             required
           />
@@ -82,7 +83,8 @@ export default function CreateServicePage() {
               p-4
               border
               rounded-xl
-              dark:bg-slate-900
+              dark:bg-white
+            dark:text-black
             "
           >
             <option value="HEALTHY">

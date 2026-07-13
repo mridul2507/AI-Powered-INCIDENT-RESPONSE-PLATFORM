@@ -134,7 +134,8 @@ export default function ApiKeysPage() {
             border-gray-300
             dark:border-slate-700
             bg-white
-            dark:bg-slate-900
+            dark:bg-white
+            dark:text-black
             px-4
             py-3
             outline-none

@@ -99,6 +99,7 @@ export default function ServicesPage() {
             text-gray-700
             border
             border-gray-300
+            dark:text-gray-200
             rounded-xl
             focus:outline-none
             focus:ring-1

@@ -44,7 +44,7 @@ export default function SettingsSidebar({
               ${
                 active === tab.id
                   ? "bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-400"
-                  : "hover:bg-gray-100 dark:hover:bg-slate-800"
+                  : "hover:bg-gray-100 dark:hover:bg-white dark:hover:text-black"
               }`}
             >
               <Icon size={18} />

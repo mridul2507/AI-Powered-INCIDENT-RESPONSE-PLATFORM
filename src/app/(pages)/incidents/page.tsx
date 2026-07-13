@@ -267,7 +267,8 @@ export default function IncidentsPage() {
             p-3
             border
             rounded-xl
-            dark:bg-slate-900
+            dark:bg-white
+            dark:text-black
           "
         >
         <option value="ALL">
@@ -297,7 +298,8 @@ export default function IncidentsPage() {
               p-3
               border
               rounded-xl
-              dark:bg-slate-900
+            dark:bg-white
+            dark:text-black
             "
           >
           <option value="ALL">
@@ -327,7 +329,8 @@ export default function IncidentsPage() {
               p-3
               border
               rounded-xl
-              dark:bg-slate-900
+            dark:bg-white
+            dark:text-black
             "
           >
           <option value="ALL">

@@ -92,7 +92,8 @@ export default function CreateIncidentPage() {
               p-4
               border
               rounded-xl
-              dark:bg-slate-900
+              dark:bg-white
+            dark:text-black
             "
           />
 
@@ -108,7 +109,8 @@ export default function CreateIncidentPage() {
               p-4
               border
               rounded-xl
-              dark:bg-slate-900
+              dark:bg-white
+            dark:text-black
             "
           />
 
@@ -122,7 +124,8 @@ export default function CreateIncidentPage() {
               p-4
               border
               rounded-xl
-              dark:bg-slate-900
+              dark:bg-white
+            dark:text-black
             "
           >
             <option value="INFO">Info</option>
@@ -140,7 +143,8 @@ export default function CreateIncidentPage() {
               p-4
               border
               rounded-xl
-              dark:bg-slate-900
+              dark:bg-white
+            dark:text-black
             "
           >
             <option value="OPEN">Open</option>
@@ -162,7 +166,8 @@ export default function CreateIncidentPage() {
               p-4
               border
               rounded-xl
-              dark:bg-slate-900
+              dark:bg-white
+            dark:text-black
             "
           >
             <option value="">

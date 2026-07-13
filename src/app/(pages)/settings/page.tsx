@@ -29,7 +29,6 @@ export default function SettingsPage() {
   const [timezone, setTimezone] = useState("UTC");
   const [language, setLanguage] = useState("English");
 
-  const [auditRetention, setAuditRetention] = useState("90 Days");
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [slackAlerts, setSlackAlerts] = useState(true);
   const [smsAlerts, setSmsAlerts] = useState(false);
@@ -48,7 +47,7 @@ export default function SettingsPage() {
 
   const [slackIntegration, setSlackIntegration] = useState(true);
 
-  const [loading,setLoading]=useState(true);
+  const [,setLoading]=useState(true);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -181,7 +180,7 @@ export default function SettingsPage() {
 
   return (
     
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-emerald-900 p-8">
       
 
       <SettingsHeader />
@@ -216,7 +215,8 @@ export default function SettingsPage() {
         </label>
 
         <input
-        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-white
+            dark:text-black p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
         value={fullName}
         onChange={(e)=>setFullName(e.target.value)}
         />
@@ -231,7 +231,7 @@ export default function SettingsPage() {
 
         <input
         disabled
-        className="mt-2 w-full rounded-xl border p-3 bg-gray-100"
+        className="mt-2 w-full rounded-xl border p-3 bg-gray-100 dark:text-black"
         value={email}
         />
 
@@ -244,7 +244,8 @@ export default function SettingsPage() {
         </label>
 
         <select
-        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-white
+            dark:text-black p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
         value={language}
         onChange={(e)=>setLanguage(e.target.value)}
         >
@@ -264,7 +265,8 @@ export default function SettingsPage() {
         </label>
 
         <select
-        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-white
+            dark:text-black p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
         value={timezone}
         onChange={(e)=>setTimezone(e.target.value)}
         >
@@ -304,7 +306,8 @@ export default function SettingsPage() {
         </label>
 
         <input
-        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-white
+            dark:text-black p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
         value={orgName}
         onChange={(e)=>setOrgName(e.target.value)}
         />
@@ -318,7 +321,8 @@ export default function SettingsPage() {
         </label>
 
         <input
-        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
+        className="mt-2 w-full rounded-xl border border-gray-300 dark:border-slate-700 bg-white dark:bg-white
+            dark:text-black p-3 focus:ring-2 focus:ring-emerald-500 outline-none"
         value={orgSlug}
         onChange={(e)=>setOrgSlug(e.target.value)}
         />
