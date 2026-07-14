@@ -2,163 +2,106 @@
 
 > AI-Powered Incident Response & Observability Platform
 
-IR Assist is a production-style full-stack incident response and observability platform built with Next.js, TypeScript, Prisma, PostgreSQL, Prometheus, Grafana, Loki, Tempo and Docker.
+IR Assist is a production-style full-stack incident response and observability platform built with Next.js, TypeScript, Prisma, PostgreSQL (Neon), Prometheus, Grafana, Loki, Tempo, and Docker.
 
-It enables engineering teams to monitor infrastructure, manage incidents, analyze logs, visualize metrics, receive notifications and leverage AI-powered insights to reduce downtime and accelerate incident resolution.
+It enables engineering teams to monitor infrastructure, manage incidents, analyze logs, visualize metrics, receive notifications, and leverage AI-powered insights to reduce downtime and accelerate incident resolution.
 
 ---
 
 # How IR Assist Works
 
-IR Assist is an internal incident response platform.
+IR Assist is an internal incident response platform designed for enterprise scalability. 
 
-Application services send logs, metrics and incident events through REST APIs.
-
-The platform stores operational data inside PostgreSQL.
+Application services send logs, metrics, and incident events through REST APIs. The platform stores operational data inside a serverless PostgreSQL database (Neon).
 
 Engineers use the dashboard to:
-
 • monitor service health
-• create incidents
+• create and manage incidents
 • investigate failures
-• review timelines
+• review automated timelines
 • analyze logs
-• receive AI-generated summaries
+• receive AI-generated root cause summaries
 • track notifications
 
-Grafana connects to the project database and Loki to visualize operational data in real time.
+Grafana connects to the project database and Loki to visualize operational data in real-time.
 
 ---
 
 # Features
 
-## Incident Management
+## Multi-Tenancy & Team Management
+- Organization-level data isolation
+- Seamless team onboarding via Admin invitation system
+- Strict permission boundaries
 
-- Create incidents
-- Update incidents
-- Resolve incidents
-- Incident history
+## Incident Management
+- Create, update, and resolve incidents
+- Incident history and timeline tracking
 - Severity management
 - Status tracking
 - Service association
 
----
-
 ## Dashboard
-
-- Real-time overview
-- Active incidents
-- Critical alerts
-- Healthy services
-- Analytics charts
-- Incident trends
-- Service health
-
----
+- Real-time overview of active incidents
+- Critical alerts and healthy services
+- Analytics charts and incident trends
+- Service health at a glance
 
 ## Service Monitoring
-
 - Service inventory
-- Health monitoring
-- Availability tracking
+- Health monitoring and availability tracking
 - Response metrics
 - Dependency visualization
 
----
-
 ## Metrics & Observability
-
 - Prometheus integration
 - Grafana dashboards
-- CPU usage
-- Memory usage
-- Request rate
-- Error rate
-- Latency monitoring
-
----
+- CPU and Memory usage tracking
+- Request rate, error rate, and latency monitoring
 
 ## Logs Explorer
-
-- Search logs
-- Filter by severity
+- Search logs and filter by severity
 - Real-time updates
-- AI log analysis
-
----
+- AI-powered log analysis
 
 ## Notifications
-
-- Incident notifications
+- Organization-wide incident notifications
 - Critical alerts
-- Unread count
-- Real-time updates
-
----
+- Unread count with real-time updates
 
 ## Timeline
-
 Complete incident history including:
-
-- Incident created
-- Assignment
-- Severity updates
-- Status changes
+- Incident creation and assignment
+- Severity and status updates
 - Resolution events
 
----
-
 ## Audit Logs
-
-Tracks
-
-- User actions
-- Incident changes
+Tamper-proof tracking of:
+- User actions and incident changes
 - Login events
 - Administrative actions
 
----
-
-## AI Features
-
-- AI Incident Summary
-- AI Log Analysis
-- AI Timeline Summary
+## AI Features (Powered by Google Gemini)
+- AI Incident Summary & Root Cause Suggestions
+- AI Log Analysis & Timeline Summary
 - AI Dashboard Insights
 - AI Service Health Analysis
 - AI Executive Report
-- AI Root Cause Suggestions
-
----
 
 ## Authentication
+- NextAuth integration
+- Supports both secure Credentials and Google OAuth
+- Protected routes and secure session management
 
-- NextAuth
-- Protected routes
-- Session management
-
----
-
-## RBAC
-
-Roles
-
-- Admin
-- Engineer
-- Viewer
-
----
-
-## Monitoring Stack
-
-- Grafana
----
+## Role-Based Access Control (RBAC)
+Roles:
+- Admin (Can manage org settings and invite team members)
+- Engineer (Can manage incidents and view metrics)
+- Viewer (Read-only access)
 
 ## Testing
-
-- Stress testing
-- Load testing
-- GitHub Actions
+- Stress and load testing via Artillery
+- GitHub Actions for CI
 - ESLint
 
 ---
@@ -166,29 +109,21 @@ Roles
 # Tech Stack
 
 ## Frontend
-
-- Next.js App Router
-- React
-- TypeScript
-- Tailwind CSS
-- Recharts
-- Framer Motion
+- Next.js App Router, React, TypeScript
+- Tailwind CSS, Recharts, Framer Motion
 
 ## Backend
-
 - Next.js API Routes
 - Prisma ORM
-- PostgreSQL
+- PostgreSQL (Neon)
 - NextAuth
+- Google Gemini API
 
 ## Observability
-
-- Grafana
+- Grafana, Prometheus, Loki, Tempo, Grafana Alloy
 
 ## Infrastructure
-
-- Docker
-- Docker Compose
+- Docker & Docker Compose
 - GitHub Actions
 - Vercel
 
@@ -196,7 +131,7 @@ Roles
 
 # Architecture
 
-```
+```text
                  Users
                     │
                     ▼
@@ -210,12 +145,12 @@ Roles
  Prisma ORM      AI Services   Monitoring
       │             │              │
       ▼             ▼              ▼
- PostgreSQL      Gemini AI   Prometheus
-                                     │
-                                     ▼
-                                  Grafana
-                                     │
-                          Loki + Tempo
+PostgreSQL       Gemini API    Prometheus
+  (Neon)                           │
+                                   ▼
+                                Grafana
+                                   │
+                        Loki + Tempo + Alloy
 ```
 
 ---
