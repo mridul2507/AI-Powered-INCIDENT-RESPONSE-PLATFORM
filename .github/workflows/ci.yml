@@ -39,8 +39,8 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          DATABASE_URL: "postgresql://neondb_owner:npg_AFKkh5a6Btps@ep-ancient-mode-aohxd9mw-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-          AUTH_SECRET: "cbf0dae2b3869eef365e2cea217569663f2c531286e02ada3f6d9235b0597539"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           AUTH_URL: http://localhost:3000
           GOOGLE_CLIENT_ID: test
           GOOGLE_CLIENT_SECRET: test
